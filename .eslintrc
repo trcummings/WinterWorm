@@ -1,5 +1,15 @@
 {
-  "extends": ["airbnb-base"],
+  "extends": [
+    "airbnb",
+    "plugin:flowtype/recommended"
+  ],
+  "globals": {
+    "window": false
+  },
+  "parser": "babel-eslint",
+  "plugins": [
+    "flowtype"
+  ],
   "rules": {
     "import/no-extraneous-dependencies": ["error", {"devDependencies": true, "optionalDependencies": false, "peerDependencies": false}]
   }

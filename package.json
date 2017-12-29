@@ -10,15 +10,18 @@
     "app": "./node_modules/.bin/electron ."
   },
   "keywords": [],
-  "author": "",
+  "author": "moodprobiotic",
   "license": "ISC",
   "devDependencies": {
     "babel-cli": "^6.26.0",
+    "babel-eslint": "^8.1.2",
+    "babel-preset-airbnb": "^2.4.0",
     "babel-preset-flow": "^6.23.0",
     "electron": "1.7.10",
     "electron-debug": "^1.4.0",
     "eslint": "^4.9.0",
     "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-config-airbnb-flow": "^1.0.2",
     "eslint-plugin-import": "^2.7.0",
     "flow-bin": "^0.62.0"
   }
