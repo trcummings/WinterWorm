@@ -1,5 +1,4 @@
 import electron from 'electron';
-import path from 'path';
 import url from 'url';
 
 const { app, BrowserWindow } = electron;
@@ -14,7 +13,7 @@ function createWindow() {
 
   // and load the index.html of the app.
   win.loadURL(url.format({
-    pathname: path.join(__dirname, 'index.html'),
+    pathname: process.env.INDEX_PATH,
     protocol: 'file:',
     slashes: true,
   }));
@@ -28,11 +27,6 @@ function createWindow() {
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
     win = null;
-  });
-
-  win.on('ready-to-show', () => {
-    console.log(win);
-    win.show();
   });
 }
 

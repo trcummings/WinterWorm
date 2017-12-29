@@ -1,3 +1,6 @@
+const DefinePlugin = require('webpack').DefinePlugin;
+const path = require('path');
+
 module.exports = {
   context: __dirname,
   target: 'electron-main',
@@ -21,4 +24,9 @@ module.exports = {
       },
     ],
   },
+  plugins: [
+    new DefinePlugin({
+      'process.env.INDEX_PATH': JSON.stringify(path.join(__dirname, 'index.html')),
+    }),
+  ],
 };
