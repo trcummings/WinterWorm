@@ -4,13 +4,15 @@
     "plugin:flowtype/recommended"
   ],
   "globals": {
-    "window": false
+    "window": true
   },
   "parser": "babel-eslint",
   "plugins": [
     "flowtype"
   ],
   "rules": {
-    "import/no-extraneous-dependencies": ["error", {"devDependencies": true, "optionalDependencies": false, "peerDependencies": false}]
+    "import/no-extraneous-dependencies": ["error", {"devDependencies": true, "optionalDependencies": false, "peerDependencies": false}],
+    "import/prefer-default-export": "off",
+    "no-duplicate-imports": "off"
   }
 }
