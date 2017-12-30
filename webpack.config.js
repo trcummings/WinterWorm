@@ -5,9 +5,13 @@ module.exports = {
   context: __dirname,
   target: 'electron-main',
   devtool: 'inline-sourcemap',
-  entry: './main.js',
+  entry: {
+    app: './app/app.js',
+    game: './game/game.js',
+  },
   output: {
-    filename: 'bundle.js',
+    filename: '[name].js',
+    path: path.join(__dirname, './dist'),
   },
   module: {
     rules: [

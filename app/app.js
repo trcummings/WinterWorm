@@ -103,4 +103,4 @@ const main = () => {
   app.on(ACTIVATE, update(ACTIVATE));
 };
 
-export default main;
+main();

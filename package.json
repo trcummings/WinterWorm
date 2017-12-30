@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "flow-init": "./node_modules/.bin/flow init",
     "flow": "./node_modules/.bin/flow",
-    "app": "./node_modules/.bin/webpack --config ./webpack.config.js; ./node_modules/.bin/electron ./bundle.js"
+    "app": "./node_modules/.bin/webpack --config ./webpack.config.js; ./node_modules/.bin/electron ./dist/app.js"
   },
   "keywords": [],
   "author": "moodprobiotic",
@@ -30,6 +30,7 @@
     "eslint-config-airbnb-flow": "^1.0.2",
     "eslint-plugin-import": "^2.7.0",
     "flow-bin": "^0.62.0",
+    "pixi.js": "^4.6.2",
     "webpack": "^3.10.0"
   }
 }
