@@ -18,7 +18,10 @@ module.exports = {
           loader: 'babel-loader',
           options: {
             presets: ['@babel/preset-env', '@babel/preset-flow'],
-            plugins: ['@babel/plugin-proposal-class-properties'],
+            plugins: [
+              '@babel/plugin-proposal-class-properties',
+              '@babel/plugin-proposal-object-rest-spread',
+            ],
           },
         },
       },
@@ -26,7 +29,9 @@ module.exports = {
   },
   plugins: [
     new DefinePlugin({
-      'process.env.INDEX_PATH': JSON.stringify(path.join(__dirname, 'index.html')),
+      'process.env.TEMPLATE_PATH': (
+        JSON.stringify(path.resolve(__dirname, './app/htmlTemplates'))
+      ),
     }),
   ],
 };

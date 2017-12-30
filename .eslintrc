@@ -4,7 +4,8 @@
     "plugin:flowtype/recommended"
   ],
   "globals": {
-    "window": true
+    "window": true,
+    "document": false
   },
   "parser": "babel-eslint",
   "plugins": [
