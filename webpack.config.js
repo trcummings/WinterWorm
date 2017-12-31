@@ -1,4 +1,3 @@
-const DefinePlugin = require('webpack').DefinePlugin;
 const path = require('path');
 
 module.exports = {
@@ -31,11 +30,7 @@ module.exports = {
       },
     ],
   },
-  plugins: [
-    new DefinePlugin({
-      'process.env.TEMPLATE_PATH': (
-        JSON.stringify(path.resolve(__dirname, './app/htmlTemplates'))
-      ),
-    }),
-  ],
+  resolve: {
+    modules: ['app', 'game', 'node_modules'],
+  },
 };

@@ -15,11 +15,10 @@ const quitApp = () => {
 function window(): SetupWindow {
   // Create the browser window.
   let win = new BrowserWindow({
-    width: 400,
-    height: 300,
+    width: 800,
+    height: 600,
     frame: false,
     transparent: false,
-    backgroundColor: '#2e2c29',
   });
 
   // Dereference the window object
