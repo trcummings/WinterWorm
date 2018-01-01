@@ -1,0 +1,20 @@
+{"frames": {
+
+"jump copy.png":
+{
+	"frame": {"x":1,"y":1,"w":69,"h":85},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":69,"h":85},
+	"sourceSize": {"w":69,"h":85}
+}},
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "jump_left.png",
+	"format": "RGBA8888",
+	"size": {"w":71,"h":87},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:b2e5808596f2a8462e6a41f9ea194199:35174f9d7e1a519a99c8c86e20eca9a9:769e62624fbc8f0246923f9f14d47a90$"
+}
+}

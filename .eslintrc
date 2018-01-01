@@ -5,7 +5,9 @@
   ],
   "globals": {
     "window": true,
-    "document": false
+    "document": false,
+    "describe": false,
+    "it": false
   },
   "parser": "babel-eslint",
   "plugins": [

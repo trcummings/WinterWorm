@@ -4,6 +4,13 @@
 [include]
 
 [libs]
+declare module 'ramda' {
+  declare module.exports: any;
+}
+
+declare module 'electron' {
+  declare module.exports: any;
+}
 
 [lints]
 
