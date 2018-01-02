@@ -1,5 +1,10 @@
+// @flow
+
 import { Application, loader, Texture, extras } from 'pixi.js';
 import { times } from 'ramda';
+
+import loop, { makeInitialLoopState, getDt } from './engine/loop';
+import type { LoopState } from './engine/loop';
 
 document.addEventListener('DOMContentLoaded', () => {
   console.log('dom content loaded');
@@ -24,9 +29,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     app.stage.addChild(anim);
 
-    // Animate the rotation
-    app.ticker.add(() => {
+    const updateFn = (loopState: LoopState) => {
+      console.log(getDt(loopState));
       anim.rotation += 0.01;
-    });
+    };
+
+    const initialLoopState = makeInitialLoopState(updateFn);
+
+    loop(initialLoopState);
   });
 });

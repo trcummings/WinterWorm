@@ -4,8 +4,9 @@
     "plugin:flowtype/recommended"
   ],
   "globals": {
-    "window": true,
+    "window": false,
     "document": false,
+    "performance": false,
     "describe": false,
     "it": false
   },
