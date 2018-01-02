@@ -1,6 +1,4 @@
 // @flow
-//
-import { compose } from 'ramda';
 
 const START_LOOP = 'loop/START_LOOP';
 const STOP_LOOP = 'loop/STOP_LOOP';
@@ -10,20 +8,24 @@ export opaque type Dt = DOMHighResTimeStamp;
 
 type LongInteger = number | null;
 
-type LoopAction = {
+export opaque type LoopAction = {
   type: string,
   payload?: Dt
 };
 
+type MaybeAction = LoopAction | null;
+type UpdateFunction = (LoopState, (MaybeAction) => mixed) => mixed;
+
 export opaque type LoopState = {
-  updateFn: (LoopState) => mixed,
+  updateFn: UpdateFunction,
   isLooping: boolean,
   startTime: Dt | 0,
   currentTime: Dt | 0,
   dt: Dt,
 };
 
-export const makeInitialLoopState = (updateFn: (LoopState) => mixed): LoopState => ({
+
+export const makeInitialLoopState = (updateFn: UpdateFunction): LoopState => ({
   updateFn,
   isLooping: false,
   startTime: 0,
@@ -36,9 +38,9 @@ export const makeTimeUpdateAction = (timestamp: Dt): LoopAction => ({
   payload: timestamp,
 });
 
-export const makeStopLoopAction = (): LoopAction => ({
+export const stopLoopAction: LoopAction = {
   type: STOP_LOOP,
-});
+};
 
 const startLoopAction: LoopAction = {
   type: START_LOOP,
@@ -47,22 +49,22 @@ const startLoopAction: LoopAction = {
 
 export const getDt = (loopState: LoopState): Dt => loopState.dt;
 
-const update = (loopState: LoopState) => (action: LoopAction): LoopState => {
+const update = (state: LoopState, action: LoopAction): LoopState => {
   switch (action.type) {
     case UPDATE_TIME: {
       const timestamp = action.payload;
-      const currentTime = loopState.currentTime;
+      const currentTime = state.currentTime;
       return {
-        ...loopState,
+        ...state,
         currentTime: timestamp,
-        dt: timestamp ? timestamp - currentTime : loopState.dt,
+        dt: timestamp ? timestamp - currentTime : state.dt,
       };
     }
 
     case START_LOOP: {
       const timestamp = action.payload;
       return {
-        ...loopState,
+        ...state,
         isLooping: true,
         startTime: timestamp,
         currentTime: timestamp,
@@ -71,25 +73,31 @@ const update = (loopState: LoopState) => (action: LoopAction): LoopState => {
 
     case STOP_LOOP: {
       return {
-        ...loopState,
+        ...state,
         isLooping: false,
       };
     }
 
-    default: return loopState;
+    default: return state;
   }
 };
 
-const view = (loopState: LoopState): LongInteger => {
-  if (!loopState.isLooping) return null;
-  loopState.updateFn(loopState);
-  const next = compose(view, update(loopState), makeTimeUpdateAction);
-  return window.requestAnimationFrame(next);
-};
+const view = (loopState: LoopState): LongInteger => (
+  window.requestAnimationFrame((dt: Dt) => {
+    if (!loopState.isLooping) return;
 
-const loop = (loopState: LoopState): LongInteger => {
-  const next = update(loopState);
-  return view(next(startLoopAction));
-};
+    const action = makeTimeUpdateAction(dt);
+    const newState = update(loopState, action);
+
+    loopState.updateFn(newState, (mAction: MaybeAction) => (
+      mAction ?
+        view(update(newState, (mAction: LoopAction))) :
+        view(newState)
+    ));
+  }));
+
+const loop = (loopState: LoopState): LongInteger => (
+  view(update(loopState, startLoopAction))
+);
 
 export default loop;

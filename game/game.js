@@ -3,7 +3,7 @@
 import { Application, loader, Texture, extras } from 'pixi.js';
 import { times } from 'ramda';
 
-import loop, { makeInitialLoopState, getDt } from './engine/loop';
+import loop, { makeInitialLoopState, stopLoopAction, getDt } from './engine/loop';
 import type { LoopState } from './engine/loop';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -29,9 +29,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     app.stage.addChild(anim);
 
-    const updateFn = (loopState: LoopState) => {
-      console.log(getDt(loopState));
+    const updateFn = (loopState: LoopState, cb) => {
+      console.log(getDt(loopState), anim.rotation);
       anim.rotation += 0.01;
+
+      if (anim.rotation > 5) cb(stopLoopAction);
+      else cb(null);
     };
 
     const initialLoopState = makeInitialLoopState(updateFn);
