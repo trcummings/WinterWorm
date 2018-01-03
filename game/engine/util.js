@@ -1,6 +1,6 @@
 import { merge } from 'ramda';
 
-export const makeId = () => Math.random();
+export const makeId = () => `${Math.random()}`;
 
 export const conjoin = arg1 => arg2 => merge(arg2, arg1);
 

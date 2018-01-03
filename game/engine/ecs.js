@@ -235,7 +235,7 @@ export const setSystem = (state, { [ID]: id, [FN]: fn, component }) => {
   }
 
   if (!fn) throw new Error('Invalid system spec! Missing fn');
-  return assocPath([SYSTEMS, id], fn, state);
+  return assocPath([SYSTEMS, id], { [ID]: id, [FN]: fn }, state);
 };
 
 // Returns a function that returns an updated state with component state
