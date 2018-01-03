@@ -21,6 +21,8 @@ function window(): SetupWindow {
     transparent: false,
   });
 
+  win.webContents.openDevTools();
+
   // Dereference the window object
   win.on('closed', () => (win = null));
 
@@ -33,11 +35,11 @@ function window(): SetupWindow {
 const Running = 'app/running';
 const Quitting = 'app/quitting';
 
-opaque type RunningApp : string = Running;
-opaque type QuittingApp : string = Quitting;
+opaque type RunningApp : Running = Running;
+opaque type QuittingApp : Running = Quitting;
 opaque type Action : string = READY | ALL_WINDOWS_CLOSED | ACTIVATE;
 
-type AppState = RunningApp | QuittingApp;
+type AppState = typeof RunningApp | typeof QuittingApp;
 type AppWindow =
   | SetupWindow
   | PreloadWindow

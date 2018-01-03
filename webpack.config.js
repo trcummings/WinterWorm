@@ -1,9 +1,12 @@
 const path = require('path');
+const ClosureCompiler = require('google-closure-compiler-js').webpack;
+
+const isProd = process.env.NODE_ENV === 'production';
 
 module.exports = {
   context: __dirname,
   target: 'electron-main',
-  devtool: 'inline-sourcemap',
+  devtool: 'source-maps',
   entry: {
     app: './app/app.js',
     game: './game/game.js',
@@ -33,4 +36,14 @@ module.exports = {
   resolve: {
     modules: ['app', 'game', 'node_modules'],
   },
+  plugins: isProd ? [
+    new ClosureCompiler({
+      options: {
+        languageIn: 'ECMASCRIPT6',
+        languageOut: 'ECMASCRIPT5',
+        compilationLevel: 'ADVANCED',
+        warningLevel: 'VERBOSE',
+      },
+    }),
+  ] : [],
 };
