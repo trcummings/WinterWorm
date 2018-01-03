@@ -6,7 +6,7 @@ const isProd = process.env.NODE_ENV === 'production';
 module.exports = {
   context: __dirname,
   target: 'electron-main',
-  devtool: 'source-maps',
+  devtool: 'inline-source-maps',
   entry: {
     app: './app/app.js',
     game: './game/game.js',
