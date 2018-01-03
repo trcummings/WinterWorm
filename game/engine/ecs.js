@@ -16,7 +16,7 @@
 
 // State:      stores state for components, entities, and systems
 
-import { view, assocPath, lensPath, lensProp, over, dissocPath, compose } from 'ramda';
+import { view, assocPath, lensPath, over, dissocPath, compose } from 'ramda';
 
 import {
   ID,
@@ -28,7 +28,6 @@ import {
   CURRENT_SCENE,
   STATE,
   UPDATE_FNS,
-  // SYSTEM_FN,
   SUBSCRIPTIONS,
   CLEANUP_FN,
   CONTEXT,
@@ -66,10 +65,9 @@ export const setCurrentScene = (
 export const getSystemFns = (
   gameState,
   systemIds: Array<string>
-) => {
-  const systems = view(lensProp(SYSTEMS), gameState);
-  return systemIds.map((uId: string) => systems[uId][FN]);
-};
+) => systemIds.map((id: string) => (
+  view(lensPath([SYSTEMS, id, FN]), gameState)
+));
 
 // Returns a Set of all entity IDs that have the specified componentId.
 export const getEntityIdsWithComponent = (
