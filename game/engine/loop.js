@@ -1,18 +1,21 @@
 // @flow
+import { compose } from 'ramda';
+
+// Symbols / Constants
+export const LOOP = Symbol.for('loop');
 
 const START_LOOP = 'loop/START_LOOP';
 const STOP_LOOP = 'loop/STOP_LOOP';
 const UPDATE_TIME = 'loop/UPDATE_TIME';
 
+// Types
 export opaque type Dt = DOMHighResTimeStamp;
-
-type LongInteger = number | null;
-
 export opaque type LoopAction = {
   type: string,
   payload?: Dt
 };
 
+type LongInteger = number | null;
 type MaybeAction = LoopAction | null;
 type UpdateFunction = (LoopState, (MaybeAction) => mixed) => mixed;
 
@@ -23,7 +26,6 @@ export opaque type LoopState = {
   currentTime: Dt | 0,
   dt: Dt,
 };
-
 
 export const makeInitialLoopState = (updateFn: UpdateFunction): LoopState => ({
   updateFn,
@@ -85,16 +87,13 @@ const update = (state: LoopState, action: LoopAction): LoopState => {
 const view = (loopState: LoopState): LongInteger => (
   window.requestAnimationFrame((dt: Dt) => {
     if (!loopState.isLooping) return;
-
     const action = makeTimeUpdateAction(dt);
-    const newState = update(loopState, action);
+    const nextState = update(loopState, action);
 
-    loopState.updateFn(newState, (mAction: MaybeAction) => (
-      mAction ?
-        view(update(newState, (mAction: LoopAction))) :
-        view(newState)
-    ));
-  }));
+    loopState.updateFn(nextState);
+    view(nextState);
+  })
+);
 
 const loop = (loopState: LoopState): LongInteger => (
   view(update(loopState, startLoopAction))

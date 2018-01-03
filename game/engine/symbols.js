@@ -1,12 +1,22 @@
+// @flow
 
 // ECS
-export const GAME_LOOP = Symbol.for('gameloop');
-export const SCENES = Symbol.for('scenes');
-export const SYSTEMS = Symbol.for('systems');
-export const ENTITIES = Symbol.for('entities');
-export const COMPONENTS = Symbol.for('components');
-export const STATE = Symbol.for('state');
+export const ID = 'id';
+export const FN = 'fn';
+export const UPDATE_FNS = 'update_fns';
+export const GAME_LOOP = 'game_loop';
+export const SCENES = 'scenes';
+export const SYSTEMS = 'systems';
+export const SYSTEM_FN = 'system_fn';
+export const ENTITIES = 'entities';
+export const COMPONENTS = 'components';
+export const STATE = 'state';
+export const CURRENT_SCENE = 'current_scene';
+export const ENTITY_TRASHCAN = 'entity_trashcan';
+export const SUBSCRIPTIONS = 'subscriptions';
+export const CLEANUP_FN = 'cleanup_fn';
+export const CONTEXT = 'context';
 
 // Events
-export const EVENTS = Symbol.for('state/events');
-export const QUEUE = Symbol.for('state/events/queue');
+export const EVENTS = 'state/events';
+export const QUEUE = 'state/events/queue';

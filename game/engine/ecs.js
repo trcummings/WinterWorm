@@ -1,3 +1,5 @@
+// @flow
+
 // ENTITY COMPONENT SYSTEM
 
 // Gameloop:   recursive function that calls all systems in a scene.
@@ -14,238 +16,277 @@
 
 // State:      stores state for components, entities, and systems
 
-// Using one state object should be performant enough even though it
-// creates a new copy on every change to state in the game loop due to
-// structural sharing
+import { view, assocPath, lensPath, lensProp, over, dissocPath, compose } from 'ramda';
 
-import R from 'ramda';
+import {
+  ID,
+  FN,
+  SYSTEMS,
+  SCENES,
+  ENTITIES,
+  COMPONENTS,
+  CURRENT_SCENE,
+  STATE,
+  UPDATE_FNS,
+  // SYSTEM_FN,
+  SUBSCRIPTIONS,
+  CLEANUP_FN,
+  CONTEXT,
+} from './symbols';
+import { conjoin, concatKeywords } from './util';
+import { getSubscribedEvents, emitEvents, queueLens } from './events';
+
+import type { Options } from './gameState';
 
 //  Add or update existing scene in the game state. A scene is a
 //  collection of systems. systems are a collection of keywords referencing
 //  a system by their unique ID.
-export const makeScene = (gameState, { uId, systems }) => (
-  R.assocPath(['scenes', uId], systems, gameState)
-);
+export const setScene = (
+  gameState,
+  { [ID]: uId, [SYSTEMS]: systems }: Options
+) => assocPath([SCENES, uId], systems, gameState);
 
-// const sceneIdPath = R.lensPath(['game', 'sceneId']);
+export const currentSceneIdPath = [CURRENT_SCENE, ID];
+export const currentSceneIdLens = lensPath(currentSceneIdPath);
+export const getCurrentSceneId = gameState => view(currentSceneIdLens, gameState);
 
-// (def scene-id-path
-//   [:game :scene-id])
+export const getUpdateFn = (gameState) => {
+  const currentSceneId = getCurrentSceneId(gameState);
+  const updateFnLens = lensPath([UPDATE_FNS, currentSceneId]);
+  return view(updateFnLens, gameState);
+};
 
-// (defn mk-current-scene
-//   "Sets the current scene of the game"
-//   [state {scene-id :uid}]
-//   (assoc-in state scene-id-path scene-id))
+// Sets current scene of the game
+export const setCurrentScene = (
+  gameState,
+  { [ID]: uId }: Options
+) => assocPath(currentSceneIdPath, uId, gameState);
 
-// (defn mk-renderer
-//   [state {:keys [renderer stage]}]
-//   (assoc-in state [:game :rendering-engine] {:renderer renderer :stage stage}))
+// Return array of system functions with a uId incl. in the systemIds
+export const getSystemFns = (
+  gameState,
+  systemIds: Array<string>
+) => {
+  const systems = view(lensProp(SYSTEMS), gameState);
+  return systemIds.map((uId: string) => systems[uId][FN]);
+};
 
-// (defn get-system-fns
-//   "Return system functions with an id that matches system-ids in order.
-//    If a key is not found it will not be returned."
-//   [state system-ids]
-//   (let [systems (:systems state)]
-//     (doall (map systems system-ids))))
+// Returns a Set of all entity IDs that have the specified componentId.
+export const getEntityIdsWithComponent = (
+  gameState,
+  componentId: string
+): Set<string> => {
+  const entities = view([COMPONENTS, componentId, ENTITIES], gameState);
+  return new Set(Object.keys(entities));
+};
 
-// (defn entities-with-component
-//   "Returns a set of all entity IDs that have the specified component-id"
-//   [state component-id]
-//   (get-in state [:components component-id :entities] #{}))
+// Returns a set of all entity IDs that have all the specified component-ids.
+// Iterate through all the entities and only accumulate the ones
+// that have all the required component IDs.
+export const getMultiComponentEntityIds = (state, componentIds) => {
+  const components = new Set(componentIds);
+  const entities = view(lensPath([ENTITIES]), state);
+  const entityList = Object.keys(entities).map(eId => entities[eId]);
 
-// (defn entities-with-multi-components
-//   "Returns a set of all entity IDs that have all the specified component-ids."
-//   [state component-ids]
-//   (let [component-set (set component-ids)]
-//     ;; Iterate through all the entities and only accumulate the ones
-//     ;; that have all the required component IDs
-//     (loop [entities (:entities state)
-//            accum (transient #{})]
-//       (let [entity (first entities)]
-//         (if entity
-//           (let [[entity-id entity-component-set] entity]
-//             (if ^boolean (subset? component-set entity-component-set)
-//                 (recur (rest entities) (conj! accum entity-id))
-//                 (recur (rest entities) accum)))
-//           (persistent! accum))))))
+  const helper = ([entity, ...rest], accumulator): Set => {
+    if (!entity) return accumulator;
+    const { [ID]: entityId, [COMPONENTS]: entityComponents } = entity;
+    const hasAllComponentIds = Object.keys(entityComponents)
+      .every(cId => components.has(cId));
 
-// (defn get-component
-//   "Returns the component meta as a hashmap of
-//    :fn :subscriptions :select-components"
-//   [state component-id]
-//   (get-in state [:components component-id]))
+    if (hasAllComponentIds) accumulator.add(entityId);
+    return helper(rest, accumulator);
+  };
 
-// (defn get-component-state
-//   "Returns a hashmap of state associated with the component for the given
-//    entity. NOTE: As a convenience, if state is not found it returns an empty
-//    hashmap."
-//   [state component-id entity-id]
-//   (get-in state [:state component-id entity-id] {}))
+  return helper(entityList, new Set());
+};
 
-// (defn get-all-component-state
-//   [state component-id]
-//   (get-in state [:state component-id]))
+export const getComponent = (state, componentId) => {
+  const path = lensPath([COMPONENTS, componentId]);
+  return view(path, state);
+};
 
-// (defn mk-component-state
-//   "Returns an updated hashmap with component state for the given entity"
-//   [state component-id entity-id init-component-state]
-//   (assoc-in state [:state component-id entity-id] (or init-component-state {})))
+// Returns an object of state associated with the component for the given
+// entityId. If not found, it returns an empty object.
+export const getComponentState = (state, componentId, entityId) => {
+  const path = lensPath([STATE, componentId, entityId]);
+  return view(path, state) || {};
+};
 
-// (defn mk-component
-//   "Returns an updated state hashmap with the given component.
+// Gets all state associated with a component
+export const getAllComponentState = (state, componentId) => {
+  const path = lensPath([STATE, componentId]);
+  return view(path, state);
+};
+
+export const setComponentState = (state, componentId, entityId, initialComponentState = {}) => {
+  const path = [STATE, componentId, entityId];
+  return assocPath(path, initialComponentState, state);
+};
+
+// Returns an updated object hashmap with the given component.
 //    Args:
 //    - state: global state hashmap
 //    - uid: unique identifier for this component
 //    - fn-spec: [f {<opts>}] or f
 //    Supported component options:
-//    - subscriptions: a collection of selectors of messages to receive.
+//    - subscriptions: an of array of messages to receive.
 //      This will be included as a sequence in the context passed to the
 //      component fn in the :inbox key
-//    - select-components: a collection of component IDs of additional state
+//    - context: a collection of component IDs of additional state
 //      to select which will be available in the :select-components key of
 //      the context passed to the component fn
 //    - cleanup-fn: called when removing the entity and all it's components.
 //      This should perform any other cleanup or side effects needed to remove
 //      the component and all of it's state completely"
-//   [state uid {:keys [fn cleanup-fn subscriptions select-components]}]
-//   (assert fn "Invalid component, missing :fn key.")
-//   (update-in state [:components uid]
-//              merge {:fn fn
-//                     :subscriptions subscriptions
-//                     :select-components select-components
-//                     :cleanup-fn cleanup-fn}))
+export const setComponent = (state, id, options) => {
+  const {
+    [FN]: fn,
+    [CLEANUP_FN]: cleanupFn,
+    [SUBSCRIPTIONS]: subscriptions,
+    [CONTEXT]: context,
+  } = options;
 
-// (defn concat-keywords [k1 k2]
-//   (keyword (str (name k1) "-" (name k2))))
+  if (!fn) throw new Error(`Component ${id} missing fn!`);
 
-// (defn get-component-context
-//   "Returns a hashmap of context for use with a component fn.
-//    Args:
-//    - state: The game state
-//    - queue: The events queue
-//    - entity-id: The unique ID of the entity
-//    - component: A hashmap representing the component meta data"
-//   [state queue component entity-id]
-//   (let [{:keys [subscriptions select-components]} component
-//         messages (ev/get-subscribed-events queue entity-id subscriptions)]
-//     ;; Add in any selected components
-//     (loop [components select-components
-//            context (transient {:inbox messages})]
-//       (let [component (first components)]
-//         (if component
-//           ;; If it was a vector then the first arg is the
-//           ;; component-id the second is a specific entity-id
-//           (let [next-context (if (vector? component)
-//                                (let [[component entity-id] component
-//                                      key (concat-keywords component entity-id)]
-//                                  (assoc! context key
-//                                          (get-component-state state component entity-id)))
-//                                (assoc! context component
-//                                        (get-component-state state component entity-id)))]
-//             (recur (rest components) next-context))
-//           (persistent! context))))))
+  const path = lensPath([COMPONENTS, id]);
+  const props = {
+    [FN]: fn,
+    [CLEANUP_FN]: cleanupFn,
+    [SUBSCRIPTIONS]: subscriptions,
+    [CONTEXT]: context,
+  };
+  return over(path, conjoin(props), state);
+};
 
-// (defn system-next-state-and-events
-//   [state component-id]
-//   (let [entity-ids (entities-with-component state component-id)
-//         component-states (get-all-component-state state component-id)
-//         component (get-component state component-id)
-//         component-fn (:fn component)
-//         queue (get-in state ev/queue-path)]
-//     (loop [entities entity-ids
-//            state-accum (transient {})
-//            event-accum (array)]
-//       (let [entity-id (first entities)]
-//         (if entity-id
-//           (let [component-state (get component-states entity-id)
-//                 context (get-component-context state queue component entity-id)
-//                 next-comp-state (component-fn entity-id component-state context)
-//                 ;; If the component function returns a vector then there
-//                 ;; are events to accumulate
-//                 next-state (if (vector? next-comp-state)
-//                              (let [[next-comp-state events] next-comp-state]
-//                                (doseq [e events]
-//                                  (.push event-accum e))
-//                                (assoc! state-accum entity-id next-comp-state))
-//                              (assoc! state-accum entity-id next-comp-state))]
-//             (recur (rest entities) next-state event-accum))
-//           [(assoc-in state [:state component-id] (persistent! state-accum))
-//            event-accum])))))
+const getComponentContext = (state, eventsQueue, entityId, component) => {
+  const { subscriptions, context } = component;
+  const messages = getSubscribedEvents(eventsQueue, entityId, subscriptions);
 
-// (defn mk-system-fn
-//   "Returns a function representing a system that takes a single argument for
-//    game state."
-//   [component-id]
-//   (fn [state]
-//     (let [[next-state events] (system-next-state-and-events state component-id)]
-//       (ev/emit-events next-state events))))
+  const getContextHelper = ([componentId, ...restIds], thisContext) => {
+    if (!componentId) return thisContext;
+    let thisComponentId = componentId;
+    let thisEntityId = entityId;
+    let assocTarget = componentId;
+    if (Array.isArray(componentId)) {
+      [thisComponentId, thisEntityId] = componentId;
+      assocTarget = concatKeywords(thisComponentId, thisEntityId);
+    }
 
-// (defn mk-system
-//   "Add the system function to the state."
-//   [state {:keys [component uid fn]}]
-//   (if component
-//     (let [component-id (:uid component)]
-//       (log/debug "mk-system:" uid "that operates on component-id:" component-id)
-//       (-> state
-//           (assoc-in [:systems uid] (mk-system-fn component-id))
-//           (mk-component component-id component)))
-//     (do
-//       (log/debug "mk-system:" uid)
-//       (assert fn "Invalid system spec, missing :fn")
-//       (assoc-in state [:systems uid] fn))))
+    const componentState = getComponentState(state, thisComponentId, thisEntityId);
 
-// (defn component-state-from-spec
-//   "Returns a function that returns an updated state with component state
-//    generated for the given entity-id. If no initial component state is given,
-//    it will default to an empty hashmap."
-//   [entity-id]
-//   (fn [state {component-id :uid component-state :state}]
-//     (-> state
-//         (update-in [:entities entity-id]
-//                    #(conj (or % #{}) component-id))
-//         (update-in [:components component-id :entities]
-//                    #(conj (or % #{}) entity-id))
-//         (mk-component-state component-id entity-id component-state))))
+    // we're gonna do some mutable assignment here for performance reasons
+    // this is one of the only places it should do that
+    thisContext[assocTarget] = componentState; // eslint-disable-line
 
-// (defn mk-entity
-//   "Adds entity with uid that has component-ids into state. Optionally pass
-//    in init state and it will be merged in
-//    Component specs:
-//    A collection of component IDs and/or 2 item vectors of the component ID
-//    and hashmap of component-state.
-//    e.g [[:moveable {:x 0 :y 0}] :controllable]
-//    Example:
-//    Create an entity with id :player1 with components
-//    (mk-entity {}
-//               :player1
-//               [:controllable
-//                [:collidable {:hit-radius 10}]
-//                [:moveable {:x 0 :y 0}]])"
-//   [state {:keys [uid components]}]
-//   (reduce (component-state-from-spec uid) state components))
+    return getContextHelper(restIds, thisContext);
+  };
 
-// (defn rm-entity-from-component-index
-//   "Remove the entity-id from the component entity index. Returns updated state."
-//   [state entity-id components]
-//   (reduce (fn [state component-id]
-//             (update-in state [:components component-id :entities]
-//                        #(set (remove #{entity-id} %))))
-//           state
-//           components))
+  return getContextHelper(context, messages);
+};
 
-// (defn rm-entity
-//   "Remove the specified entity and return updated game state"
-//   [state {:keys [uid]}]
-//   (let [components (get-in state [:entities uid])]
-//     (as-> state $
-//       ;; Call cleanup function for the component if it's there
-//       (reduce #(if-let [f (get-in %1 [:components %2 :cleanup-fn])]
-//                  (f %1 uid)
-//                  %1)
-//               $
-//               components)
-//       (reduce #(update-in %1 [:state %2] dissoc uid) $ components)
-//       ;; Remove the entity
-//       (update-in $ [:entities] dissoc uid)
-//       ;; Remove the entity from component index
-//       (rm-entity-from-component-index $ uid components))))
+const systemNextStateAndEvents = (state, componentId) => {
+  const entityIds = getEntityIdsWithComponent(state, componentId);
+  const componentStates = getAllComponentState(state, componentId);
+  const component = getComponent(state, componentId);
+  const componentFn = component[FN];
+  const eventsQueue = view(queueLens, state);
+
+  const helper = ([entityId, ...restIds], stateAccumulator, eventAccumulator) => {
+    if (!entityId) return [stateAccumulator, eventAccumulator];
+
+    const componentState = componentStates[entityId];
+    const context = getComponentContext(state, eventsQueue, entityId, component);
+    let nextComponentState = componentFn(entityId, componentState, context);
+    let events;
+
+    if (Array.isArray(nextComponentState)) {
+      [nextComponentState, events] = nextComponentState;
+      events.forEach(event => eventAccumulator.push(event));
+    }
+
+    // we're gonna do some mutable assignment here for performance reasons
+    // this is one of the only places it should do that
+    stateAccumulator[entityId] = nextComponentState; // eslint-disable-line
+
+    return helper(restIds, stateAccumulator, eventAccumulator);
+  };
+
+  const [newState, newEvents] = helper(entityIds, {}, []);
+  const update = newEvents.length > 0 ? [newState, newEvents] : newState;
+
+  return assocPath([STATE, componentId], update, state);
+};
+
+// Returns a function representing a system that takes a single argument for
+// game state.
+export const setSystemFn = componentId => (state) => {
+  const [nextState, events] = systemNextStateAndEvents(state, componentId);
+  return emitEvents(nextState, events);
+};
+
+// adds the system function to state
+export const setSystem = (state, { [ID]: id, [FN]: fn, component }) => {
+  if (component) {
+    const { [ID]: componentId } = component;
+    const systemFn = setSystemFn(componentId);
+    const next = assocPath([SYSTEMS, id], systemFn, state);
+    return setComponent(next, componentId, component);
+  }
+
+  if (!fn) throw new Error('Invalid system spec! Missing fn');
+  return assocPath([SYSTEMS, id], fn, state);
+};
+
+// Returns a function that returns an updated state with component state
+// generated for the given entityId. If no initial component state is given,
+// it will default to an empty object.
+const componentStateFromSpec = entityId => (state, {
+  [ID]: componentId,
+  [STATE]: componentState,
+}) => compose(
+  s => over(lensPath([ENTITIES, entityId]), conjoin(componentId || {}), s),
+  s => over(lensPath([COMPONENTS, componentId, ENTITIES]), conjoin(componentId || {}), s),
+  s => setComponentState(s, componentId, entityId, componentState)
+)(state);
+
+export const setEntity = (state, { [ID]: id, [COMPONENTS]: components }) => {
+  const componentIds = Object.keys(components);
+  const componentStateFn = componentStateFromSpec(id);
+  return componentIds.reduce((nextState, cId) => (
+    componentStateFn(state, { [ID]: cId, [STATE]: components[cId][STATE] })
+  ), state);
+};
+
+const removeEntityFromComponentIndex = (state, entityId, componentIds) => (
+  componentIds.reduce((nextState, componentId) => (
+    dissocPath([COMPONENTS, componentId, ENTITIES, componentId], nextState)
+  ), state)
+);
+
+export const removeEntity = (state, { [ID]: entityId }) => {
+  const path = lensPath([ENTITIES, entityId]);
+  const entity = view(path, state);
+  const tasks = [];
+
+  // get all of entities' components and gather up its cleanup tasks
+  for (const component of entity) {
+    // if the component has a clean up task run it with the entityId
+    const componentId = component[ID];
+    const cleanupFnLens = lensPath([COMPONENTS, componentId, CLEANUP_FN]);
+    const cleanupFn = view(cleanupFnLens, state);
+    if (cleanupFn) tasks.push(s => cleanupFn(s, entityId));
+  }
+
+  // remove the entity from state
+  tasks.push(s => dissocPath([STATE, ENTITIES, entityId], s));
+
+  // remove the entity itself
+  tasks.push(s => dissocPath([ENTITIES, entityId], s));
+
+  // remove it from the component index
+  tasks.push(s => removeEntityFromComponentIndex(s, entityId));
+
+  // compose over the accumulated deletion tasks and call with state
+  return compose(...tasks)(state);
+};

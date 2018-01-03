@@ -3,8 +3,14 @@
 import { Application, loader, Texture, extras } from 'pixi.js';
 import { times } from 'ramda';
 
-import loop, { makeInitialLoopState, stopLoopAction, getDt } from './engine/loop';
-import type { LoopState } from './engine/loop';
+import { makeGameState } from './engine/gameState';
+import { getUpdateFn } from './engine/ecs';
+import loop, { makeInitialLoopState } from './engine/loop';
+import { SCENES, ID, CURRENT_SCENE, SYSTEMS } from './engine/symbols';
+
+import { animation } from './engine/systems/animation';
+
+import { levelOne, levelOneId } from './spec/scenes/levelOne';
 
 document.addEventListener('DOMContentLoaded', () => {
   console.log('dom content loaded');
@@ -29,13 +35,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     app.stage.addChild(anim);
 
-    const updateFn = (loopState: LoopState, cb) => {
-      console.log(getDt(loopState), anim.rotation);
-      anim.rotation += 0.01;
+    const animSystem = animation(anim);
+    const animSystemId = animSystem[ID];
 
-      if (anim.rotation > 5) cb(stopLoopAction);
-      else cb(null);
-    };
+    const gameState = makeGameState(
+      {},
+      [SCENES, levelOne(animSystemId)],
+      [CURRENT_SCENE, { [ID]: levelOneId }],
+      [SYSTEMS, animSystem],
+    );
+
+    const updateFn = getUpdateFn(gameState);
 
     const initialLoopState = makeInitialLoopState(updateFn);
 

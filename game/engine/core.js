@@ -1,7 +1,9 @@
-import R from 'ramda';
+import { view, over } from 'ramda';
 
-export const getEvents = (state, selectors) => R.view(selectors, state);
+import { conjoin } from './util';
+
+export const getEvents = (state, selectors) => view(selectors, state);
 export const makeEvent = (action, selectors) => ({ selectors, action });
 export const emitEvent = (state, action, selectors) => (event => (
-  R.over(selectors, R.merge(R._, event), state)
+  over(selectors, conjoin(event), state)
 ))(makeEvent(action, selectors));
