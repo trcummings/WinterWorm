@@ -7,7 +7,7 @@ import loop, { makeInitialLoopState } from './engine/loop';
 import { SCENES, CURRENT_SCENE, SYSTEMS, SCRIPTS } from './engine/symbols';
 
 import { initEvents } from './engine/scripts';
-import { animation, meta } from './engine/systems';
+import { animation, meta, clearEventQueue } from './engine/systems';
 
 import { levelOne, levelOneId } from './spec/scenes/levelOne';
 
@@ -45,7 +45,8 @@ document.addEventListener('DOMContentLoaded', () => {
       { type: SCENES, options: levelOne(animSystemId) },
       { type: CURRENT_SCENE, options: { id: levelOneId } },
       { type: SYSTEMS, options: animSystem },
-      { type: SYSTEMS, options: meta }
+      { type: SYSTEMS, options: meta },
+      { type: SYSTEMS, options: clearEventQueue },
     );
 
     const updateFn = getUpdateFn(gameState);
