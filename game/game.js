@@ -1,22 +1,23 @@
-// @flow
-
 import { Application, loader, Texture, extras } from 'pixi.js';
 import { times } from 'ramda';
 
-import { makeGameState } from './engine/gameState';
+import { setGameState } from './engine/core';
 import { getUpdateFn } from './engine/ecs';
 import loop, { makeInitialLoopState } from './engine/loop';
-import { SCENES, ID, CURRENT_SCENE, SYSTEMS } from './engine/symbols';
+import { SCENES, CURRENT_SCENE, SYSTEMS, SCRIPTS } from './engine/symbols';
 
-import { animation } from './engine/systems/animation';
+import { initEvents } from './engine/scripts';
+import { animation, meta } from './engine/systems';
 
 import { levelOne, levelOneId } from './spec/scenes/levelOne';
 
-document.addEventListener('DOMContentLoaded', () => {
-  console.log('dom content loaded');
+require('./engine/utils/fpsMeter');
 
+document.addEventListener('DOMContentLoaded', () => {
   const app = new Application(800, 600, { backgroundColor: 0x1099bb });
   document.body.appendChild(app.view);
+
+  const fpsMeter = new window.FPSMeter();
 
   loader.add('spritesheet', './assets/player/idle/idle.json').load(() => {
     const frames = times(() => Texture.fromImage('./assets/player/idle/idle.png'), 1);
@@ -35,14 +36,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     app.stage.addChild(anim);
 
-    const animSystem = animation(anim);
-    const animSystemId = animSystem[ID];
+    const animSystem = animation(anim, fpsMeter);
+    const animSystemId = animSystem.id;
 
-    const gameState = makeGameState(
+    const gameState = setGameState(
       {},
-      [SCENES, levelOne(animSystemId)],
-      [CURRENT_SCENE, { [ID]: levelOneId }],
-      [SYSTEMS, animSystem],
+      { type: SCRIPTS, options: initEvents },
+      { type: SCENES, options: levelOne(animSystemId) },
+      { type: CURRENT_SCENE, options: { id: levelOneId } },
+      { type: SYSTEMS, options: animSystem },
+      { type: SYSTEMS, options: meta }
     );
 
     const updateFn = getUpdateFn(gameState);

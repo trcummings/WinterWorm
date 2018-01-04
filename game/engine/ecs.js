@@ -1,5 +1,3 @@
-// @flow
-
 // ENTITY COMPONENT SYSTEM
 
 // Gameloop:   recursive function that calls all systems in a scene.
@@ -35,15 +33,12 @@ import {
 import { conjoin, concatKeywords } from './util';
 import { getSubscribedEvents, emitEvents, queueLens } from './events';
 
-import type { Options } from './gameState';
-
 //  Add or update existing scene in the game state. A scene is a
 //  collection of systems. systems are a collection of keywords referencing
 //  a system by their unique ID.
-export const setScene = (
-  gameState,
-  { [ID]: uId, [SYSTEMS]: systems }: Options
-) => assocPath([SCENES, uId], systems, gameState);
+export const setScene = (state, scene) => (
+  assocPath([SCENES, scene.id], scene, state)
+);
 
 export const currentSceneIdPath = [CURRENT_SCENE, ID];
 export const currentSceneIdLens = lensPath(currentSceneIdPath);
@@ -56,25 +51,21 @@ export const getUpdateFn = (gameState) => {
 };
 
 // Sets current scene of the game
-export const setCurrentScene = (
-  gameState,
-  { [ID]: uId }: Options
-) => assocPath(currentSceneIdPath, uId, gameState);
+export const setCurrentScene = (gameState, { id }) => (
+  assocPath(currentSceneIdPath, id, gameState)
+);
 
 // Return array of system functions with a uId incl. in the systemIds
-export const getSystemFns = (
-  gameState,
-  systemIds: Array<string>
-) => systemIds.map((id: string) => (
-  view(lensPath([SYSTEMS, id, FN]), gameState)
-));
+export const getSystemFns = (state, systemIds) => (
+  systemIds.map(id => view(lensPath([SYSTEMS, id, FN]), state))
+);
 
 // Returns a Set of all entity IDs that have the specified componentId.
 export const getEntityIdsWithComponent = (
-  gameState,
-  componentId: string
-): Set<string> => {
-  const entities = view([COMPONENTS, componentId, ENTITIES], gameState);
+  state,
+  componentId
+) => {
+  const entities = view([COMPONENTS, componentId, ENTITIES], state);
   return new Set(Object.keys(entities));
 };
 
@@ -86,7 +77,7 @@ export const getMultiComponentEntityIds = (state, componentIds) => {
   const entities = view(lensPath([ENTITIES]), state);
   const entityList = Object.keys(entities).map(eId => entities[eId]);
 
-  const helper = ([entity, ...rest], accumulator): Set => {
+  const helper = ([entity, ...rest], accumulator) => {
     if (!entity) return accumulator;
     const { [ID]: entityId, [COMPONENTS]: entityComponents } = entity;
     const hasAllComponentIds = Object.keys(entityComponents)
@@ -224,16 +215,17 @@ export const setSystemFn = componentId => (state) => {
 };
 
 // adds the system function to state
-export const setSystem = (state, { [ID]: id, [FN]: fn, component }) => {
+export const setSystem = (state, system) => {
+  const { id, fn, component } = system;
   if (component) {
-    const { [ID]: componentId } = component;
+    const componentId = component.id;
     const systemFn = setSystemFn(componentId);
     const next = assocPath([SYSTEMS, id], systemFn, state);
     return setComponent(next, componentId, component);
   }
 
   if (!fn) throw new Error('Invalid system spec! Missing fn');
-  return assocPath([SYSTEMS, id], { [ID]: id, [FN]: fn }, state);
+  return assocPath([SYSTEMS, id], { id, fn }, state);
 };
 
 // Returns a function that returns an updated state with component state

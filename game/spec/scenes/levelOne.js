@@ -1,10 +1,10 @@
-import { SYSTEMS, ID } from '../../engine/symbols';
 import { makeId } from '../../engine/util';
+import { meta, clearEventQueue } from '../../engine/systems';
 
 export const levelOneId = makeId();
 
 // temporarily curry this fn into here until i can pull away the anim
 export const levelOne = animSystem => ({
-  [ID]: levelOneId,
-  [SYSTEMS]: [animSystem],
+  id: levelOneId,
+  systems: [animSystem, meta.id, clearEventQueue.id],
 });

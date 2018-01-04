@@ -18,6 +18,7 @@
     "import/no-extraneous-dependencies": ["error", {"devDependencies": true, "optionalDependencies": false, "peerDependencies": false}],
     "import/prefer-default-export": "off",
     "no-duplicate-imports": "off",
-    "new-cap": "off"
+    "new-cap": "off",
+    "no-unused-vars": ["error", { "argsIgnorePattern": "_" }]
   }
 }

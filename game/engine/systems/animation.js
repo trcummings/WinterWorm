@@ -1,12 +1,14 @@
-import { FN, ID } from '../symbols';
 import { makeId } from '../util';
 
 // temporarily curry this fn into here until i can pull away the anim
-
-export const animation = anim => ({
-  [ID]: makeId(),
-  [FN]: (gameState) => {
+const animation = (anim, fpsMeter) => ({
+  id: makeId(),
+  fn: (state) => {
+    fpsMeter.tickStart();
     anim.rotation += 0.01; // eslint-disable-line
-    return gameState;
+    fpsMeter.tick();
+    return state;
   },
 });
+
+export default animation;
