@@ -90,7 +90,3 @@ export const batchEmitEvents = (state, selectors: Selectors, eventsMap) => {
 
   return assocPath(path, events, state);
 };
-
-// Resets event queue to an empty object. Returns updated state.
-export const clearEventsQueue = state =>
-  assocPath(queueLens, {}, state);

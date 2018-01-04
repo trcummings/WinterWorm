@@ -1,6 +1,6 @@
 // @flow
-// import { view, apply, compose, assocPath, reverse, lensPath, partial } from 'ramda';
-import { view, apply, compose, assocPath, reverse, lensPath } from 'ramda';
+// import { view, compose, assocPath, reverse, lensPath, partial } from 'ramda';
+import { view, compose, assocPath, reverse, lensPath } from 'ramda';
 
 import {
   SCENES,
@@ -13,17 +13,18 @@ import {
 } from './symbols';
 
 import {
-  currentSceneIdLens,
+  getCurrentSceneId,
   getSystemFns,
-  getUpdateFn,
   setCurrentScene,
   // setComponent,
   setScene,
   setSystem,
   // setEntity,
 } from './ecs';
+import { nextStateAfterLoop } from './loop';
 
 import type { GameState, SpecType, Spec } from './types';
+import type { Timestamp } from './loop';
 
 const setStateFn = (type: SpecType) => {
   switch (type) {
@@ -81,7 +82,7 @@ export const setState = (state: GameState, spec: Spec): GameState => {
 // takes an initial state (usually an empty object) and a spec array.
 export const setGameState = (initialState: {}, ...specs: Array<Spec>) => {
   const state = specs.reduce(setState, initialState);
-  const sceneId = view(currentSceneIdLens, state);
+  const sceneId = getCurrentSceneId(state);
 
   if (!sceneId) throw new Error('Must have a CURRENT_SCENE scene in the spec!');
 
@@ -91,18 +92,13 @@ export const setGameState = (initialState: {}, ...specs: Array<Spec>) => {
 
   // set a curried function to call each system function on the state
   // in order and return the next state
-  const updateFn = apply(compose(...reverse(systemFns)));
+  const updateFn = compose(...reverse(systemFns));
 
   return assocPath([UPDATE_FNS, sceneId], updateFn, state);
 };
 
-export const nextState = (state: GameState) => {
-  const updateFn = getUpdateFn(state);
-  return updateFn(state);
-};
-
-// export const getEvents = (state, selectors) => view(selectors, state);
-// export const makeEvent = (action, selectors) => ({ selectors, action });
-// export const emitEvent = (state, action, selectors) => (event => (
-//   over(selectors, conjoin(event), state)
-// ))(makeEvent(action, selectors));
+export const gameLoop = (state: GameState): number => (
+  window.requestAnimationFrame((timestamp: Timestamp) => (
+    gameLoop(nextStateAfterLoop(state, timestamp))
+  ))
+);

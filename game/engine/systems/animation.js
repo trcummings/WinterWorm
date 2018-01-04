@@ -4,6 +4,7 @@ import { makeId } from '../util';
 const animation = (anim, fpsMeter) => ({
   id: makeId(),
   fn: (state) => {
+    console.log(state);
     fpsMeter.tickStart();
     anim.rotation += 0.01; // eslint-disable-line
     fpsMeter.tick();

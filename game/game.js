@@ -1,9 +1,7 @@
 import { Application, loader, Texture, extras } from 'pixi.js';
 import { times } from 'ramda';
 
-import { setGameState } from './engine/core';
-import { getUpdateFn } from './engine/ecs';
-import loop, { makeInitialLoopState } from './engine/loop';
+import { setGameState, gameLoop } from './engine/core';
 import { SCENES, CURRENT_SCENE, SYSTEMS, SCRIPTS } from './engine/symbols';
 
 import { initEvents } from './engine/scripts';
@@ -43,16 +41,13 @@ document.addEventListener('DOMContentLoaded', () => {
       {},
       { type: SCRIPTS, options: initEvents },
       { type: SCENES, options: levelOne(animSystemId) },
-      { type: CURRENT_SCENE, options: { id: levelOneId } },
+      { type: CURRENT_SCENE, options: levelOneId },
       { type: SYSTEMS, options: animSystem },
       { type: SYSTEMS, options: meta },
       { type: SYSTEMS, options: clearEventQueue },
     );
 
-    const updateFn = getUpdateFn(gameState);
-
-    const initialLoopState = makeInitialLoopState(updateFn);
-
-    loop(initialLoopState);
+    console.log(gameState);
+    gameLoop(gameState);
   });
 });

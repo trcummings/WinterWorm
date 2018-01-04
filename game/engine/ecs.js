@@ -1,20 +1,4 @@
-// ENTITY COMPONENT SYSTEM
-
-// Gameloop:   recursive function that calls all systems in a scene.
-
-// Scenes:     collection of system functions called by the game loop.
-
-// Systems:    functions that operates on a components and returns
-//             updated game state.
-
-// Entities:   unique IDs that have a list of components to
-//             participate in.
-
-// Components: hold state and lists of functions relating to a certain aspect.
-
-// State:      stores state for components, entities, and systems
-
-import { view, assocPath, lensPath, over, dissocPath, compose } from 'ramda';
+import { view, assocPath, lensPath, lensProp, over, dissocPath, compose, assoc } from 'ramda';
 
 import {
   ID,
@@ -40,8 +24,7 @@ export const setScene = (state, scene) => (
   assocPath([SCENES, scene.id], scene, state)
 );
 
-export const currentSceneIdPath = [CURRENT_SCENE, ID];
-export const currentSceneIdLens = lensPath(currentSceneIdPath);
+export const currentSceneIdLens = lensProp(CURRENT_SCENE);
 export const getCurrentSceneId = gameState => view(currentSceneIdLens, gameState);
 
 export const getUpdateFn = (gameState) => {
@@ -51,8 +34,8 @@ export const getUpdateFn = (gameState) => {
 };
 
 // Sets current scene of the game
-export const setCurrentScene = (gameState, { id }) => (
-  assocPath(currentSceneIdPath, id, gameState)
+export const setCurrentScene = (gameState, id) => (
+  assoc(CURRENT_SCENE, id, gameState)
 );
 
 // Return array of system functions with a uId incl. in the systemIds
@@ -225,7 +208,7 @@ export const setSystem = (state, system) => {
   }
 
   if (!fn) throw new Error('Invalid system spec! Missing fn');
-  return assocPath([SYSTEMS, id], { id, fn }, state);
+  return assocPath([SYSTEMS, id], system, state);
 };
 
 // Returns a function that returns an updated state with component state
