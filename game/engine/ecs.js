@@ -1,4 +1,4 @@
-import { view, assocPath, lensPath, lensProp, over, dissocPath, compose, assoc } from 'ramda';
+import { view, assocPath, append, lensPath, lensProp, over, dissocPath, compose, assoc } from 'ramda';
 
 import {
   ID,
@@ -211,8 +211,8 @@ export const setSystem = (state, system) => {
 const componentStateFromSpec = entityId => (state, component) => {
   const { id, state: componentState } = component;
   return compose(
-    s => over(lensPath([ENTITIES, entityId]), conjoin(id), s),
-    s => over(lensPath([COMPONENTS, id, ENTITIES]), conjoin(id), s),
+    s => over(lensPath([ENTITIES, entityId]), append(id), s),
+    s => over(lensPath([COMPONENTS, id, ENTITIES]), append(id), s),
     s => setComponentState(s, id, entityId, componentState)
   )(state);
 };
