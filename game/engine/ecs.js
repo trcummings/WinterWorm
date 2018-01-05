@@ -10,9 +10,9 @@ import {
   CURRENT_SCENE,
   STATE,
   UPDATE_FNS,
-  SUBSCRIPTIONS,
+  // SUBSCRIPTIONS,
   CLEANUP_FN,
-  CONTEXT,
+  // CONTEXT,
 } from './symbols';
 import { conjoin, concatKeywords } from './util';
 import { getSubscribedEvents, emitEvents, queueLens } from './events';
@@ -40,7 +40,9 @@ export const setCurrentScene = (gameState, id) => (
 
 // Return array of system functions with a uId incl. in the systemIds
 export const getSystemFns = (state, systemIds) => (
-  systemIds.map(id => view(lensPath([SYSTEMS, id, FN]), state))
+  systemIds
+    .map(id => view(lensPath([SYSTEMS, id, FN]), state))
+    .filter(fn => fn) // filter out undefineds
 );
 
 // Returns a Set of all entity IDs that have the specified componentId.
@@ -98,37 +100,29 @@ export const setComponentState = (state, componentId, entityId, initialComponent
 
 // Returns an updated object hashmap with the given component.
 //    Args:
-//    - state: global state hashmap
-//    - uid: unique identifier for this component
-//    - fn-spec: [f {<opts>}] or f
-//    Supported component options:
-//    - subscriptions: an of array of messages to receive.
-//      This will be included as a sequence in the context passed to the
-//      component fn in the :inbox key
-//    - context: a collection of component IDs of additional state
-//      to select which will be available in the :select-components key of
-//      the context passed to the component fn
-//    - cleanup-fn: called when removing the entity and all it's components.
-//      This should perform any other cleanup or side effects needed to remove
-//      the component and all of it's state completely"
-export const setComponent = (state, id, options) => {
-  const {
-    [FN]: fn,
-    [CLEANUP_FN]: cleanupFn,
-    [SUBSCRIPTIONS]: subscriptions,
-    [CONTEXT]: context,
-  } = options;
+//    - state: global state object
+//    - options: object containing
+//       Required component options
+//       - uid: unique identifier for this component
+//       - fn: function component calls with the component state
+//       Supported component options:
+//       - subscriptions: an of array of messages to receive.
+//         This will be included as a sequence in the context passed to the
+//         component fn in the :inbox key
+//       - context: a collection of component IDs of additional state
+//         to select which will be available in the context key of
+//         the context passed to the component fn
+//       - cleanupFn: called when removing the entity and all it's components.
+//         This should perform any other cleanup or side effects needed to remove
+//         the component and all of it's state completely"
+export const setComponent = (state, component) => {
+  const { id, fn } = component;
 
   if (!fn) throw new Error(`Component ${id} missing fn!`);
 
   const path = lensPath([COMPONENTS, id]);
-  const props = {
-    [FN]: fn,
-    [CLEANUP_FN]: cleanupFn,
-    [SUBSCRIPTIONS]: subscriptions,
-    [CONTEXT]: context,
-  };
-  return over(path, conjoin(props), state);
+
+  return over(path, conjoin(component), state);
 };
 
 const getComponentContext = (state, eventsQueue, entityId, component) => {
@@ -204,7 +198,7 @@ export const setSystem = (state, system) => {
     const componentId = component.id;
     const systemFn = setSystemFn(componentId);
     const next = assocPath([SYSTEMS, id], systemFn, state);
-    return setComponent(next, componentId, component);
+    return setComponent(next, { id: componentId, ...component });
   }
 
   if (!fn) throw new Error('Invalid system spec! Missing fn');
@@ -214,20 +208,20 @@ export const setSystem = (state, system) => {
 // Returns a function that returns an updated state with component state
 // generated for the given entityId. If no initial component state is given,
 // it will default to an empty object.
-const componentStateFromSpec = entityId => (state, {
-  [ID]: componentId,
-  [STATE]: componentState,
-}) => compose(
-  s => over(lensPath([ENTITIES, entityId]), conjoin(componentId || {}), s),
-  s => over(lensPath([COMPONENTS, componentId, ENTITIES]), conjoin(componentId || {}), s),
-  s => setComponentState(s, componentId, entityId, componentState)
-)(state);
+const componentStateFromSpec = entityId => (state, component) => {
+  const { id, state: componentState } = component;
+  return compose(
+    s => over(lensPath([ENTITIES, entityId]), conjoin(id), s),
+    s => over(lensPath([COMPONENTS, id, ENTITIES]), conjoin(id), s),
+    s => setComponentState(s, id, entityId, componentState)
+  )(state);
+};
 
-export const setEntity = (state, { [ID]: id, [COMPONENTS]: components }) => {
-  const componentIds = Object.keys(components);
+export const setEntity = (state, entity) => {
+  const { id, components } = entity;
   const componentStateFn = componentStateFromSpec(id);
-  return componentIds.reduce((nextState, cId) => (
-    componentStateFn(state, { [ID]: cId, [STATE]: components[cId][STATE] })
+  return components.reduce((nextState, component) => (
+    componentStateFn(state, component)
   ), state);
 };
 
@@ -245,7 +239,7 @@ export const removeEntity = (state, { [ID]: entityId }) => {
   // get all of entities' components and gather up its cleanup tasks
   for (const component of entity) {
     // if the component has a clean up task run it with the entityId
-    const componentId = component[ID];
+    const componentId = component.id;
     const cleanupFnLens = lensPath([COMPONENTS, componentId, CLEANUP_FN]);
     const cleanupFn = view(cleanupFnLens, state);
     if (cleanupFn) tasks.push(s => cleanupFn(s, entityId));

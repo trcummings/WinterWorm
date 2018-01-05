@@ -1,4 +1,4 @@
-// import PIXI from 'pixijs';
+import { Graphics } from 'pixi.js';
 import { assoc } from 'ramda';
 
 import { RENDER_ENGINE } from './symbols';
@@ -24,37 +24,22 @@ export const setRenderEngine = (state, options) => {
   //   sprite)
 // };
 
-// const addChildMut = (pixiObj, item) => {
-//   pixiObj.addChild(item);
-//   return pixiObj;
-// };
-//
-// const addChildAtMut = (pixiObj, item, zIndex) => {
-//   pixiObj.addChildAt(item, zIndex);
-//   return pixiObj;
-// };
-//
-// const removeChildMut = (pixiObj, item) => {
-//   pixiObj.removeChild(item);
-//   return pixiObj;
-// };
+export const makeGraphics = () => new Graphics();
 
-// const makeStage = () =>
-// (defn mk-stage []
-//   (new js/PIXI.Container))
+export const addChildMut = (pixiObj, item) => {
+  pixiObj.addChild(item);
+  return pixiObj;
+};
 
-// const makeRenderer = (width, height, options) => {
-//
-// }
-// (defn mk-renderer [width height]
-//   (new js/PIXI.CanvasRenderer width height nil true))
+export const addChildAtMut = (pixiObj, item, zIndex) => {
+  pixiObj.addChildAt(item, zIndex);
+  return pixiObj;
+};
 
-// const makeAssetLoader = (imageUrls, assets) => {
-//   const initialLoader = new PIXI.loaders.Loader();
-//   return assets.reduce((loader, asset) => loader.add(asset), initialLoader);
-// };
-//
-// const makeTexture = (imagePath) => PIXI.Texture.fromImage(imagePath);
+export const removeChildMut = (stage, item) => {
+  stage.removeChild(item);
+  return stage;
+};
 
 // Set the frame of the sprite's spritesheet coords and dimensions
 // Returns the updated sprite.

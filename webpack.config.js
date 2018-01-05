@@ -1,3 +1,4 @@
+const webpack = require('webpack');
 const path = require('path');
 const ClosureCompiler = require('google-closure-compiler-js').webpack;
 
@@ -45,5 +46,9 @@ module.exports = {
         warningLevel: 'VERBOSE',
       },
     }),
-  ] : [],
+  ] : [
+    new webpack.DefinePlugin({
+      'process.env.NODE_ENV': JSON.stringify('development'),
+    }),
+  ],
 };

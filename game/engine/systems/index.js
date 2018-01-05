@@ -1,11 +1,13 @@
-import animation from './animation';
 import meta from './meta';
 import clearEventQueue from './clearEventQueue';
 import render from './render';
+import graphicsRect from './graphicsRect';
+import position from './position';
 
 export {
-  animation,
   meta,
+  position,
   clearEventQueue,
+  graphicsRect,
   render,
 };

@@ -1,5 +1,4 @@
 // @flow
-// import { view, compose, assocPath, reverse, lensPath, partial } from 'ramda';
 import { view, compose, assocPath, reverse, lensPath } from 'ramda';
 
 import {
@@ -9,18 +8,17 @@ import {
   UPDATE_FNS,
   SCRIPTS,
   RENDER_ENGINE,
-  // COMPONENTS,
-  // ENTITIES,
+  COMPONENTS,
+  ENTITIES,
 } from './symbols';
-
 import {
   getCurrentSceneId,
   getSystemFns,
   setCurrentScene,
-  // setComponent,
+  setComponent,
   setScene,
   setSystem,
-  // setEntity,
+  setEntity,
 } from './ecs';
 import { nextStateAfterLoop } from './loop';
 import { setRenderEngine } from './pixi';
@@ -30,16 +28,16 @@ import type { Timestamp } from './loop';
 
 const setStateFn = (type: SpecType) => {
   switch (type) {
-    // case ENTITIES: {
-    //   return (state: GameState, { options }): GameState => (
-    //     setEntity(state, options)
-    //   );
-    // }
-    // case COMPONENTS: {
-    //   return (state: GameState, [_, ...args]): GameState => (
-    //     apply(partial(setComponent, [state]), ...args)
-    //   );
-    // }
+    case ENTITIES: {
+      return (state: GameState, { options }): GameState => (
+        setEntity(state, options)
+      );
+    }
+    case COMPONENTS: {
+      return (state: GameState, { options }): GameState => (
+        setComponent(state, options)
+      );
+    }
     case SCRIPTS: {
       return (state: GameState, { options }): GameState => {
         const { fn } = options;

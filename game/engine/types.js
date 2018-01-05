@@ -35,11 +35,20 @@ export type Scene = {|
 
 export type System = {|
   +id: ID,
-  +fn: GameState => GameState
+  +fn?: GameState => GameState,
+  +component?: Component
 |};
 
 export type Script = {|
   +fn: GameState => GameState
+|};
+
+export type Component = {|
+  id: Id,
+  fn: () => mixed,
+  subscriptions?: Array<string>,
+  cleanupFn?: () => mixed,
+  context?: Array<Id>,
 |};
 
 export type SpecType =
@@ -47,13 +56,14 @@ export type SpecType =
   | typeof SCENES
   | typeof SYSTEMS
   | typeof CURRENT_SCENE
-  // | typeof COMPONENTS
-  // | typeof ENTITIES
+  | typeof ENTITIES
 
 export type SpecOption =
   | Scene
   | System
   | CurrentScene
+  // | Component
+  // | Entity
 
 export type Spec = {
   +type: SpecType,

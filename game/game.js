@@ -1,63 +1,63 @@
-import { Application, Texture, extras, loader } from 'pixi.js';
-import { times } from 'ramda';
+import { Application } from 'pixi.js';
 
 import { setGameState, gameLoop } from './engine/core';
-import { SCENES, CURRENT_SCENE, SYSTEMS, SCRIPTS, RENDER_ENGINE } from './engine/symbols';
-
+import { SCENES, CURRENT_SCENE, SYSTEMS, SCRIPTS, RENDER_ENGINE, ENTITIES } from './engine/symbols';
 import { initEvents } from './engine/scripts';
-import { animation, meta, clearEventQueue, render } from './engine/systems';
+import { meta, clearEventQueue, render, graphicsRect, position } from './engine/systems';
+import { isDev, makeId } from './engine/util';
+import player from './spec/player';
 
-import { levelOne, levelOneId } from './spec/scenes/levelOne';
-
-require('./engine/utils/fpsMeter');
+if (isDev()) require('./engine/utils/fpsMeter'); // eslint-disable-line
 
 document.addEventListener('DOMContentLoaded', () => {
   const app = new Application({
     width: 800,
     height: 600,
     backgroundColor: 0x1099bb,
+    autoStart: false,
   });
   const canvas = app.view;
   const renderer = app.renderer;
   const stage = app.stage;
-  const screen = app.screen;
 
   document.body.appendChild(canvas);
 
-  window.meter = new window.FPSMeter();
+  if (isDev()) window.meter = new window.FPSMeter();
 
-  loader.add('spritesheet', './assets/player/idle/idle.json').load(() => {
-    const frames = times(() => Texture.fromImage('./assets/player/idle/idle.png'), 1);
-    const anim = new extras.AnimatedSprite(frames);
+  const levelOneId = makeId(SCENES);
 
-    /*
-     * An AnimatedSprite inherits all the properties of a PIXI sprite
-     * so you can change its position, its anchor, mask it, etc
-     */
-    anim.x = screen.width / 2;
-    anim.y = screen.height / 2;
-    anim.anchor.set(0.5);
-    anim.animationSpeed = 0.5;
-    anim.play();
+  const gameState = setGameState(
+    {},
+    { type: RENDER_ENGINE, options: { renderer, stage, canvas } },
+    { type: SCRIPTS, options: initEvents },
+    { type: SCENES,
+      options: {
+        id: levelOneId,
+        systems: [
+          position.id,
+          meta.id,
+          graphicsRect.id,
+          render.id,
+          clearEventQueue.id,
+        ],
+      },
+    },
+    { type: CURRENT_SCENE, options: levelOneId },
+    // system for x, y, z stage placement
+    { type: SYSTEMS, options: position },
+    // system for meta events like adding/removing entities
+    { type: SYSTEMS, options: meta },
+    // system for rendering graphical rectangles
+    { type: SYSTEMS, options: graphicsRect },
+    // system for rendering the PIXI.js stage + fpsMeter
+    { type: SYSTEMS, options: render },
+    // system for clearing out the event queue at the end of the system fn
+    { type: SYSTEMS, options: clearEventQueue },
+    // the player
+    { type: ENTITIES, options: player }
+  );
 
-    stage.addChild(anim);
+  console.log(gameState);
 
-    const animSystem = animation(anim);
-    const animSystemId = animSystem.id;
-
-    const gameState = setGameState(
-      {},
-      { type: RENDER_ENGINE, options: { renderer, stage } },
-      { type: SCRIPTS, options: initEvents },
-      { type: SCENES, options: levelOne(animSystemId) },
-      { type: CURRENT_SCENE, options: levelOneId },
-      { type: SYSTEMS, options: animSystem },
-      { type: SYSTEMS, options: meta },
-      { type: SYSTEMS, options: render },
-      { type: SYSTEMS, options: clearEventQueue },
-    );
-
-    console.log(gameState);
-    gameLoop(gameState);
-  });
+  gameLoop(gameState);
 });
