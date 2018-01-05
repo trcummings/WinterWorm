@@ -10,7 +10,7 @@ import { makeId } from '../util';
 import { META } from '../symbols';
 import type { System, GameState } from '../types';
 
-// Processes all events on the meta queue (gameState.state.events.queue)
+// Processes all events on the meta queue (gameState.state.events.queue.meta)
 // and returns an updated game state. This is used for adding, removing
 // entities or any other game state modifications
 const meta: System = {

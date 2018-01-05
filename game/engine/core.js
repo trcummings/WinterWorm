@@ -8,6 +8,7 @@ import {
   CURRENT_SCENE,
   UPDATE_FNS,
   SCRIPTS,
+  RENDER_ENGINE,
   // COMPONENTS,
   // ENTITIES,
 } from './symbols';
@@ -22,6 +23,7 @@ import {
   // setEntity,
 } from './ecs';
 import { nextStateAfterLoop } from './loop';
+import { setRenderEngine } from './pixi';
 
 import type { GameState, SpecType, Spec } from './types';
 import type { Timestamp } from './loop';
@@ -60,9 +62,14 @@ const setStateFn = (type: SpecType) => {
         setCurrentScene(state, options)
       );
     }
+    case RENDER_ENGINE: {
+      return (state: GameState, { options }): GameState => (
+        setRenderEngine(state, options)
+      );
+    }
     default: {
       return (_: GameState, ...args) => {
-        throw new Error(`Could not dispatch: ${JSON.stringify(args, null, 2)}`);
+        throw new Error(`Could not dispatch: ${args}`);
       };
     }
   }

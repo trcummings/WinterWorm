@@ -35,7 +35,10 @@ const updateLoopState = (state: GameState, timestamp: Timestamp): GameState => {
   return over(loopStateLens, conjoin(newLoopState), state);
 };
 
-export const nextStateAfterLoop = (state: GameState, timestamp: Timestamp): GameState => {
+export const nextStateAfterLoop = (
+  state: GameState,
+  timestamp: Timestamp
+): GameState => {
   const next = updateLoopState(state, timestamp);
   const updateFn = getUpdateFn(next);
   return updateFn(next);

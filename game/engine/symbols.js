@@ -18,6 +18,11 @@ export const SUBSCRIPTIONS = 'subscriptions';
 export const CLEANUP_FN = 'cleanupFn';
 export const CONTEXT = 'context';
 
+// rendering engine
+export const RENDER_ENGINE = 'renderEngine';
+// export const RENDERER = 'renderer';
+// export const STAGE = 'stage';
+
 // Events
 export const EVENTS = 'events';
 export const QUEUE = 'queue';
