@@ -23,27 +23,24 @@ type Event = {
 type Events = Array<Event>;
 
 export const queuePath = [STATE, EVENTS, QUEUE];
-export const queueLens = lensPath([STATE, EVENTS, QUEUE]);
+export const getEventQueue = state => view(lensPath(queuePath), state);
 
 // Returns a collection of events.
 export const getEvents = (queue, selectors: Selectors) => view(lensPath(selectors), queue);
 
 // Returns an array of events that matches the collection of selectors for an entity.
-export const getSubscribedEvents = (queue, entityId: string, selectors: Selectors): Events => {
-  const getSubscribedEventsHelper = ([selector, ...restSelectors], accumulator) => {
-    if (!selector) return accumulator;
-
-    // implicitly add the entityId to tne end of the selector, ensuring
-    // messages are only for the entity in question
-    const events = view([selector, entityId], queue);
-    const helperHelper = ([event, ...restEvents], helperAccumulator) => {
-      if (!event) return helperAccumulator;
-      return helperHelper(restEvents, helperAccumulator.concat([event]));
-    };
-    return getSubscribedEventsHelper(restSelectors, helperHelper(events, accumulator));
-  };
-
-  return getSubscribedEventsHelper(selectors, []);
+export const getSubscribedEvents = (
+  queue,
+  entityId: string,
+  subscriptions: Selectors = []
+): Events => {
+  const newEvents = {};
+  for (const eventName of subscriptions) {
+    const events = view(lensPath([eventName, entityId]), queue);
+    newEvents[eventName] = [];
+    if (events) for (const event of events) newEvents[eventName].push(event);
+  }
+  return newEvents;
 };
 
 // Takes an action and selectors and formats them for the event representation.
@@ -68,16 +65,16 @@ export const emitEvent = (
 
 // Emits a collection of events at the same time. Returns updated game state.
 export const emitEvents = (state, events: Events) => {
-  const allQueues = view(queueLens, state);
+  const allQueues = getEventQueue(state);
   const emitEventsHelper = (queues, [event, ...rest]) => {
     if (!event) return queues;
     const { selectors } = event;
-    const update = over(selectors, conjoin(event), queues);
+    const update = over(lensPath(selectors), conjoin(event), queues);
     return emitEventsHelper(update, rest);
   };
   const update = emitEventsHelper(allQueues, events);
 
-  return assocPath(queueLens, update, state);
+  return assocPath(queuePath, update, state);
 };
 
 // Batch add events with the same selectors. Events should be a hashmap of id,

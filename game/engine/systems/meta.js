@@ -2,9 +2,7 @@
 
 // System for handling changes to the game state
 // e.g. adding/removing entities, changing scenes
-import { view } from 'ramda';
-
-import { queueLens, getEvents } from '../events';
+import { getEventQueue, getEvents } from '../events';
 import { setState } from '../core';
 import { makeId } from '../util';
 import { META, SYSTEMS } from '../symbols';
@@ -16,7 +14,7 @@ import type { System, GameState } from '../types';
 const meta: System = {
   id: makeId(SYSTEMS),
   fn: (state: GameState): GameState => {
-    const eventsQueue = view(queueLens, state);
+    const eventsQueue = getEventQueue(state);
     const events = getEvents(eventsQueue, [META]);
 
     if (!events || !events.length === 0) return state;

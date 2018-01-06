@@ -12,7 +12,7 @@ import {
   ENTITIES,
 } from './symbols';
 import {
-  getCurrentSceneId,
+  getCurrentScene,
   getSystemFns,
   setCurrentScene,
   setComponent,
@@ -26,44 +26,24 @@ import { setRenderEngine } from './pixi';
 import type { GameState, SpecType, Spec } from './types';
 import type { Timestamp } from './loop';
 
+const applySpec = specFn => (state: GameState, { options }): GameState => (
+  specFn(state, options)
+);
+
 const setStateFn = (type: SpecType) => {
   switch (type) {
-    case ENTITIES: {
-      return (state: GameState, { options }): GameState => (
-        setEntity(state, options)
-      );
-    }
-    case COMPONENTS: {
-      return (state: GameState, { options }): GameState => (
-        setComponent(state, options)
-      );
-    }
+    case ENTITIES: { return applySpec(setEntity); }
+    case COMPONENTS: { return applySpec(setComponent); }
+    case SYSTEMS: { return applySpec(setSystem); }
+    case SCENES: { return applySpec(setScene); }
+    case CURRENT_SCENE: { return applySpec(setCurrentScene); }
+    case RENDER_ENGINE: { return applySpec(setRenderEngine); }
     case SCRIPTS: {
       return (state: GameState, { options }): GameState => {
         const fn = options;
         if (!fn) throw Error('missing fn in spec for script!');
         return fn(state);
       };
-    }
-    case SYSTEMS: {
-      return (state: GameState, { options }): GameState => (
-        setSystem(state, options)
-      );
-    }
-    case SCENES: {
-      return (state: GameState, { options }): GameState => (
-        setScene(state, options)
-      );
-    }
-    case CURRENT_SCENE: {
-      return (state: GameState, { options }): GameState => (
-        setCurrentScene(state, options)
-      );
-    }
-    case RENDER_ENGINE: {
-      return (state: GameState, { options }): GameState => (
-        setRenderEngine(state, options)
-      );
     }
     default: {
       return (_: GameState, ...args) => {
@@ -87,7 +67,7 @@ export const setState = (state: GameState, spec: Spec): GameState => {
 // takes an initial state (usually an empty object) and a spec array.
 export const setGameState = (initialState: {}, ...specs: Array<Spec>) => {
   const state = specs.reduce(setState, initialState);
-  const sceneId = getCurrentSceneId(state);
+  const sceneId = getCurrentScene(state);
 
   if (!sceneId) throw new Error('Must have a CURRENT_SCENE scene in the spec!');
 

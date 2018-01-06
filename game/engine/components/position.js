@@ -17,9 +17,9 @@ const updateOffset = (
 const position: Component = {
   id: makeId(COMPONENTS),
   subscriptions: [POSITION_CHANGE],
-  fn: (entityId, componentState, context) => {
+  fn: (entityId, componentState, context = {}) => {
     const { inbox } = context;
-    if (inbox.length === 0) return componentState;
+    if (typeof inbox === 'undefined' || inbox.length === 0) return componentState;
     const { x, y, z } = componentState;
     const { offsetX, offsetY } = inbox.reduce(updateOffset, { offsetX: 0, offsetY: 0 });
 

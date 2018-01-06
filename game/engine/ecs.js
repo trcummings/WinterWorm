@@ -15,7 +15,7 @@ import {
   // CONTEXT,
 } from './symbols';
 import { conjoin, concatKeywords } from './util';
-import { getSubscribedEvents, emitEvents, queueLens } from './events';
+import { getSubscribedEvents, emitEvents, getEventQueue } from './events';
 
 //  Add or update existing scene in the game state. A scene is a
 //  collection of systems. systems are a collection of keywords referencing
@@ -24,170 +24,133 @@ export const setScene = (state, scene) => (
   assocPath([SCENES, scene.id], scene, state)
 );
 
-export const currentSceneIdLens = lensProp(CURRENT_SCENE);
-export const getCurrentSceneId = gameState => view(currentSceneIdLens, gameState);
-
-export const getUpdateFn = (gameState) => {
-  const currentSceneId = getCurrentSceneId(gameState);
-  const updateFnLens = lensPath([UPDATE_FNS, currentSceneId]);
-  return view(updateFnLens, gameState);
-};
+export const getCurrentScene = state => (
+  view(lensProp(CURRENT_SCENE), state)
+);
 
 // Sets current scene of the game
 export const setCurrentScene = (gameState, id) => (
   assoc(CURRENT_SCENE, id, gameState)
 );
 
+export const getUpdateFn = (state) => {
+  const currentSceneId = getCurrentScene(state);
+  const updateFnLens = lensPath([UPDATE_FNS, currentSceneId]);
+  return view(updateFnLens, state);
+};
+
 // Return array of system functions with a uId incl. in the systemIds
 export const getSystemFns = (state, systemIds) => (
-  systemIds
-    .map(id => view(lensPath([SYSTEMS, id, FN]), state))
-    .filter(fn => fn) // filter out undefineds
+  systemIds.map(id => view(lensPath([SYSTEMS, id, FN]), state))
 );
 
 // Returns a Set of all entity IDs that have the specified componentId.
-export const getEntityIdsWithComponent = (
-  state,
-  componentId
-) => {
-  const entities = view([COMPONENTS, componentId, ENTITIES], state);
-  return new Set(Object.keys(entities));
-};
+const getEntityIdsWithComponent = (state, componentId) => (
+  view(lensPath([COMPONENTS, componentId, ENTITIES]), state)
+);
 
 // Returns a set of all entity IDs that have all the specified component-ids.
 // Iterate through all the entities and only accumulate the ones
 // that have all the required component IDs.
-export const getMultiComponentEntityIds = (state, componentIds) => {
-  const components = new Set(componentIds);
-  const entities = view(lensPath([ENTITIES]), state);
-  const entityList = Object.keys(entities).map(eId => entities[eId]);
-
-  const helper = ([entity, ...rest], accumulator) => {
-    if (!entity) return accumulator;
-    const { [ID]: entityId, [COMPONENTS]: entityComponents } = entity;
-    const hasAllComponentIds = Object.keys(entityComponents)
-      .every(cId => components.has(cId));
-
-    if (hasAllComponentIds) accumulator.add(entityId);
-    return helper(rest, accumulator);
-  };
-
-  return helper(entityList, new Set());
-};
+// const getMultiComponentEntityIds = (state, componentIds) => {
+//   const components = new Set(componentIds);
+//   const entities = view(lensPath([ENTITIES]), state);
+//   const entityList = Object.keys(entities).map(eId => entities[eId]);
+//
+//   const helper = ([entity, ...rest], accumulator) => {
+//     if (!entity) return accumulator;
+//     const { [ID]: entityId, [COMPONENTS]: entityComponents } = entity;
+//     const hasAllComponentIds = Object.keys(entityComponents)
+//       .every(cId => components.has(cId));
+//
+//     if (hasAllComponentIds) accumulator.add(entityId);
+//     return helper(rest, accumulator);
+//   };
+//
+//   return helper(entityList, new Set());
+// };
 
 export const getComponent = (state, componentId) => {
   const path = lensPath([COMPONENTS, componentId]);
   return view(path, state);
 };
 
-// Returns an object of state associated with the component for the given
-// entityId. If not found, it returns an empty object.
-export const getComponentState = (state, componentId, entityId) => {
-  const path = lensPath([STATE, componentId, entityId]);
-  return view(path, state);
-};
-
-// Gets all state associated with a component
-export const getAllComponentState = (state, componentId) => {
-  const path = lensPath([STATE, componentId]);
-  return view(path, state);
-};
-
-export const setComponentState = (state, componentId, entityId, initialComponentState = {}) => {
-  const path = [STATE, componentId, entityId];
-  return assocPath(path, initialComponentState, state);
-};
-
-// Returns an updated object hashmap with the given component.
-//    Args:
-//    - state: global state object
-//    - options: object containing
-//       Required component options
-//       - uid: unique identifier for this component
-//       - fn: function component calls with the component state
-//       Supported component options:
-//       - subscriptions: an of array of messages to receive.
-//         This will be included as a sequence in the context passed to the
-//         component fn in the :inbox key
-//       - context: a collection of component IDs of additional state
-//         to select which will be available in the context key of
-//         the context passed to the component fn
-//       - cleanupFn: called when removing the entity and all it's components.
-//         This should perform any other cleanup or side effects needed to remove
-//         the component and all of it's state completely"
 export const setComponent = (state, component) => {
   const { id, fn } = component;
 
   if (!fn) throw new Error(`Component ${id} missing fn!`);
 
-  const path = lensPath([COMPONENTS, id]);
-
-  return over(path, conjoin(component), state);
+  return over(lensPath([COMPONENTS, id]), conjoin(component), state);
 };
 
-const getComponentContext = (state, eventsQueue, entityId, component) => {
-  const { subscriptions, context } = component;
-  const messages = getSubscribedEvents(eventsQueue, entityId, subscriptions);
+// Returns an object of state associated with the component for the given
+// entityId. If not found, it returns an empty object.
+export const getComponentState = (state, componentId, entityId) => (
+  view(lensPath([STATE, componentId, entityId]), state)
+);
 
-  const getContextHelper = ([componentId, ...restIds], thisContext) => {
-    if (!componentId) return thisContext;
-    let thisComponentId = componentId;
-    let thisEntityId = entityId;
-    let assocTarget = componentId;
-    if (Array.isArray(componentId)) {
-      [thisComponentId, thisEntityId] = componentId;
-      assocTarget = concatKeywords(thisComponentId, thisEntityId);
+export const setComponentState = (state, componentId, entityId, initialCS = {}) => (
+  assocPath([STATE, componentId, entityId], initialCS, state)
+);
+
+const getComponentContext = (state, eventQueue, entityId, component) => {
+  const { subscriptions, context } = component;
+  const messages = getSubscribedEvents(eventQueue, entityId, subscriptions);
+  if (!context) return messages;
+
+  for (const item of context) {
+    let ctxtEntityId = entityId;
+    let ctxtComponentId = item;
+    let assocTarget = item;
+    if (item && typeof item === 'object') {
+      ctxtEntityId = item.entityId;
+      ctxtComponentId = item.componentId;
+      assocTarget = concatKeywords(ctxtComponentId, ctxtEntityId);
     }
 
-    const componentState = getComponentState(state, thisComponentId, thisEntityId);
+    const componentState = getComponentState(state, ctxtComponentId, ctxtEntityId);
+    messages[assocTarget] = componentState; // eslint-disable-line
+  }
 
-    // we're gonna do some mutable assignment here for performance reasons
-    // this is one of the only places it should do that
-    thisContext[assocTarget] = componentState; // eslint-disable-line
-
-    return getContextHelper(restIds, thisContext);
-  };
-
-  return getContextHelper(context, messages);
+  return messages;
 };
 
-const systemNextStateAndEvents = (state, componentId) => {
+// Gets all state associated with a component
+const getAllComponentState = (state, componentId) => (
+  view(lensPath([STATE, componentId]), state)
+);
+
+const getNextSystemStateAndEvents = (state, componentId) => {
   const entityIds = getEntityIdsWithComponent(state, componentId);
   const componentStates = getAllComponentState(state, componentId);
   const component = getComponent(state, componentId);
-  const componentFn = component[FN];
-  const eventsQueue = view(queueLens, state);
+  const eventsQueue = getEventQueue(state);
+  const newComponentState = {};
+  const newEvents = [];
 
-  const helper = ([entityId, ...restIds], stateAccumulator, eventAccumulator) => {
-    if (!entityId) return [stateAccumulator, eventAccumulator];
-
+  for (const entityId of entityIds) {
     const componentState = componentStates[entityId];
     const context = getComponentContext(state, eventsQueue, entityId, component);
-    let nextComponentState = componentFn(entityId, componentState, context);
+    let nextComponentState = component.fn(entityId, componentState, context);
     let events;
-
-    if (Array.isArray(nextComponentState)) {
-      [nextComponentState, events] = nextComponentState;
-      events.forEach(event => eventAccumulator.push(event));
-    }
 
     // we're gonna do some mutable assignment here for performance reasons
     // this is one of the only places it should do that
-    stateAccumulator[entityId] = nextComponentState; // eslint-disable-line
+    if (Array.isArray(nextComponentState)) {
+      [nextComponentState, events] = nextComponentState;
+      for (const event of events) newEvents.push(event);
+    }
+    newComponentState[entityId] = nextComponentState; // eslint-disable-line
+  }
 
-    return helper(restIds, stateAccumulator, eventAccumulator);
-  };
-
-  const [newState, newEvents] = helper(entityIds, {}, []);
-  const update = newEvents.length > 0 ? [newState, newEvents] : newState;
-
-  return assocPath([STATE, componentId], update, state);
+  const nextState = assocPath([STATE, componentId], newComponentState, state);
+  return { nextState, events: newEvents };
 };
 
 // Returns a function representing a system that takes a single argument for
 // game state.
 export const setSystemFn = componentId => (state) => {
-  const [nextState, events] = systemNextStateAndEvents(state, componentId);
+  const { nextState, events } = getNextSystemStateAndEvents(state, componentId);
   return emitEvents(nextState, events);
 };
 
@@ -197,7 +160,7 @@ export const setSystem = (state, system) => {
   if (component) {
     const componentId = component.id;
     const systemFn = setSystemFn(componentId);
-    const next = assocPath([SYSTEMS, id], systemFn, state);
+    const next = assocPath([SYSTEMS, id], { id, fn: systemFn }, state);
     return setComponent(next, { id: componentId, ...component });
   }
 
@@ -232,16 +195,14 @@ const removeEntityFromComponentIndex = (state, entityId, componentIds) => (
 );
 
 export const removeEntity = (state, { [ID]: entityId }) => {
-  const path = lensPath([ENTITIES, entityId]);
-  const entity = view(path, state);
+  const entity = view(lensPath([ENTITIES, entityId]), state);
   const tasks = [];
 
   // get all of entities' components and gather up its cleanup tasks
   for (const component of entity) {
     // if the component has a clean up task run it with the entityId
     const componentId = component.id;
-    const cleanupFnLens = lensPath([COMPONENTS, componentId, CLEANUP_FN]);
-    const cleanupFn = view(cleanupFnLens, state);
+    const cleanupFn = view(lensPath([COMPONENTS, componentId, CLEANUP_FN]), state);
     if (cleanupFn) tasks.push(cleanupFn(__, entityId));
   }
 

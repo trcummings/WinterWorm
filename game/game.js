@@ -13,45 +13,47 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (isDev()) window.meter = new window.FPSMeter();
 
-  const levelOneId = makeId(SCENES);
+  setTimeout(() => {
+    const levelOneId = makeId(SCENES);
 
-  const gameState = setGameState(
-    {},
-    { type: RENDER_ENGINE, options: { renderer, stage, canvas } },
-    { type: SCRIPTS, options: initEvents },
-    { type: SCENES,
-      options: {
-        id: levelOneId,
-        systems: [
-          meta.id,
-          position.id,
-          boundingBox.id,
-          graphicsRect.id,
-          render.id,
-          clearEventQueue.id,
-        ],
+    const gameState = setGameState(
+      {},
+      { type: RENDER_ENGINE, options: { renderer, stage, canvas } },
+      { type: SCRIPTS, options: initEvents },
+      { type: SCENES,
+        options: {
+          id: levelOneId,
+          systems: [
+            meta.id,
+            position.id,
+            boundingBox.id,
+            graphicsRect.id,
+            render.id,
+            clearEventQueue.id,
+          ],
+        },
       },
-    },
-    { type: CURRENT_SCENE, options: levelOneId },
-    // system for x, y, z stage placement
-    { type: SYSTEMS, options: position },
-    // system for meta events like adding/removing entities
-    { type: SYSTEMS, options: meta },
-    // system for rendering graphical rectangles
-    { type: SYSTEMS, options: graphicsRect },
-    // system for height and width of an entity
-    { type: SYSTEMS, options: boundingBox },
-    // system for rendering the PIXI.js stage + fpsMeter
-    { type: SYSTEMS, options: render },
-    // system for clearing out the event queue at the end of the system fn
-    { type: SYSTEMS, options: clearEventQueue },
-    // the player
-    { type: ENTITIES, options: player },
-    // run at the end to set up all the components with setupFns
-    { type: SCRIPTS, options: setupAllComponents }
-  );
+      { type: CURRENT_SCENE, options: levelOneId },
+      // system for x, y, z stage placement
+      { type: SYSTEMS, options: position },
+      // system for meta events like adding/removing entities
+      { type: SYSTEMS, options: meta },
+      // system for rendering graphical rectangles
+      { type: SYSTEMS, options: graphicsRect },
+      // system for height and width of an entity
+      { type: SYSTEMS, options: boundingBox },
+      // system for rendering the PIXI.js stage + fpsMeter
+      { type: SYSTEMS, options: render },
+      // system for clearing out the event queue at the end of the system fn
+      { type: SYSTEMS, options: clearEventQueue },
+      // the player
+      { type: ENTITIES, options: player },
+      // run at the end to set up all the components with setupFns
+      { type: SCRIPTS, options: setupAllComponents }
+    );
 
-  console.log(gameState);
+    console.log(gameState);
 
-  gameLoop(gameState);
+    gameLoop(gameState);
+  }, 1500);
 });
