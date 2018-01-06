@@ -39,15 +39,14 @@ export type System = {|
   +component?: Component
 |};
 
-export type Script = {|
-  +fn: GameState => GameState
-|};
+export type Script = GameState => GameState;
 
 export type Component = {|
   id: Id,
   fn: () => mixed,
   subscriptions?: Array<string>,
   cleanupFn?: () => mixed,
+  setupFn?: () => mixed,
   context?: Array<Id>,
 |};
 

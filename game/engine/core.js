@@ -40,7 +40,7 @@ const setStateFn = (type: SpecType) => {
     }
     case SCRIPTS: {
       return (state: GameState, { options }): GameState => {
-        const { fn } = options;
+        const fn = options;
         if (!fn) throw Error('missing fn in spec for script!');
         return fn(state);
       };

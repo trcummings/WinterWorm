@@ -1,26 +1,15 @@
-import { Application } from 'pixi.js';
-
 import { setGameState, gameLoop } from './engine/core';
 import { SCENES, CURRENT_SCENE, SYSTEMS, SCRIPTS, RENDER_ENGINE, ENTITIES } from './engine/symbols';
-import { initEvents } from './engine/scripts';
-import { meta, clearEventQueue, render, graphicsRect, position } from './engine/systems';
+import { initEvents, setupAllComponents } from './engine/scripts';
+import { meta, clearEventQueue, render, graphicsRect, position, boundingBox } from './engine/systems';
 import { isDev, makeId } from './engine/util';
+import { createRenderingEngine } from './engine/pixi';
 import player from './spec/player';
 
-if (isDev()) require('./engine/utils/fpsMeter'); // eslint-disable-line
+if (isDev()) require('./engine/fpsMeter'); // eslint-disable-line
 
 document.addEventListener('DOMContentLoaded', () => {
-  const app = new Application({
-    width: 800,
-    height: 600,
-    backgroundColor: 0x1099bb,
-    autoStart: false,
-  });
-  const canvas = app.view;
-  const renderer = app.renderer;
-  const stage = app.stage;
-
-  document.body.appendChild(canvas);
+  const { canvas, renderer, stage } = createRenderingEngine();
 
   if (isDev()) window.meter = new window.FPSMeter();
 
@@ -34,8 +23,9 @@ document.addEventListener('DOMContentLoaded', () => {
       options: {
         id: levelOneId,
         systems: [
-          position.id,
           meta.id,
+          position.id,
+          boundingBox.id,
           graphicsRect.id,
           render.id,
           clearEventQueue.id,
@@ -49,12 +39,16 @@ document.addEventListener('DOMContentLoaded', () => {
     { type: SYSTEMS, options: meta },
     // system for rendering graphical rectangles
     { type: SYSTEMS, options: graphicsRect },
+    // system for height and width of an entity
+    { type: SYSTEMS, options: boundingBox },
     // system for rendering the PIXI.js stage + fpsMeter
     { type: SYSTEMS, options: render },
     // system for clearing out the event queue at the end of the system fn
     { type: SYSTEMS, options: clearEventQueue },
     // the player
-    { type: ENTITIES, options: player }
+    { type: ENTITIES, options: player },
+    // run at the end to set up all the components with setupFns
+    { type: SCRIPTS, options: setupAllComponents }
   );
 
   console.log(gameState);

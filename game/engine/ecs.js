@@ -1,4 +1,4 @@
-import { view, assocPath, append, lensPath, lensProp, over, dissocPath, compose, assoc } from 'ramda';
+import { __, view, assocPath, append, lensPath, lensProp, over, dissocPath, compose, assoc } from 'ramda';
 
 import {
   ID,
@@ -84,7 +84,7 @@ export const getComponent = (state, componentId) => {
 // entityId. If not found, it returns an empty object.
 export const getComponentState = (state, componentId, entityId) => {
   const path = lensPath([STATE, componentId, entityId]);
-  return view(path, state) || {};
+  return view(path, state);
 };
 
 // Gets all state associated with a component
@@ -211,9 +211,9 @@ export const setSystem = (state, system) => {
 const componentStateFromSpec = entityId => (state, component) => {
   const { id, state: componentState } = component;
   return compose(
-    s => over(lensPath([ENTITIES, entityId]), append(id), s),
-    s => over(lensPath([COMPONENTS, id, ENTITIES]), append(id), s),
-    s => setComponentState(s, id, entityId, componentState)
+    over(lensPath([ENTITIES, entityId]), append(id), __),
+    over(lensPath([COMPONENTS, id, ENTITIES]), append(entityId), __),
+    setComponentState(__, id, entityId, componentState)
   )(state);
 };
 
@@ -221,7 +221,7 @@ export const setEntity = (state, entity) => {
   const { id, components } = entity;
   const componentStateFn = componentStateFromSpec(id);
   return components.reduce((nextState, component) => (
-    componentStateFn(state, component)
+    componentStateFn(nextState, component)
   ), state);
 };
 
@@ -242,17 +242,17 @@ export const removeEntity = (state, { [ID]: entityId }) => {
     const componentId = component.id;
     const cleanupFnLens = lensPath([COMPONENTS, componentId, CLEANUP_FN]);
     const cleanupFn = view(cleanupFnLens, state);
-    if (cleanupFn) tasks.push(s => cleanupFn(s, entityId));
+    if (cleanupFn) tasks.push(cleanupFn(__, entityId));
   }
 
   // remove the entity from state
-  tasks.push(s => dissocPath([STATE, ENTITIES, entityId], s));
+  tasks.push(dissocPath([STATE, ENTITIES, entityId], __));
 
   // remove the entity itself
-  tasks.push(s => dissocPath([ENTITIES, entityId], s));
+  tasks.push(dissocPath([ENTITIES, entityId], __));
 
   // remove it from the component index
-  tasks.push(s => removeEntityFromComponentIndex(s, entityId));
+  tasks.push(removeEntityFromComponentIndex(__, entityId));
 
   // compose over the accumulated deletion tasks and call with state
   return compose(...tasks)(state);

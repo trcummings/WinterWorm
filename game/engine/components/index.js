@@ -1,4 +1,5 @@
 import { renderableRect } from './renderable';
+import { boundingRect } from './boundingRect';
 import { position, setPositionState, POSITION_CHANGE } from './position';
 
 const utils = {
@@ -10,6 +11,7 @@ const constants = {
 };
 
 export {
+  boundingRect,
   renderableRect,
   position,
   utils,

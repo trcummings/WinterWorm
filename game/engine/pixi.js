@@ -1,7 +1,23 @@
-import { Graphics } from 'pixi.js';
+import { Graphics, Application } from 'pixi.js';
 import { assoc } from 'ramda';
 
 import { RENDER_ENGINE } from './symbols';
+
+export const createRenderingEngine = () => {
+  const app = new Application({
+    width: 800,
+    height: 600,
+    backgroundColor: 0x1099bb,
+    autoStart: false,
+  });
+  const canvas = app.view;
+  const renderer = app.renderer;
+  const stage = app.stage;
+
+  document.body.appendChild(canvas);
+
+  return { canvas, stage, renderer };
+};
 
 export const setRenderEngine = (state, options) => {
   const { renderer, stage } = options;
@@ -26,14 +42,14 @@ export const setRenderEngine = (state, options) => {
 
 export const makeGraphics = () => new Graphics();
 
-export const addChildMut = (pixiObj, item) => {
-  pixiObj.addChild(item);
-  return pixiObj;
+export const addChildMut = (stage, item) => {
+  stage.addChild(item);
+  return stage;
 };
 
-export const addChildAtMut = (pixiObj, item, zIndex) => {
-  pixiObj.addChildAt(item, zIndex);
-  return pixiObj;
+export const addChildAtMut = (stage, item, zIndex) => {
+  stage.addChildAt(item, zIndex);
+  return stage;
 };
 
 export const removeChildMut = (stage, item) => {
