@@ -4,6 +4,7 @@ import render from './render';
 import graphicsRect from './graphicsRect';
 import position from './position';
 import boundingBox from './boundingBox';
+import input from './input';
 
 export {
   meta,
@@ -12,4 +13,5 @@ export {
   graphicsRect,
   render,
   boundingBox,
+  input,
 };

@@ -1,14 +1,13 @@
 // @flow
-import { assocPath } from 'ramda';
 import { makeId } from '../util';
-import { queuePath } from '../events';
+import { clearEventQueue as clearEvents } from '../events';
 import { SYSTEMS } from '../symbols';
 
-import type { GameState, System } from '../types';
+import type { System } from '../types';
 
 const clearEventQueue: System = {
   id: makeId(SYSTEMS),
-  fn: (state: GameState): GameState => assocPath(queuePath, {}, state),
+  fn: clearEvents,
 };
 
 export default clearEventQueue;

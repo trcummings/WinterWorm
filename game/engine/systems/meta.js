@@ -17,7 +17,7 @@ const meta: System = {
     const eventsQueue = getEventQueue(state);
     const events = getEvents(eventsQueue, [META]);
 
-    if (!events || !events.length === 0) return state;
+    if (!events || events.length === 0) return state;
     return events.reduce((next, event) => (
       setState(next, event.action)
     ), state);

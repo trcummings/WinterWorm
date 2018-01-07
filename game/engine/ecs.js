@@ -1,3 +1,4 @@
+// @flow
 import { __, view, assocPath, append, lensPath, lensProp, over, dissocPath, compose, assoc } from 'ramda';
 
 import {
@@ -17,77 +18,82 @@ import {
 import { conjoin, concatKeywords } from './util';
 import { getSubscribedEvents, emitEvents, getEventQueue } from './events';
 
+import type { GameState, Scene, ID as Id } from './types';
+
 //  Add or update existing scene in the game state. A scene is a
 //  collection of systems. systems are a collection of keywords referencing
 //  a system by their unique ID.
-export const setScene = (state, scene) => (
+export const setScene = (state: GameState, scene: Scene): GameState => (
   assocPath([SCENES, scene.id], scene, state)
 );
 
-export const getCurrentScene = state => (
+export const getCurrentScene = (state: GameState): GameState => (
   view(lensProp(CURRENT_SCENE), state)
 );
 
 // Sets current scene of the game
-export const setCurrentScene = (gameState, id) => (
-  assoc(CURRENT_SCENE, id, gameState)
+export const setCurrentScene = (state: GameState, id: Id): GameState => (
+  assoc(CURRENT_SCENE, id, state)
 );
 
-export const getUpdateFn = (state) => {
+export const getUpdateFn = (state: GameState) => {
   const currentSceneId = getCurrentScene(state);
   const updateFnLens = lensPath([UPDATE_FNS, currentSceneId]);
   return view(updateFnLens, state);
 };
 
 // Return array of system functions with a uId incl. in the systemIds
-export const getSystemFns = (state, systemIds) => (
+export const getSystemFns = (state: GameState, systemIds: Array<Id>) => (
   systemIds.map(id => view(lensPath([SYSTEMS, id, FN]), state))
 );
 
 // Returns a Set of all entity IDs that have the specified componentId.
-const getEntityIdsWithComponent = (state, componentId) => (
+const getEntityIdsWithComponent = (state: GameState, componentId: Id): GameState => (
   view(lensPath([COMPONENTS, componentId, ENTITIES]), state)
 );
 
 // Returns a set of all entity IDs that have all the specified component-ids.
 // Iterate through all the entities and only accumulate the ones
 // that have all the required component IDs.
-// const getMultiComponentEntityIds = (state, componentIds) => {
-//   const components = new Set(componentIds);
-//   const entities = view(lensPath([ENTITIES]), state);
-//   const entityList = Object.keys(entities).map(eId => entities[eId]);
-//
-//   const helper = ([entity, ...rest], accumulator) => {
-//     if (!entity) return accumulator;
-//     const { [ID]: entityId, [COMPONENTS]: entityComponents } = entity;
-//     const hasAllComponentIds = Object.keys(entityComponents)
-//       .every(cId => components.has(cId));
-//
-//     if (hasAllComponentIds) accumulator.add(entityId);
-//     return helper(rest, accumulator);
-//   };
-//
-//   return helper(entityList, new Set());
-// };
+export const getMultiComponentEntityIds = (
+  state: GameState,
+  componentIds: Array<Id>
+): Set<Id> => {
+  const components = new Set(componentIds);
+  const entities = view(lensPath([ENTITIES]), state);
+  const entityIds = Object.keys(entities);
 
-export const getComponent = (state, componentId) => {
-  const path = lensPath([COMPONENTS, componentId]);
-  return view(path, state);
+  const result = new Set();
+  for (const entityId of entityIds) {
+    const entityComponentIds = entities[entityId];
+    if (entityComponentIds.every(components.has)) result.add(entityId);
+  }
+
+  return result;
 };
 
-export const setComponent = (state, component) => {
+export const getComponent = (
+  state: GameState,
+  componentId: Id
+): GameState => view(lensPath([COMPONENTS, componentId]), state);
+
+export const setComponent = (
+  state: GameState,
+  component: Component
+): GameState => {
   const { id, fn } = component;
 
   if (!fn) throw new Error(`Component ${id} missing fn!`);
-
   return over(lensPath([COMPONENTS, id]), conjoin(component), state);
 };
 
 // Returns an object of state associated with the component for the given
 // entityId. If not found, it returns an empty object.
-export const getComponentState = (state, componentId, entityId) => (
-  view(lensPath([STATE, componentId, entityId]), state)
-);
+export const getComponentState = (
+  state: GameState,
+  componentId: Id,
+  entityId: Id
+) => view(lensPath([STATE, componentId, entityId]), state);
 
 export const setComponentState = (state, componentId, entityId, initialCS = {}) => (
   assocPath([STATE, componentId, entityId], initialCS, state)
@@ -95,13 +101,15 @@ export const setComponentState = (state, componentId, entityId, initialCS = {}) 
 
 const getComponentContext = (state, eventQueue, entityId, component) => {
   const { subscriptions, context } = component;
-  const messages = getSubscribedEvents(eventQueue, entityId, subscriptions);
-  if (!context) return messages;
+  if (!context) return undefined;
 
+  const messages = getSubscribedEvents(eventQueue, entityId, subscriptions);
+  if (!messages) return undefined;
   for (const item of context) {
     let ctxtEntityId = entityId;
     let ctxtComponentId = item;
     let assocTarget = item;
+
     if (item && typeof item === 'object') {
       ctxtEntityId = item.entityId;
       ctxtComponentId = item.componentId;
@@ -138,29 +146,31 @@ const getNextSystemStateAndEvents = (state, componentId) => {
     // this is one of the only places it should do that
     if (Array.isArray(nextComponentState)) {
       [nextComponentState, events] = nextComponentState;
-      for (const event of events) newEvents.push(event);
+      if (events) for (const event of events) newEvents.push(event);
     }
-    newComponentState[entityId] = nextComponentState; // eslint-disable-line
+    newComponentState[entityId] = nextComponentState;
   }
 
-  const nextState = assocPath([STATE, componentId], newComponentState, state);
-  return { nextState, events: newEvents };
+  return {
+    events: newEvents,
+    nextState: assocPath([STATE, componentId], newComponentState, state),
+  };
 };
 
 // Returns a function representing a system that takes a single argument for
 // game state.
-export const setSystemFn = componentId => (state) => {
+const setSystemFn = (componentId: Id) => (state: GameState): GameState => {
   const { nextState, events } = getNextSystemStateAndEvents(state, componentId);
-  return emitEvents(nextState, events);
+  return events ? emitEvents(nextState, events) : nextState;
 };
 
 // adds the system function to state
-export const setSystem = (state, system) => {
+export const setSystem = (state: GameState, system) => {
   const { id, fn, component } = system;
   if (component) {
     const componentId = component.id;
     const systemFn = setSystemFn(componentId);
-    const next = assocPath([SYSTEMS, id], { id, fn: systemFn }, state);
+    const next = assocPath([SYSTEMS, id], { ...system, fn: systemFn }, state);
     return setComponent(next, { id: componentId, ...component });
   }
 
@@ -171,7 +181,10 @@ export const setSystem = (state, system) => {
 // Returns a function that returns an updated state with component state
 // generated for the given entityId. If no initial component state is given,
 // it will default to an empty object.
-const componentStateFromSpec = entityId => (state, component) => {
+const componentStateFromSpec = (entityId: Id) => (
+  state: GameState,
+  component
+): GameState => {
   const { id, state: componentState } = component;
   return compose(
     over(lensPath([ENTITIES, entityId]), append(id), __),
@@ -180,21 +193,24 @@ const componentStateFromSpec = entityId => (state, component) => {
   )(state);
 };
 
-export const setEntity = (state, entity) => {
+export const setEntity = (state: GameState, entity) => {
   const { id, components } = entity;
   const componentStateFn = componentStateFromSpec(id);
+
   return components.reduce((nextState, component) => (
     componentStateFn(nextState, component)
   ), state);
 };
 
-const removeEntityFromComponentIndex = (state, entityId, componentIds) => (
-  componentIds.reduce((nextState, componentId) => (
-    dissocPath([COMPONENTS, componentId, ENTITIES, componentId], nextState)
-  ), state)
-);
+const removeEntityFromComponentIndex = (
+  state: GameState,
+  entityId: Id,
+  componentIds: Array<Id>
+) => componentIds.reduce((nextState: GameState, componentId: Id) => (
+  dissocPath([COMPONENTS, componentId, ENTITIES, componentId], nextState)
+), state);
 
-export const removeEntity = (state, { [ID]: entityId }) => {
+export const removeEntity = (state: GameState, { [ID]: entityId }): GameState => {
   const entity = view(lensPath([ENTITIES, entityId]), state);
   const tasks = [];
 

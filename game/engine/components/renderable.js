@@ -13,14 +13,14 @@ import type { Component } from '../types';
 const renderableRectId = makeId(COMPONENTS);
 
 // Removes shape from the stage belonging to the entity and returns state.
-const cleanupShapeState = (state, entityId) => {
+const cleanupShapeState = (state, entityId) =>
   // const stage = getRenderEngine(state).stage;
   // const graphics = getComponentState(state, renderableRectId, entityId);
   //
   // removeChildMut(stage, graphics);
-  console.log(entityId);
-  return state;
-};
+  // console.log(entityId);
+  state
+;
 
 // Update the screen x, y position of the sprite based on any move events
 // from a component inbox. Returns the updated sprite.
@@ -51,7 +51,7 @@ const cleanupShapeState = (state, entityId) => {
 
 // Renders the sprite in relation to the position of the entity and
 // frame of the spritesheet deterimined by the animateable state
-const renderShape = (entityId, componentState, context) => {
+const renderShape = (entityId, componentState, context) =>
   // if (!componentState) {
   //
   // }
@@ -63,9 +63,9 @@ const renderShape = (entityId, componentState, context) => {
   // graphics.lineStyle(lineWidth, lineColor);
   // graphics.drawRect(x, y, height, width);
   // graphics.endFill();
-  console.log(componentState, context);
-  return componentState;
-};
+  // console.log(componentState, context);
+  componentState
+;
 
 const renderableRect: Component = {
   id: renderableRectId,
