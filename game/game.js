@@ -3,7 +3,8 @@ import { loader, extras } from 'pixi.js';
 import { setGameState, gameLoop } from './engine/core';
 import { SCENES, CURRENT_SCENE, SYSTEMS, SCRIPTS, RENDER_ENGINE, ENTITIES } from './engine/symbols';
 import { initEvents } from './engine/scripts';
-import { meta, clearEventQueue, render, graphicsRect, position, boundingBox, input } from './engine/systems';
+import { buttonPressDebug } from './engine/components';
+import { meta, clearEventQueue, render, graphicsRect, position, boundingBox, input, inputDebug } from './engine/systems';
 import { isDev, makeId } from './engine/util';
 import { createRenderingEngine } from './engine/pixi';
 import player from './spec/player';
@@ -55,6 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
             id: levelOneId,
             systems: [
               input.id,
+              inputDebug.id,
               meta.id,
               position.id,
               boundingBox.id,
@@ -65,8 +67,10 @@ document.addEventListener('DOMContentLoaded', () => {
           },
         },
         { type: CURRENT_SCENE, options: levelOneId },
-        // system for tracking keyboard input events
+        // system for listening to keyboard input events
         { type: SYSTEMS, options: input },
+        // system for debugging keyboard input events
+        { type: SYSTEMS, options: inputDebug },
         // system for x, y, z stage placement
         { type: SYSTEMS, options: position },
         // system for meta events like adding/removing entities
@@ -81,6 +85,12 @@ document.addEventListener('DOMContentLoaded', () => {
         { type: SYSTEMS, options: clearEventQueue },
         // the player
         { type: ENTITIES, options: player },
+        // debug button
+        { type: ENTITIES,
+          options: {
+            id: makeId(ENTITIES),
+            components: [{ id: buttonPressDebug.id, state: undefined }],
+          } },
       );
 
       console.log(gameState);

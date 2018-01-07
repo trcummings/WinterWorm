@@ -23,8 +23,9 @@ export const RENDER_ENGINE = 'renderEngine';
 
 // Events
 export const EVENTS = 'events';
+// EventTypes
 export const QUEUE = 'queue';
-export const ACTION = 'action';
-
-// SYSTEMS
 export const META = 'meta';
+
+// Queue Event Types
+export const KEYBOARD_INPUT = 'keyboardInput';

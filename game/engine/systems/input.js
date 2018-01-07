@@ -1,11 +1,10 @@
 // @flow
 import { makeId } from '../util';
-import { SYSTEMS } from '../symbols';
-import { emitEvent } from '../events';
+import { SYSTEMS, KEYBOARD_INPUT } from '../symbols';
+import { getSubscribedEntityIds } from '../ecs';
+import { emitEvents, makeEvent } from '../events';
 
 import type { System, GameState } from '../types';
-
-export const KEYBOARD_INPUT = 'keyboardInput';
 
 const KEY_DOWN = 'keydown';
 const KEY_UP = 'keyup';
@@ -49,7 +48,11 @@ const input: System = {
     const hasInput = Object.keys(keyboardInput).length > 0;
 
     // add event of currently pressed keys to state.events.queue
-    if (hasInput) return emitEvent(state, keyboardInput, [KEYBOARD_INPUT]);
+    if (hasInput) {
+      const entityIds = getSubscribedEntityIds(state, KEYBOARD_INPUT);
+      const events = entityIds.map(id => makeEvent(keyboardInput, [KEYBOARD_INPUT, id]));
+      return emitEvents(state, events);
+    }
     return state;
   },
 };

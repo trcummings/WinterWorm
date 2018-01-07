@@ -11,9 +11,7 @@ import {
   CURRENT_SCENE,
   STATE,
   UPDATE_FNS,
-  // SUBSCRIPTIONS,
   CLEANUP_FN,
-  // CONTEXT,
 } from './symbols';
 import { conjoin, concatKeywords } from './util';
 import { getSubscribedEvents, emitEvents, getEventQueue } from './events';
@@ -47,9 +45,27 @@ export const getSystemFns = (state: GameState, systemIds: Array<Id>) => (
   systemIds.map(id => view(lensPath([SYSTEMS, id, FN]), state))
 );
 
-// Returns a Set of all entity IDs that have the specified componentId.
-const getEntityIdsWithComponent = (state: GameState, componentId: Id): GameState => (
+// Returns a list of all entity IDs that have the specified componentId.
+const getEntityIdsWithComponent = (state: GameState, componentId: Id): Array<Id> => (
   view(lensPath([COMPONENTS, componentId, ENTITIES]), state)
+);
+
+export const getSubscribedComponentIds = (
+  state: GameState,
+  eventName
+): Array<Id> => {
+  const components = state[COMPONENTS];
+  return Object.keys(components).reduce((total, cId) => {
+    const { subscriptions } = components[cId];
+    if (subscriptions && subscriptions.includes(eventName)) total.push(cId);
+    return total;
+  }, []);
+};
+
+export const getSubscribedEntityIds = (state: GameState, eventName) => (
+  getSubscribedComponentIds(state, eventName).reduce((total, cId) => (
+    total.concat(getEntityIdsWithComponent(state, cId))
+  ), [])
 );
 
 // Returns a set of all entity IDs that have all the specified component-ids.
@@ -101,10 +117,10 @@ export const setComponentState = (state, componentId, entityId, initialCS = {}) 
 
 const getComponentContext = (state, eventQueue, entityId, component) => {
   const { subscriptions, context } = component;
-  if (!context) return undefined;
-
   const messages = getSubscribedEvents(eventQueue, entityId, subscriptions);
-  if (!messages) return undefined;
+  const newContext = { inbox: messages };
+
+  if (!context) return newContext;
   for (const item of context) {
     let ctxtEntityId = entityId;
     let ctxtComponentId = item;
@@ -117,10 +133,10 @@ const getComponentContext = (state, eventQueue, entityId, component) => {
     }
 
     const componentState = getComponentState(state, ctxtComponentId, ctxtEntityId);
-    messages[assocTarget] = componentState; // eslint-disable-line
+    newContext[assocTarget] = componentState;
   }
 
-  return messages;
+  return newContext;
 };
 
 // Gets all state associated with a component
@@ -134,7 +150,7 @@ const getNextSystemStateAndEvents = (state, componentId) => {
   const component = getComponent(state, componentId);
   const eventsQueue = getEventQueue(state);
   const newComponentState = {};
-  const newEvents = {};
+  const newEvents = [];
 
   for (const entityId of entityIds) {
     const componentState = componentStates[entityId];
@@ -142,16 +158,11 @@ const getNextSystemStateAndEvents = (state, componentId) => {
     let nextComponentState = component.fn(entityId, componentState, context);
     let events;
 
-    // we're gonna do some mutable assignment here for performance reasons
-    // this is one of the only places it should do that
     if (Array.isArray(nextComponentState)) {
       [nextComponentState, events] = nextComponentState;
-
-      for (const eventName of Object.keys(events)) {
-        newEvents[eventName] = [];
-        for (const event of events[eventName])newEvents[eventName].push(event);
-      }
+      if (events) for (const event of events) newEvents.push(event);
     }
+
     newComponentState[entityId] = nextComponentState;
   }
 

@@ -6,7 +6,7 @@ import { getEventQueue, getEvents } from '../events';
 import { setState } from '../core';
 import { makeId } from '../util';
 import { META, SYSTEMS } from '../symbols';
-import type { System, GameState } from '../types';
+import type { System, GameState, Spec } from '../types';
 
 // Processes all events on the meta queue (gameState.state.events.queue.meta)
 // and returns an updated game state. This is used for adding, removing
@@ -18,8 +18,8 @@ const meta: System = {
     const events = getEvents(eventsQueue, [META]);
 
     if (!events || events.length === 0) return state;
-    return events.reduce((next, event) => (
-      setState(next, event.action)
+    return events.reduce((next: GameState, event): GameState => (
+      setState(next, event.action: Spec)
     ), state);
   },
 };

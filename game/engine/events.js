@@ -7,9 +7,10 @@
 // circular messages happening. (the same way you wouldn't dispatch from
 // a reducer in Redux)
 
-import { lensPath, assocPath, view } from 'ramda';
+import { lensPath, assocPath, view, over } from 'ramda';
 
 import { STATE, EVENTS, QUEUE } from './symbols';
+import { conjoin } from './util';
 
 import type { GameState } from './types';
 
@@ -40,22 +41,26 @@ export const getSubscribedEvents = (
   entityId: string,
   subscriptions: Selectors = []
 ): Events => {
-  const subscribedEvents = {};
+  const subscribedEvents = [];
   for (const eventName of subscriptions) {
-    subscribedEvents[eventName] = [];
-    const events = getEvents(eventQueue, [eventName, entityId]);
-    if (events) for (const event of events) subscribedEvents[eventName].push(event);
+    for (const event of eventQueue) {
+      const isSubscribedTo = [eventName, entityId].every((item, index) => (
+        event.selectors[index] === item
+      ));
+
+      if (isSubscribedTo) subscribedEvents.push(event.action);
+    }
   }
+
   return subscribedEvents;
 };
 
 // Takes an action and selectors and formats them for the event representation.
 // The first selector, by convention, is called the eventId. Returns an object.
-export const makeEvent = (action: Action, selectors: Selectors): Event => ({
-  eventId: selectors[0],
-  selectors,
-  action,
-});
+export const makeEvent = (
+  action: Action,
+  selectors: Selectors
+): Event => ({ eventId: selectors[0], selectors, action });
 
 // Enqueues an event onto the queue
 export const emitEvent = (
@@ -64,31 +69,16 @@ export const emitEvent = (
   selectors: Selectors
 ): GameState => {
   const event = makeEvent(action, selectors);
-  const path = queuePath.concat(selectors);
-  const events = view(lensPath(path), state) || [];
-
-  return assocPath(path, events.concat([event]), state);
+  const events = getEventQueue(state);
+  return assocPath(queuePath, events.concat([event]), state);
 };
 
 // Emits a collection of events at the same time. Returns updated game state.
 export const emitEvents = (state: GameState, events: Events): GameState => {
-  let update;
   const eventQueue = getEventQueue(state);
-  const eventNames = Object.keys(eventQueue);
-
-  for (const eventName of eventNames) {
-    const eventsForEventName = eventQueue[eventName] || [];
-
-    for (const event of eventsForEventName) {
-      const newEvents = eventsForEventName.concat([event]);
-      update = assocPath(event.selectors, newEvents, events);
-    }
-  }
-
-  if (!update) return state;
-  return assocPath(queuePath, update, state);
+  return assocPath(queuePath, eventQueue.concat(events), state);
 };
 
 export const clearEventQueue = (state: GameState): GameState => (
-  assocPath(queuePath, {}, state)
+  assocPath(queuePath, [], state)
 );
