@@ -134,7 +134,7 @@ const getNextSystemStateAndEvents = (state, componentId) => {
   const component = getComponent(state, componentId);
   const eventsQueue = getEventQueue(state);
   const newComponentState = {};
-  const newEvents = [];
+  const newEvents = {};
 
   for (const entityId of entityIds) {
     const componentState = componentStates[entityId];
@@ -146,7 +146,11 @@ const getNextSystemStateAndEvents = (state, componentId) => {
     // this is one of the only places it should do that
     if (Array.isArray(nextComponentState)) {
       [nextComponentState, events] = nextComponentState;
-      if (events) for (const event of events) newEvents.push(event);
+
+      for (const eventName of Object.keys(events)) {
+        newEvents[eventName] = [];
+        for (const event of events[eventName])newEvents[eventName].push(event);
+      }
     }
     newComponentState[entityId] = nextComponentState;
   }
@@ -161,7 +165,7 @@ const getNextSystemStateAndEvents = (state, componentId) => {
 // game state.
 const setSystemFn = (componentId: Id) => (state: GameState): GameState => {
   const { nextState, events } = getNextSystemStateAndEvents(state, componentId);
-  return events ? emitEvents(nextState, events) : nextState;
+  return emitEvents(nextState, events);
 };
 
 // adds the system function to state

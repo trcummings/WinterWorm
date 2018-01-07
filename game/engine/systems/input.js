@@ -12,16 +12,16 @@ const KEY_UP = 'keyup';
 
 let inputsSet;
 
-const inputs = new Set();
+const inputs = {};
 
 const keyDownHandler = (event) => {
   const keyCode = String.fromCharCode(event.keyCode);
-  inputs.add(keyCode);
+  inputs[keyCode] = true;
 };
 
 const keyUpHandler = (event) => {
   const keyCode = String.fromCharCode(event.keyCode);
-  inputs.delete(keyCode);
+  delete inputs[keyCode];
 };
 
 export const clearHandlers = () => {
@@ -45,12 +45,11 @@ const input: System = {
 
     // capture mutable input object right NOW by making a shallow copy
     // god this feels so unsafe
-    const currentInputs = { ...inputs };
+    const keyboardInput = Object.assign({}, inputs);
+    const hasInput = Object.keys(keyboardInput).length > 0;
 
     // add event of currently pressed keys to state.events.queue
-    if (Object.keys(currentInputs).length > 0) {
-      return emitEvent(state, currentInputs, [KEYBOARD_INPUT]);
-    }
+    if (hasInput) return emitEvent(state, keyboardInput, [KEYBOARD_INPUT]);
     return state;
   },
 };

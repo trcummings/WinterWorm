@@ -7,10 +7,9 @@
 // circular messages happening. (the same way you wouldn't dispatch from
 // a reducer in Redux)
 
-import { merge, lensPath, assocPath, concat, view, over, into } from 'ramda';
+import { lensPath, assocPath, view } from 'ramda';
 
 import { STATE, EVENTS, QUEUE } from './symbols';
-import { conjoin } from './util';
 
 import type { GameState } from './types';
 
@@ -65,41 +64,31 @@ export const emitEvent = (
   selectors: Selectors
 ): GameState => {
   const event = makeEvent(action, selectors);
-  console.log(event);
-  const path = into(queuePath, concat, selectors);
-  console.log(path);
+  const path = queuePath.concat(selectors);
+  const events = view(lensPath(path), state) || [];
 
-  return over(path, conjoin(event), state);
+  return assocPath(path, events.concat([event]), state);
 };
 
 // Emits a collection of events at the same time. Returns updated game state.
 export const emitEvents = (state: GameState, events: Events): GameState => {
   let update;
   const eventQueue = getEventQueue(state);
+  const eventNames = Object.keys(eventQueue);
 
-  for (const event of eventQueue) {
-    update = over(lensPath(event.selectors), conjoin(event), events);
+  for (const eventName of eventNames) {
+    const eventsForEventName = eventQueue[eventName] || [];
+
+    for (const event of eventsForEventName) {
+      const newEvents = eventsForEventName.concat([event]);
+      update = assocPath(event.selectors, newEvents, events);
+    }
   }
 
   if (!update) return state;
   return assocPath(queuePath, update, state);
 };
 
-// Batch add events with the same selectors. Events should be a hashmap of id,
-// collection of valid events. Will merge existing events map with
-// eventsMap, overwriting existing keys
-export const batchEmitEvents = (
-  state: GameState,
-  selectors: Selectors,
-  eventsMap
-): GameState => {
-  const path = into(queuePath, concat, selectors);
-  const existingEvents = view(path, state);
-  const events = merge(existingEvents, eventsMap);
-
-  return assocPath(path, events, state);
-};
-
 export const clearEventQueue = (state: GameState): GameState => (
-  assocPath(queuePath, [], state)
+  assocPath(queuePath, {}, state)
 );
