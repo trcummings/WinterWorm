@@ -36,6 +36,7 @@
     "flow-typed": "^2.2.3",
     "google-closure-compiler-js": "^20171203.0.0",
     "immutable": "^3.8.2",
+    "javascript-state-machine": "^3.0.1",
     "mocha": "^4.1.0",
     "mocha-webpack": "^1.0.1",
     "pixi.js": "^4.6.2",

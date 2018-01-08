@@ -7,7 +7,11 @@ import type { Component } from '../types';
 const buttonPressDebug: Component = {
   id: makeId(COMPONENTS),
   subscriptions: [KEYBOARD_INPUT],
-  fn: (entityId, componentState, context) => componentState,
+  fn: (entityId, componentState, context) => {
+    // console.log(componentState, context);
+    const state = componentState;
+    return state;
+  },
 };
 
 export { buttonPressDebug };

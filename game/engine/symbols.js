@@ -26,6 +26,9 @@ export const EVENTS = 'events';
 // EventTypes
 export const QUEUE = 'queue';
 export const META = 'meta';
+export const CONTROL = 'control';
 
 // Queue Event Types
 export const KEYBOARD_INPUT = 'keyboardInput';
+export const POSITION_CHANGE = 'positionChange';
+export const SCENE_CHANGE = 'sceneChange';

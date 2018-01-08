@@ -1,4 +1,4 @@
-import { Graphics, Application } from 'pixi.js';
+import { Graphics, Application, Text } from 'pixi.js';
 import { assoc } from 'ramda';
 
 import { RENDER_ENGINE } from './symbols';
@@ -104,4 +104,10 @@ export const removeChildMut = (stage, item) => {
 // renders a PIXI Stage object
 export const renderMut = (renderer, stage) => {
   renderer.render(stage);
+};
+
+export const makeTextMut = (stage, text) => {
+  const textObj = new Text(text);
+  addChildMut(stage, textObj);
+  return textObj;
 };

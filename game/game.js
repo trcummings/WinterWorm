@@ -3,11 +3,13 @@ import { loader, extras } from 'pixi.js';
 import { setGameState, gameLoop } from './engine/core';
 import { SCENES, CURRENT_SCENE, SYSTEMS, SCRIPTS, RENDER_ENGINE, ENTITIES } from './engine/symbols';
 import { initEvents } from './engine/scripts';
-import { buttonPressDebug } from './engine/components';
+import { buttonPressDebug, position as positionC, utils } from './engine/components';
 import { meta, clearEventQueue, render, graphicsRect, position, boundingBox, input, inputDebug } from './engine/systems';
 import { isDev, makeId } from './engine/util';
 import { createRenderingEngine } from './engine/pixi';
+
 import player from './spec/player';
+import { levelOne } from './spec/scenes';
 
 if (isDev()) require('./engine/fpsMeter'); // eslint-disable-line
 
@@ -45,28 +47,12 @@ document.addEventListener('DOMContentLoaded', () => {
       sprite.play();
       stage.addChild(sprite);
 
-      const levelOneId = makeId(SCENES);
-
       const gameState = setGameState(
         {},
         { type: RENDER_ENGINE, options: { renderer, stage, canvas } },
         { type: SCRIPTS, options: initEvents },
-        { type: SCENES,
-          options: {
-            id: levelOneId,
-            systems: [
-              input.id,
-              inputDebug.id,
-              meta.id,
-              position.id,
-              boundingBox.id,
-              graphicsRect.id,
-              render.id,
-              clearEventQueue.id,
-            ],
-          },
-        },
-        { type: CURRENT_SCENE, options: levelOneId },
+        { type: SCENES, options: levelOne },
+        { type: CURRENT_SCENE, options: levelOne.id },
         // system for listening to keyboard input events
         { type: SYSTEMS, options: input },
         // system for debugging keyboard input events
@@ -89,7 +75,10 @@ document.addEventListener('DOMContentLoaded', () => {
         { type: ENTITIES,
           options: {
             id: makeId(ENTITIES),
-            components: [{ id: buttonPressDebug.id, state: undefined }],
+            components: [
+              { id: positionC.id, state: utils.setPositionState({ x: 300, y: 300, z: 1 }) },
+              { id: buttonPressDebug.id, state: undefined },
+            ],
           } },
       );
 

@@ -7,10 +7,9 @@
 // circular messages happening. (the same way you wouldn't dispatch from
 // a reducer in Redux)
 
-import { lensPath, assocPath, view, over } from 'ramda';
+import { lensPath, assocPath, view } from 'ramda';
 
 import { STATE, EVENTS, QUEUE } from './symbols';
-import { conjoin } from './util';
 
 import type { GameState } from './types';
 
@@ -48,7 +47,7 @@ export const getSubscribedEvents = (
         event.selectors[index] === item
       ));
 
-      if (isSubscribedTo) subscribedEvents.push(event.action);
+      if (isSubscribedTo) subscribedEvents.push(event);
     }
   }
 
@@ -74,7 +73,7 @@ export const emitEvent = (
 };
 
 // Emits a collection of events at the same time. Returns updated game state.
-export const emitEvents = (state: GameState, events: Events): GameState => {
+export const emitEventsToQueue = (state: GameState, events: Events): GameState => {
   const eventQueue = getEventQueue(state);
   return assocPath(queuePath, eventQueue.concat(events), state);
 };

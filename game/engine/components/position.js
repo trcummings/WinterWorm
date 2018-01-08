@@ -1,10 +1,9 @@
 // @flow
 import { makeId } from '../util';
-import { COMPONENTS } from '../symbols';
+import { COMPONENTS, POSITION_CHANGE } from '../symbols';
 
 import type { Component } from '../types';
 
-export const POSITION_CHANGE = 'positionChange';
 export const setPositionState = ({ x, y, z }) => ({ x, y, z });
 
 const updateOffset = (

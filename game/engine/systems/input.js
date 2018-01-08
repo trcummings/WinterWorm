@@ -2,7 +2,7 @@
 import { makeId } from '../util';
 import { SYSTEMS, KEYBOARD_INPUT } from '../symbols';
 import { getSubscribedEntityIds } from '../ecs';
-import { emitEvents, makeEvent } from '../events';
+import { emitEventsToQueue, makeEvent } from '../events';
 
 import type { System, GameState } from '../types';
 
@@ -35,15 +35,13 @@ const setHandlers = () => {
   inputsSet = true;
 };
 
-const inputId = makeId(SYSTEMS);
 const input: System = {
-  id: inputId,
+  id: makeId(SYSTEMS),
   fn: (state: GameState): GameState => {
     // if we haven't set them up yet, initialize the key event handlers
     if (!inputsSet) setHandlers();
 
     // capture mutable input object right NOW by making a shallow copy
-    // god this feels so unsafe
     const keyboardInput = Object.assign({}, inputs);
     const hasInput = Object.keys(keyboardInput).length > 0;
 
@@ -51,7 +49,7 @@ const input: System = {
     if (hasInput) {
       const entityIds = getSubscribedEntityIds(state, KEYBOARD_INPUT);
       const events = entityIds.map(id => makeEvent(keyboardInput, [KEYBOARD_INPUT, id]));
-      return emitEvents(state, events);
+      return emitEventsToQueue(state, events);
     }
     return state;
   },

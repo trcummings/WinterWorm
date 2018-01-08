@@ -14,9 +14,13 @@ import {
   CLEANUP_FN,
 } from './symbols';
 import { conjoin, concatKeywords } from './util';
-import { getSubscribedEvents, emitEvents, getEventQueue } from './events';
+import { getSubscribedEvents, emitEventsToQueue, getEventQueue } from './events';
 
 import type { GameState, Scene, ID as Id } from './types';
+
+export const getScene = (state: GameState, sceneId: Id): GameState => (
+  view([SCENES, sceneId], state)
+);
 
 //  Add or update existing scene in the game state. A scene is a
 //  collection of systems. systems are a collection of keywords referencing
@@ -176,7 +180,7 @@ const getNextSystemStateAndEvents = (state, componentId) => {
 // game state.
 const setSystemFn = (componentId: Id) => (state: GameState): GameState => {
   const { nextState, events } = getNextSystemStateAndEvents(state, componentId);
-  return emitEvents(nextState, events);
+  return emitEventsToQueue(nextState, events);
 };
 
 // adds the system function to state
