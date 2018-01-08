@@ -150,6 +150,8 @@ const getAllComponentState = (state, componentId) => (
 
 const getNextSystemStateAndEvents = (state, componentId) => {
   const entityIds = getEntityIdsWithComponent(state, componentId);
+  if (!entityIds) return { nextState: state, events: [] };
+
   const componentStates = getAllComponentState(state, componentId);
   const component = getComponent(state, componentId);
   const eventsQueue = getEventQueue(state);

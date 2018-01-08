@@ -23,9 +23,9 @@ export const getSceneSystemSpecs = (state: GameState, sceneId: Id, extraSystemMa
 };
 
 const setSceneSystemSpecs =
-  (sceneId: Id, systemMap): Script =>
+  (sceneId: Id, sysMap): Script =>
     (state: GameState): GameState => {
-      const systemSpecs: Array<Spec> = getSceneSystemSpecs(state, sceneId, systemMap);
+      const systemSpecs: Array<Spec> = getSceneSystemSpecs(state, sceneId, sysMap);
       return setGameState(state, ...systemSpecs);
     };
 

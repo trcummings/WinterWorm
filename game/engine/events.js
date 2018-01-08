@@ -9,7 +9,7 @@
 
 import { lensPath, assocPath, view } from 'ramda';
 
-import { STATE, EVENTS, QUEUE } from './symbols';
+import { STATE, EVENTS, QUEUE, META } from './symbols';
 
 import type { GameState } from './types';
 
@@ -24,15 +24,15 @@ type Event = {
 type Events = Array<Event>;
 
 export const queuePath = [STATE, EVENTS, QUEUE];
+export const metaPath = [STATE, EVENTS, META];
 
-export const getEventQueue = (state: GameState): Events => (
-  view(lensPath(queuePath), state)
+
+const getEvents = (path: Array<string>) => (state: GameState): Events => (
+  view(lensPath(path), state)
 );
 
-// Returns a collection of events.
-export const getEvents = (queue, selectors: Selectors) => (
-  view(lensPath(selectors), queue)
-);
+export const getEventQueue = getEvents(queuePath);
+export const getMetaEvents = getEvents(metaPath);
 
 // Returns an array of events that matches the collection of selectors for an entity.
 export const getSubscribedEvents = (
@@ -81,3 +81,12 @@ export const emitEventsToQueue = (state: GameState, events: Events): GameState =
 export const clearEventQueue = (state: GameState): GameState => (
   assocPath(queuePath, [], state)
 );
+
+export const clearMetaEvents = (state: GameState): GameState => (
+  assocPath(metaPath, [], state)
+);
+
+export const emitMetaEvent = (state: GameState, event): GameState => {
+  const events = getMetaEvents(state);
+  return assocPath(metaPath, events.concat([event]), state);
+};

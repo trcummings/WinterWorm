@@ -2,10 +2,10 @@
 
 // System for handling changes to the game state
 // e.g. adding/removing entities, changing scenes
-import { getEventQueue, getEvents } from '../events';
+import { getMetaEvents, clearMetaEvents } from '../events';
 import { setState } from '../core';
 import { makeId } from '../util';
-import { META, SYSTEMS } from '../symbols';
+import { SYSTEMS } from '../symbols';
 import type { System, GameState, Spec } from '../types';
 
 // Processes all events on the meta queue (gameState.state.events.queue.meta)
@@ -14,13 +14,11 @@ import type { System, GameState, Spec } from '../types';
 const meta: System = {
   id: makeId(SYSTEMS),
   fn: (state: GameState): GameState => {
-    const eventsQueue = getEventQueue(state);
-    const events = getEvents(eventsQueue, [META]);
+    const events: Array<Spec> = getMetaEvents(state);
 
     if (!events || events.length === 0) return state;
-    return events.reduce((next: GameState, event): GameState => (
-      setState(next, event.action: Spec)
-    ), state);
+    const next = events.reduce(setState, state);
+    return clearMetaEvents(next);
   },
 };
 
