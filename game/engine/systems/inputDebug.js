@@ -1,4 +1,5 @@
 // @flow
+// system for debugging keyboard input events
 import { makeId } from '../util';
 import { buttonPressDebug } from '../components';
 import { SYSTEMS } from '../symbols';

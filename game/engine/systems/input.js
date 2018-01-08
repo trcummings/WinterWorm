@@ -1,4 +1,6 @@
 // @flow
+// input.js: system for listening to keyboard input events
+
 import { makeId } from '../util';
 import { SYSTEMS, KEYBOARD_INPUT } from '../symbols';
 import { getSubscribedEntityIds } from '../ecs';

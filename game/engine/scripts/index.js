@@ -1,3 +1,9 @@
 import initEvents from './initEvents';
+import changeScene from './changeScene';
+import setSceneSystemSpecs from './setSceneSystemSpecs';
 
-export { initEvents };
+export {
+  initEvents,
+  changeScene,
+  setSceneSystemSpecs,
+};

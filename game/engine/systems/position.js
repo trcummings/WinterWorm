@@ -1,4 +1,5 @@
 // @flow
+// system for x, y, z stage placement
 import { makeId } from '../util';
 import { position as positionComponent } from '../components';
 import { SYSTEMS } from '../symbols';

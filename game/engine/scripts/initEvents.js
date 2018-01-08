@@ -1,8 +1,17 @@
 // @flow
-import { clearEventQueue } from '../events';
+import { assocPath } from 'ramda';
 
-import type { Script } from '../types';
+import { STATE, QUEUE, META, EVENTS } from '../symbols';
 
-const initEvents: Script = clearEventQueue;
+import type { Script, GameState } from '../types';
+
+const events = {
+  [QUEUE]: [],
+  [META]: [],
+};
+
+const initEvents: Script = (state: GameState) => (
+  assocPath([STATE, EVENTS], events, state)
+);
 
 export default initEvents;

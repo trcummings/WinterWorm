@@ -1,4 +1,5 @@
 // @flow
+// system for rendering graphical rectangles
 import { makeId } from '../util';
 import { renderableRect } from '../components';
 import { SYSTEMS } from '../symbols';

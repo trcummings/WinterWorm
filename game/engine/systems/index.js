@@ -6,7 +6,10 @@ import position from './position';
 import boundingBox from './boundingBox';
 import input from './input';
 import inputDebug from './inputDebug';
+import spriteLoader from './spriteLoader';
 
+// map of all non-factory systems (to use them in setSceneSystemSpec,
+// pass them in dynamically at run time using the fourth options parameter)
 const systemMap = {
   [meta.id]: meta,
   [position.id]: position,
@@ -28,4 +31,5 @@ export {
   input,
   inputDebug,
   systemMap,
+  spriteLoader,
 };

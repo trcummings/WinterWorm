@@ -1,6 +1,6 @@
 // @flow
-
 import { merge } from 'ramda';
+
 import {
   ENTITIES,
   COMPONENTS,
@@ -8,7 +8,7 @@ import {
   SCENES,
 } from './symbols';
 
-import type { ID } from './types';
+import type { Id } from './types';
 
 type MakeIdType =
   | typeof ENTITIES
@@ -22,7 +22,8 @@ const counterDict = {
   [SYSTEMS]: 0,
   [SCENES]: 0,
 };
-export const makeId = (type: MakeIdType): ID => {
+
+export const makeId = (type: MakeIdType): Id => {
   if (
     typeof type === 'undefined' ||
     typeof counterDict[type] === 'undefined'
@@ -31,7 +32,7 @@ export const makeId = (type: MakeIdType): ID => {
   // increment the number of ids of that type in the counter dictionary
   counterDict[type] += 1;
 
-  return (`${type}-${counterDict[type]}`: ID);
+  return (`${type}-${counterDict[type]}`: Id);
 };
 
 export const conjoin = arg1 => arg2 => merge(arg2, arg1);

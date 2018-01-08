@@ -26,9 +26,12 @@ export const EVENTS = 'events';
 // EventTypes
 export const QUEUE = 'queue';
 export const META = 'meta';
-export const CONTROL = 'control';
+export const ASSET_PIPELINE = 'assetPipeline';
 
 // Queue Event Types
 export const KEYBOARD_INPUT = 'keyboardInput';
 export const POSITION_CHANGE = 'positionChange';
 export const SCENE_CHANGE = 'sceneChange';
+
+// Asset Pipeline Event Types
+export const LOAD_SPRITE_ATLAS = 'loadSpriteAtlas';

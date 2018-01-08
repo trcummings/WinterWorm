@@ -1,4 +1,5 @@
 // @flow
+// system for height and width of an entity
 import { makeId } from '../util';
 import { boundingRect } from '../components';
 import { SYSTEMS } from '../symbols';

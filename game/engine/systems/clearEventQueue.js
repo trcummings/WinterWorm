@@ -1,4 +1,5 @@
 // @flow
+// system for clearing out the event queue at the end of the system fn
 import { makeId } from '../util';
 import { clearEventQueue as clearEvents } from '../events';
 import { SYSTEMS } from '../symbols';

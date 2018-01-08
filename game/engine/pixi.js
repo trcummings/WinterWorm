@@ -1,7 +1,8 @@
-import { Graphics, Application, Text } from 'pixi.js';
-import { assoc } from 'ramda';
+import { Graphics, Application, Text, loader } from 'pixi.js';
+import { assoc, view, lensProp } from 'ramda';
 
 import { RENDER_ENGINE } from './symbols';
+import { isDev } from './util';
 
 export const createRenderingEngine = () => {
   const app = new Application({
@@ -16,16 +17,22 @@ export const createRenderingEngine = () => {
 
   document.body.appendChild(canvas);
 
-  return { canvas, stage, renderer };
+  return { canvas, stage, renderer, pixiLoader: loader };
 };
 
+const checkOptions = (options) => {
+  let failCase;
+  if (!options.renderer) failCase = 'renderer';
+  if (!options.stage) failCase = 'stage';
+  if (!options.pixiLoader) failCase = 'pixiLoader';
+  if (!options.canvas) failCase = 'canvas';
+  if (failCase) throw new Error(`cannot find ${failCase} in state.renderingEngine!`);
+};
+
+export const getRenderEngine = state => view(lensProp(RENDER_ENGINE), state);
+
 export const setRenderEngine = (state, options) => {
-  const { renderer, stage } = options;
-
-  if (!renderer || !stage) {
-    throw new Error('cannot find renderer or stage in state.renderingEngine!');
-  }
-
+  if (isDev()) checkOptions(options);
   return assoc(RENDER_ENGINE, options, state);
 };
 

@@ -11,30 +11,30 @@ import {
 } from './symbols';
 
 /* eslint-disable no-use-before-define */
-export type ID = string;
+export type Id = string;
 
 export type GameState = {
   currentScene?: CurrentScene,
   scenes?: {
-    [ID]: Scene
+    [Id]: Scene
   },
   updateFns?: {
-    [ID]: GameState => GameState
+    [Id]: GameState => GameState
   },
   systems?: {
-    [ID]: System
+    [Id]: System
   },
 };
 
-export type CurrentScene = ID;
+export type CurrentScene = Id;
 
 export type Scene = {|
-  +id: ID,
-  +systems: Array<ID>
+  +id: Id,
+  +systems: Array<Id>
 |};
 
 export type System = {|
-  +id: ID,
+  +id: Id,
   +fn?: GameState => GameState,
   +component?: Component
 |};

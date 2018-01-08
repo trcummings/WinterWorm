@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "flow-init": "./node_modules/.bin/flow init",
     "flow": "./node_modules/.bin/flow",
-    "app": "./node_modules/.bin/webpack --config ./webpack.config.js; ./node_modules/.bin/electron ./dist/app.js",
+    "app": "./node_modules/.bin/webpack --progress --config ./webpack.config.js; ./node_modules/.bin/electron ./dist/app.js",
     "prod-app": "NODE_ENV=production ./node_modules/.bin/webpack --config ./webpack.config.js; ./node_modules/.bin/electron ./dist/app.js",
     "test-game": "./node_modules/.bin/mocha-webpack --webpack-config ./webpack.config.js \"game/**/*.test.js\""
   },
@@ -26,6 +26,7 @@
     "babel-plugin-transform-flow-strip-types": "^6.22.0",
     "babel-preset-flow": "^6.23.0",
     "chai": "^4.1.2",
+    "circular-dependency-plugin": "^4.3.0",
     "electron": "1.7.10",
     "electron-debug": "^1.4.0",
     "eslint": "^4.9.0",

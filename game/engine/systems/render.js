@@ -1,6 +1,6 @@
 // @flow
 
-// System for rendering entities through PIXI.js
+// system for rendering the PIXI.js stage + fpsMeter
 import { view, lensProp } from 'ramda';
 
 import { renderMut } from '../pixi';

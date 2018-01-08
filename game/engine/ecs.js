@@ -16,10 +16,10 @@ import {
 import { conjoin, concatKeywords } from './util';
 import { getSubscribedEvents, emitEventsToQueue, getEventQueue } from './events';
 
-import type { GameState, Scene, ID as Id } from './types';
+import type { GameState, Scene, Id } from './types';
 
 export const getScene = (state: GameState, sceneId: Id): GameState => (
-  view([SCENES, sceneId], state)
+  view(lensPath([SCENES, sceneId]), state)
 );
 
 //  Add or update existing scene in the game state. A scene is a
