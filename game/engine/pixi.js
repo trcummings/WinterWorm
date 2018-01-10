@@ -1,8 +1,22 @@
-import { Graphics, Application, Text, loader } from 'pixi.js';
+// @flow
+import {
+  Application,
+  Container,
+  loader,
+  Sprite,
+  loaders,
+} from 'pixi.js';
 import { assoc, view, lensProp } from 'ramda';
 
 import { RENDER_ENGINE } from './symbols';
 import { isDev } from './util';
+
+type ResourceSpec = {
+  resourceName: string,
+  animationNames: Array<string>
+};
+
+const { Resource } = loaders;
 
 export const createRenderingEngine = () => {
   const app = new Application({
@@ -36,19 +50,6 @@ export const setRenderEngine = (state, options) => {
   return assoc(RENDER_ENGINE, options, state);
 };
 
-// const alterSpriteMut = (sprite, ...alterations) => {
-  // (defn alter-obj!
-  //   "Alter a js object's fields. Returns the object.
-  //    Example:
-  //    (alter-obj! s  \"x\" 1 \"y\" 2)"
-  //   [sprite & alterations]
-  //   (doseq [[k v] (partition 2 alterations)]
-  //     (aset sprite k v))
-  //   sprite)
-// };
-
-export const makeGraphics = () => new Graphics();
-
 export const addChildMut = (stage, item) => {
   stage.addChild(item);
   return stage;
@@ -64,57 +65,72 @@ export const removeChildMut = (stage, item) => {
   return stage;
 };
 
-// Set the frame of the sprite's spritesheet coords and dimensions
-// Returns the updated sprite.
-// Args:
-// - sprite: a Pixi Sprite obj
-// - frame: a vector of pos-x, pos-y, width, height of a spritesheet
-// const setSpriteFrameMut = (pixiSprite, frame) => {
-//   const [x, y, w, h] = frame;
-//   const texture = pixiSprite.texture;
-//   const bounds = new PIXI.rectangle(x, y, w, h);
-//   texture.frame = bounds;
-//   return pixiSprite;
-// };
-//
-// const setSpriteZIndexMut = (pixiSprite, zIdx) => {
-//   pixiSprite.position.z = zIdx;
-//   return pixiSprite;
-// };
-
-// (defn mk-sprite-from-cache!
-//   "Returns a sprite that has been added to the stage. The image for the sprite
-//    is loaded from the cache. If a frame is not passed in the sprite will not
-//    be visible until the frame is set. See set-sprite-frame! for more info.
-//    Args:
-//    - stage: a Pixi stage object
-//    - loader: a Pixi.loader object
-//    - image-location: a path to the image to use for the sprite
-//    Optional args:
-//    - frame: a vector of x, y, w, h in relation to the sprite image
-//    - z-index: the z dimension when drawing the sprite"
-//   ([stage loader image-location]
-//    (mk-sprite-from-cache! stage loader image-location [0 0 0 0] 0))
-//   ([stage loader image-location frame z-index]
-//    (let [cached-texture (.-texture (aget (.-resources loader) image-location))
-//          texture (new js/PIXI.Texture (.-baseTexture cached-texture))
-//          sprite (new js/PIXI.Sprite texture)]
-//      (set-sprite-frame! sprite frame)
-//      (set-sprite-zindex! sprite z-index)
-//      (add-child! stage sprite)
-//      sprite)))
-
-// const loadAssets = (loader, cb) => {
-//   loader.load(cb);
-// }
-
-// renders a PIXI Stage object
-export const renderMut = (renderer, stage) => {
-  renderer.render(stage);
+export const makeContainer = (children) => {
+  const container = new Container();
+  container.addChild(...children);
+  return container;
 };
 
-export const makeTextMut = (stage, text) => {
-  const textObj = new Text(text);
-  addChildMut(stage, textObj);
-  return textObj;
+const texturePathByFrame = (
+  animName: string,
+  loaderName: string,
+  ext = 'png'
+) => frame => (
+  typeof frame === 'undefined' ?
+    `${loaderName}/${animName}.${ext}` :
+    `${loaderName}/${animName}_${frame}.${ext}`
+);
+
+const getTexture = (resources, animName, resourceName) => numFrame => (
+  resources[texturePathByFrame(animName, resourceName)(numFrame)]
+);
+
+const makeSpriteList = (
+  allTextures: Resource,
+  animName: string,
+  resourceName: string,
+  numFrames: number,
+): Array<Sprite> => {
+  const textures = [];
+  const getTextureAt = getTexture(allTextures, animName, resourceName);
+
+  for (let i = 0; i < numFrames; i++) {
+    const idx = numFrames === 1 ? undefined : (i + 1);
+    const texture = getTextureAt(idx);
+
+    textures.push(Sprite.from(texture));
+  }
+  return textures;
+};
+
+const makeAnimation = (textures, resourceName) => (
+  { indexMap, nameMap, animation },
+  { animName, numFrames },
+  index
+) => {
+  const sprites = makeSpriteList(textures, animName, resourceName, numFrames);
+  const spriteContainer = new Container();
+  spriteContainer.addChild(...sprites);
+  spriteContainer.renderable = false;
+
+  animation.addChild(spriteContainer);
+
+  return {
+    indexMap: Object.assign(indexMap, { [index]: animName }),
+    nameMap: Object.assign(nameMap, { [animName]: index }),
+    animation,
+  };
+};
+
+export const makeAnimations = (
+  resources: Resource,
+  resourceSpec: ResourceSpec
+): Array<Sprite> => {
+  const { resourceName, animationSpecs } = resourceSpec;
+  const textures = resources[resourceName].textures;
+
+  return animationSpecs.reduce(
+    makeAnimation(textures, resourceName),
+    { indexMap: {}, nameMap: {}, animation: new Container() }
+  );
 };

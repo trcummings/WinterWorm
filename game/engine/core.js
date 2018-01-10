@@ -1,5 +1,6 @@
 // @flow
 import { view, compose, assocPath, reverse, lensPath } from 'ramda';
+import CircularJSON from 'circular-json';
 
 import {
   SCENES,
@@ -47,7 +48,7 @@ const setStateFn = (type: SpecType) => {
     }
     default: {
       return (_: GameState, ...args) => {
-        throw new Error(`Could not dispatch: ${args}`);
+        throw new Error(`Could not dispatch: ${CircularJSON.stringify(args)}`);
       };
     }
   }
@@ -68,6 +69,8 @@ export const setState = (state: GameState, spec: Spec): GameState => {
 export const setGameState = (initialState: {}, ...specs: Array<Spec>) => {
   const state = specs.reduce(setState, initialState);
   const sceneId = getCurrentScene(state);
+
+  console.log(state);
 
   if (!sceneId) throw new Error('Must have a CURRENT_SCENE scene in the spec!');
 

@@ -1,30 +1,36 @@
 // @flow
-import { __, assoc, compose } from 'ramda';
+import { __, assoc, compose, pick } from 'ramda';
 
-import { clearEventQueue } from '../events';
-import { setGameState } from '../core';
-import { CURRENT_SCENE, SCRIPTS, COMPONENTS, ENTITIES, SYSTEMS, STATE } from '../symbols';
+import { setGameState, setState } from '../core';
+import { CURRENT_SCENE, SCRIPTS, COMPONENTS, SYSTEMS, EVENTS, STATE, GAME_LOOP, LOADERS } from '../symbols';
 import { getSceneSystemSpecs } from './setSceneSystemSpecs';
-import initEvents from './initEvents';
+import removeAllEntities from './removeAllEntities';
 
 import type { Script, Id, GameState, Spec } from '../types';
 
+const clearState = (ignore: Array<string>) => (state: GameState): GameState => {
+  const picked = pick(ignore, state);
+  return assoc(STATE, picked, state);
+};
+
 const clearSceneInformation = compose(
   assoc(COMPONENTS, {}, __),
-  assoc(ENTITIES, {}, __),
   assoc(SYSTEMS, {}, __),
-  assoc(STATE, {}, __),
+  clearState([EVENTS, GAME_LOOP, LOADERS]),
 );
 
 const changeScene =
   (sceneId: Id, ...specs: Array<Spec>): Script =>
-    (state: GameState): GameState => setGameState(
-      state,
-      { type: CURRENT_SCENE, options: sceneId },
-      { type: SCRIPTS, options: clearSceneInformation },
-      { type: SCRIPTS, options: initEvents },
-      ...getSceneSystemSpecs(state, sceneId),
-      ...(specs || [])
-    );
+    (state: GameState): GameState => {
+      const newSceneSpecs = [
+        { type: SCRIPTS, options: removeAllEntities },
+        { type: SCRIPTS, options: clearSceneInformation },
+        { type: CURRENT_SCENE, options: sceneId },
+        ...getSceneSystemSpecs(state, sceneId),
+      ];
+
+      const next = newSceneSpecs.reduce(setState, state);
+      return setGameState(next, ...specs);
+    };
 
 export default changeScene;

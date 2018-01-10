@@ -10,10 +10,14 @@ const updateOffset = (
   { offsetX: totalX, offsetY: totalY },
   { offsetX: xO, offsetY: yO }
 ) => ({ offsetX: totalX + xO, offsetY: totalY + yO });
+
+const POSITION = 'position';
+
 // Calculates the entities position on the map and on the screen. Listens
 // for position changes in the format of [:position-change <entity-id>] with a
 // message with keys for offsetX and offsetY
 const position: Component = {
+  label: POSITION,
   id: makeId(COMPONENTS),
   subscriptions: [POSITION_CHANGE],
   fn: (entityId, componentState, context = {}) => {

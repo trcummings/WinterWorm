@@ -17,8 +17,6 @@ export const ENTITY_TRASHCAN = 'entityTrashcan';
 export const SUBSCRIPTIONS = 'subscriptions';
 export const CLEANUP_FN = 'cleanupFn';
 export const CONTEXT = 'context';
-
-// rendering engine
 export const RENDER_ENGINE = 'renderEngine';
 
 // Events
@@ -32,6 +30,3 @@ export const ASSET_PIPELINE = 'assetPipeline';
 export const KEYBOARD_INPUT = 'keyboardInput';
 export const POSITION_CHANGE = 'positionChange';
 export const SCENE_CHANGE = 'sceneChange';
-
-// Asset Pipeline Event Types
-export const LOAD_SPRITE_ATLAS = 'loadSpriteAtlas';

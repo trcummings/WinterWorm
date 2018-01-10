@@ -35,6 +35,7 @@ export type Scene = {|
 
 export type System = {|
   +id: Id,
+  +label: string,
   +fn?: GameState => GameState,
   +component?: Component
 |};
@@ -44,9 +45,9 @@ export type Script = GameState => GameState;
 export type Component = {|
   id: Id,
   fn: () => mixed,
+  +label: string,
   subscriptions?: Array<string>,
   cleanupFn?: () => mixed,
-  setupFn?: () => mixed,
   context?: Array<Id>,
 |};
 

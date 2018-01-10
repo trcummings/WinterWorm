@@ -1,7 +1,8 @@
-import { renderableRect } from './renderable';
+import { renderable } from './renderable';
 import { boundingRect } from './boundingRect';
 import { buttonPressDebug } from './buttonPressDebug';
 import { position, setPositionState } from './position';
+import { animateable } from './animateable';
 
 const utils = {
   setPositionState,
@@ -9,8 +10,9 @@ const utils = {
 
 export {
   boundingRect,
-  renderableRect,
+  renderable,
   position,
-  utils,
   buttonPressDebug,
+  animateable,
+  utils,
 };

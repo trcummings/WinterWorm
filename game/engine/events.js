@@ -86,7 +86,19 @@ export const clearMetaEvents = (state: GameState): GameState => (
   assocPath(metaPath, [], state)
 );
 
-export const emitMetaEvent = (state: GameState, event): GameState => {
+export const emitMetaEvent = (
+  state: GameState,
+  event: Event
+): GameState => {
   const events = getMetaEvents(state);
   return assocPath(metaPath, events.concat([event]), state);
+};
+
+export const emitMetaEvents = (
+  state: GameState,
+  newEvents: Array<Event>
+): GameState => {
+  const events = getMetaEvents(state);
+  console.log(events, newEvents);
+  return assocPath(metaPath, events.concat(newEvents), state);
 };

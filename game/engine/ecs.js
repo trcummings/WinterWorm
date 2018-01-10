@@ -2,7 +2,6 @@
 import { __, view, assocPath, append, lensPath, lensProp, over, dissocPath, compose, assoc } from 'ramda';
 
 import {
-  ID,
   FN,
   SYSTEMS,
   SCENES,
@@ -187,7 +186,8 @@ const setSystemFn = (componentId: Id) => (state: GameState): GameState => {
 
 // adds the system function to state
 export const setSystem = (state: GameState, system) => {
-  const { id, fn, component } = system;
+  const { id, fn, component, label } = system;
+
   if (component) {
     const componentId = component.id;
     const systemFn = setSystemFn(componentId);
@@ -195,7 +195,7 @@ export const setSystem = (state: GameState, system) => {
     return setComponent(next, { id: componentId, ...component });
   }
 
-  if (!fn) throw new Error('Invalid system spec! Missing fn');
+  if (!fn) throw new Error(`Invalid spec for system: ${label}! Missing 'fn'`);
   return assocPath([SYSTEMS, id], system, state);
 };
 
@@ -231,7 +231,7 @@ const removeEntityFromComponentIndex = (
   dissocPath([COMPONENTS, componentId, ENTITIES, componentId], nextState)
 ), state);
 
-export const removeEntity = (state: GameState, { [ID]: entityId }): GameState => {
+export const removeEntity = (state: GameState, entityId): GameState => {
   const entity = view(lensPath([ENTITIES, entityId]), state);
   const tasks = [];
 

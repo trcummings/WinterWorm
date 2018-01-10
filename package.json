@@ -27,6 +27,7 @@
     "babel-preset-flow": "^6.23.0",
     "chai": "^4.1.2",
     "circular-dependency-plugin": "^4.3.0",
+    "circular-json": "^0.5.1",
     "electron": "1.7.10",
     "electron-debug": "^1.4.0",
     "eslint": "^4.9.0",

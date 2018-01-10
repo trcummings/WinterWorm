@@ -6,7 +6,10 @@ import { SYSTEMS } from '../symbols';
 
 import type { System } from '../types';
 
+const BOUNDING_BOX = 'boundingBox';
+
 const boundingBox: System = {
+  label: BOUNDING_BOX,
   id: makeId(SYSTEMS),
   component: boundingRect,
 };

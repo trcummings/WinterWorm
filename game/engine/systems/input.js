@@ -37,7 +37,10 @@ const setHandlers = () => {
   inputsSet = true;
 };
 
+const INPUT = 'input';
+
 const input: System = {
+  label: INPUT,
   id: makeId(SYSTEMS),
   fn: (state: GameState): GameState => {
     // if we haven't set them up yet, initialize the key event handlers
