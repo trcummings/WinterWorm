@@ -1,5 +1,16 @@
 // @flow
-import { __, view, assocPath, append, lensPath, lensProp, over, dissocPath, compose, assoc } from 'ramda';
+import {
+  __,
+  view,
+  assocPath,
+  append,
+  lensPath,
+  lensProp,
+  over,
+  dissocPath,
+  compose,
+  assoc,
+} from 'ramda';
 
 import {
   FN,
@@ -124,6 +135,9 @@ const getComponentContext = (state, eventQueue, entityId, component) => {
   const newContext = { inbox: messages };
 
   if (!context) return newContext;
+  // for each item (componentId or object of { entityId, componentId })
+  // this component listens to, get that component state and add it to the
+  // component's next context object.
   for (const item of context) {
     let ctxtEntityId = entityId;
     let ctxtComponentId = item;
@@ -157,6 +171,10 @@ const getNextSystemStateAndEvents = (state, componentId) => {
   const newComponentState = {};
   const newEvents = [];
 
+  // loop through each entity concerned with this sytestem, get the entity's
+  // component state, then get the next component's state, which might be
+  // just its state, or an array, containing its state, and a second value
+  // which may be an array of events, or a single event.
   for (const entityId of entityIds) {
     const componentState = componentStates[entityId];
     const context = getComponentContext(state, eventsQueue, entityId, component);
@@ -165,7 +183,10 @@ const getNextSystemStateAndEvents = (state, componentId) => {
 
     if (Array.isArray(nextComponentState)) {
       [nextComponentState, events] = nextComponentState;
-      if (events) for (const event of events) newEvents.push(event);
+      if (events) {
+        if (Array.isArray(events)) for (const event of events) newEvents.push(event);
+        else newEvents.push(events);
+      }
     }
 
     newComponentState[entityId] = nextComponentState;

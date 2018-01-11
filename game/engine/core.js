@@ -62,9 +62,6 @@ export const setState = (state: GameState, spec: Spec): GameState => {
   return stateFn(state, spec);
 };
 
-// takes the type and options from the game state item, creates it, and
-// adds it to the state
-
 // takes an initial state (usually an empty object) and a spec array.
 export const setGameState = (initialState: {}, ...specs: Array<Spec>) => {
   const state = specs.reduce(setState, initialState);

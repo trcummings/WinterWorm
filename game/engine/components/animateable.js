@@ -1,6 +1,6 @@
 // @flow
 import { makeId } from '../util';
-import { COMPONENTS } from '../symbols';
+import { COMPONENTS, ANIMATION_CHANGE } from '../symbols';
 
 import type { Component } from '../types';
 
@@ -14,15 +14,16 @@ const getNextFrame = (numFrames, currentFrame) => {
   return currentFrame + 1;
 };
 
-const setSpriteForRender = (sprites, frame) => {
-  if (!sprites.renderable) sprites.renderable = true; //eslint-disable-line
+const setSpriteForRender = (pastSprites, currentSprites, frame, spritesChanged) => {
+  if (spritesChanged) pastSprites.renderable = false; //eslint-disable-line
+  if (!currentSprites.renderable) currentSprites.renderable = true; //eslint-disable-line
 
-  const numFrames = sprites.children.length;
+  const numFrames = currentSprites.children.length;
   const prevFrame = getPrevFrame(numFrames, frame);
   const nextFrame = getNextFrame(numFrames, frame);
 
-  sprites.children[prevFrame].renderable = false; // eslint-disable-line
-  sprites.children[frame].renderable = true; // eslint-disable-line
+  currentSprites.children[prevFrame].renderable = false; // eslint-disable-line
+  currentSprites.children[frame].renderable = true; // eslint-disable-line
 
   return nextFrame;
 };
@@ -35,8 +36,9 @@ const ANIMATEABLE = 'animateable';
 const animateable: Component = {
   label: ANIMATEABLE,
   id: makeId(COMPONENTS),
-  fn: (entityId, componentState) => {
-    // const { inbox } = context;
+  subscriptions: [ANIMATION_CHANGE],
+  fn: (entityId, componentState, context) => {
+    const { inbox } = context;
     const {
       // indexMap,
       nameMap,
@@ -44,10 +46,13 @@ const animateable: Component = {
       currentAnimation,
       frame,
     } = componentState;
-    const animIndex = nameMap[currentAnimation];
-    const nextFrame = setSpriteForRender(animation.children[animIndex], frame);
+    const newAnimation = inbox.length ? inbox[inbox.length - 1] : currentAnimation;
+    const pastSprites = animation.children[nameMap[currentAnimation]];
+    const currentSprites = animation.children[nameMap[newAnimation]];
+    const spritesChanged = currentAnimation !== newAnimation;
+    const newFrame = setSpriteForRender(pastSprites, currentSprites, frame, spritesChanged);
 
-    return { ...componentState, frame: nextFrame };
+    return { ...componentState, frame: newFrame };
   },
 };
 

@@ -11,17 +11,13 @@ import { lensPath, assocPath, view } from 'ramda';
 
 import { STATE, EVENTS, QUEUE, META } from './symbols';
 
-import type { GameState } from './types';
-
-type Selector = string;
-type Selectors = Array<Selector>;
-type Action = {};
-type Event = {
-  eventId: string,
-  selectors: Selectors,
-  action: Action
-};
-type Events = Array<Event>;
+import type {
+  GameState,
+  Selectors,
+  Action,
+  Event,
+  Events,
+} from './types';
 
 export const queuePath = [STATE, EVENTS, QUEUE];
 export const metaPath = [STATE, EVENTS, META];

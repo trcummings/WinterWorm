@@ -28,25 +28,23 @@ export const animationLoaderSpec = {
   path: path.resolve(process.env.ASSET_PATH, './player/player.json'),
 };
 
-const makeAnimSpec = (animName, numFrames) => ({ animName, numFrames });
-
 export const spriteResourceSpec = {
   resourceName: PLAYER,
   animationSpecs: [
-    makeAnimSpec(CLIMB, 2),
-    makeAnimSpec(DUCK_L, 1),
-    makeAnimSpec(DUCK_R, 1),
-    makeAnimSpec(HURT_L, 1),
-    makeAnimSpec(HURT_R, 1),
-    makeAnimSpec(IDLE, 1),
-    makeAnimSpec(JUMP_L, 1),
-    makeAnimSpec(JUMP_R, 1),
-    makeAnimSpec(STAND_L, 1),
-    makeAnimSpec(STAND_R, 1),
-    makeAnimSpec(SWIM_L, 2),
-    makeAnimSpec(SWIM_R, 2),
-    makeAnimSpec(WALK_L, 2),
-    makeAnimSpec(WALK_R, 2),
+    { animName: CLIMB,   numFrames: 2 },
+    { animName: DUCK_L,  numFrames: 1 },
+    { animName: DUCK_R,  numFrames: 1 },
+    { animName: HURT_L,  numFrames: 1 },
+    { animName: HURT_R,  numFrames: 1 },
+    { animName: IDLE,    numFrames: 1 },
+    { animName: JUMP_L,  numFrames: 1 },
+    { animName: JUMP_R,  numFrames: 1 },
+    { animName: STAND_L, numFrames: 1 },
+    { animName: STAND_R, numFrames: 1 },
+    { animName: SWIM_L,  numFrames: 2 },
+    { animName: SWIM_R,  numFrames: 2 },
+    { animName: WALK_L,  numFrames: 2 },
+    { animName: WALK_R,  numFrames: 2 },
   ] };
 
 const positionState = utils.setPositionState({ x: 200, y: 200, z: 1 });
@@ -59,6 +57,7 @@ const makePlayer = (state) => {
 
   animation.x = positionState.x;
   animation.y = positionState.y;
+
   stage.addChild(animation);
 
   const player = {

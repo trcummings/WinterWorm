@@ -11,7 +11,7 @@ import {
 } from './symbols';
 
 /* eslint-disable no-use-before-define */
-export type Id = string;
+export opaque type Id: string = string;
 
 export type GameState = {
   currentScene?: CurrentScene,
@@ -25,6 +25,19 @@ export type GameState = {
     [Id]: System
   },
 };
+
+type Selector = string;
+export type Selectors = Array<Selector>;
+
+export type Action = mixed;
+
+export type Event = {
+  eventId: string,
+  selectors: Selectors,
+  action: Action
+};
+
+export type Events = Array<Event>;
 
 export type CurrentScene = Id;
 
@@ -44,6 +57,12 @@ export type Script = GameState => GameState;
 
 export type Component = {|
   id: Id,
+  // this fn function takes an entityId, the previous component state,
+  // and an object that points the component state of the componentIds
+  // (or componentId, entityId objects to give this component the state
+  // of a specific entity), and returns either the next component state,
+  // or an array of the next component state, and either a list of events,
+  // or a single event.
   fn: () => mixed,
   +label: string,
   subscriptions?: Array<string>,
