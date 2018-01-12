@@ -31,3 +31,4 @@ export const KEYBOARD_INPUT = 'keyboardInput';
 export const POSITION_CHANGE = 'positionChange';
 export const SCENE_CHANGE = 'sceneChange';
 export const ANIMATION_CHANGE = 'animationChange';
+export const TIME_TICK = 'timeTick';

@@ -62,22 +62,30 @@ export const setState = (state: GameState, spec: Spec): GameState => {
   return stateFn(state, spec);
 };
 
+export const getUpdateFn = (
+  state: GameState,
+  systemIds: Array<Id>,
+) => {
+  const systemFns = getSystemFns(state, systemIds);
+  // make a curried function to call each system function on the state
+  // in order and return the next state
+  return compose(...reverse(systemFns));
+};
+
+export const getSceneSystemIds = (state: GameState): [Array<Id>, Id] => {
+  const sceneId = getCurrentScene(state);
+  if (!sceneId) throw new Error('Must have a CURRENT_SCENE scene in the spec!');
+
+  // get the systemIds from the current scene to get the update fn
+  return [view(lensPath([SCENES, sceneId, SYSTEMS]), state), sceneId];
+};
+
 // takes an initial state (usually an empty object) and a spec array.
 export const setGameState = (initialState: {}, ...specs: Array<Spec>) => {
   const state = specs.reduce(setState, initialState);
-  const sceneId = getCurrentScene(state);
-
-  console.log(state);
-
-  if (!sceneId) throw new Error('Must have a CURRENT_SCENE scene in the spec!');
-
-  // get the systems from the current scene
-  const systemIds = view(lensPath([SCENES, sceneId, SYSTEMS]), state);
-  const systemFns = getSystemFns(state, systemIds);
-
-  // set a curried function to call each system function on the state
-  // in order and return the next state
-  const updateFn = compose(...reverse(systemFns));
+  // get the systemIds from the current scene to get the update fn
+  const [systemIds, sceneId] = getSceneSystemIds(state);
+  const updateFn = getUpdateFn(state, systemIds);
 
   return assocPath([UPDATE_FNS, sceneId], updateFn, state);
 };

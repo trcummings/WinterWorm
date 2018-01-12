@@ -1,10 +1,8 @@
 // @flow
 // input.js: system for listening to keyboard input events
-
 import { makeId } from '../util';
 import { SYSTEMS, KEYBOARD_INPUT } from '../symbols';
-import { getSubscribedEntityIds } from '../ecs';
-import { emitEventsToQueue, makeEvent } from '../events';
+import { emitBatchToQueue } from '../events';
 
 import type { System, GameState } from '../types';
 
@@ -51,11 +49,7 @@ const input: System = {
     const hasInput = Object.keys(keyboardInput).length > 0;
 
     // add event of currently pressed keys to state.events.queue
-    if (hasInput) {
-      const entityIds = getSubscribedEntityIds(state, KEYBOARD_INPUT);
-      const events = entityIds.map(id => makeEvent(keyboardInput, [KEYBOARD_INPUT, id]));
-      return emitEventsToQueue(state, events);
-    }
+    if (hasInput) return emitBatchToQueue(state, KEYBOARD_INPUT, keyboardInput);
     return state;
   },
 };

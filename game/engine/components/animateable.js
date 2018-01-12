@@ -1,6 +1,6 @@
 // @flow
 import { makeId } from '../util';
-import { COMPONENTS, ANIMATION_CHANGE } from '../symbols';
+import { COMPONENTS, ANIMATION_CHANGE, TIME_TICK } from '../symbols';
 
 import type { Component } from '../types';
 
@@ -14,19 +14,28 @@ const getNextFrame = (numFrames, currentFrame) => {
   return currentFrame + 1;
 };
 
-const setSpriteForRender = (pastSprites, currentSprites, frame, spritesChanged) => {
-  if (spritesChanged) pastSprites.renderable = false; //eslint-disable-line
-  if (!currentSprites.renderable) currentSprites.renderable = true; //eslint-disable-line
+const setSpriteForRender = (sprites, frame) => {
+  // if (spritesChanged) pastSprites.renderable = false; //eslint-disable-line
+  if (!sprites.renderable) sprites.renderable = true; //eslint-disable-line
 
-  const numFrames = currentSprites.children.length;
+  const numFrames = sprites.children.length;
   const prevFrame = getPrevFrame(numFrames, frame);
   const nextFrame = getNextFrame(numFrames, frame);
 
-  currentSprites.children[prevFrame].renderable = false; // eslint-disable-line
-  currentSprites.children[frame].renderable = true; // eslint-disable-line
+  sprites.children[prevFrame].renderable = false; // eslint-disable-line
+  sprites.children[frame].renderable = true; // eslint-disable-line
 
   return nextFrame;
 };
+
+const hasEventInInbox = eventType => (inbox) => {
+  if (!inbox || inbox.length === 0) return undefined;
+  const event = inbox.find(({ eventId }) => eventId === eventType);
+  return event ? event.action : undefined;
+};
+
+const getAnimChange = hasEventInInbox(ANIMATION_CHANGE);
+const getTimeTick = hasEventInInbox(TIME_TICK);
 
 const ANIMATEABLE = 'animateable';
 // When an action event is in the inbox, it changes the state and switches
@@ -36,23 +45,48 @@ const ANIMATEABLE = 'animateable';
 const animateable: Component = {
   label: ANIMATEABLE,
   id: makeId(COMPONENTS),
-  subscriptions: [ANIMATION_CHANGE],
+  subscriptions: [ANIMATION_CHANGE, TIME_TICK],
   fn: (entityId, componentState, context) => {
     const { inbox } = context;
     const {
-      // indexMap,
       nameMap,
       animation,
+      animationSpecs,
       currentAnimation,
+      tickAccum,
       frame,
     } = componentState;
-    const newAnimation = inbox.length ? inbox[inbox.length - 1] : currentAnimation;
-    const pastSprites = animation.children[nameMap[currentAnimation]];
-    const currentSprites = animation.children[nameMap[newAnimation]];
-    const spritesChanged = currentAnimation !== newAnimation;
-    const newFrame = setSpriteForRender(pastSprites, currentSprites, frame, spritesChanged);
 
-    return { ...componentState, frame: newFrame };
+    const animChange = getAnimChange(inbox);
+    const timeTick = getTimeTick(inbox);
+    const animIndex = nameMap[currentAnimation];
+    const sprites = animation.children[animIndex];
+
+    if (animChange) {
+      const newSprites = animation.children[nameMap[animChange]];
+      const newFrame = 0;
+
+      sprites.renderable = false;
+      newSprites.renderable = true;
+
+      return { ...componentState, frame: newFrame, tickAccum: 0 };
+    }
+    else if (timeTick) {
+      const fps = animationSpecs[currentAnimation].fps;
+      const tickThreshold = 1000 / fps;
+
+      let newTick = tickAccum + timeTick.frameTime;
+      let newFrame = frame;
+
+      if (newTick > tickThreshold) {
+        newTick = 0;
+        newFrame = setSpriteForRender(sprites, frame);
+      }
+
+      return { ...componentState, tickAccum: newTick, frame: newFrame };
+    }
+
+    return componentState;
   },
 };
 

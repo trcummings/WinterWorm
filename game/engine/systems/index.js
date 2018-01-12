@@ -8,6 +8,7 @@ import inputDebug from './inputDebug';
 import spriteLoader from './spriteLoader';
 import animation from './animation';
 import spriteRender from './spriteRender';
+import ticker from './ticker';
 
 // map of all non-factory systems (to use them in setSceneSystemSpec,
 // pass them in dynamically at run time using the fourth options parameter)
@@ -21,6 +22,7 @@ const systemMap = {
   [inputDebug.id]: inputDebug,
   [animation.id]: animation,
   [spriteRender.id]: spriteRender,
+  [ticker.id]: ticker,
 };
 
 export {
@@ -35,4 +37,5 @@ export {
   spriteLoader,
   animation,
   spriteRender,
+  ticker,
 };

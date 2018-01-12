@@ -21,6 +21,7 @@
     "new-cap": "off",
     "no-unused-vars": ["error", { "argsIgnorePattern": "_" }],
     "no-plusplus": ["error", { "allowForLoopAfterthoughts": true }],
-    "no-multi-spaces": "off"
+    "no-multi-spaces": "off",
+    "brace-style": ["error", "stroustrup"]
   }
 }

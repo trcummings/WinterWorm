@@ -6,33 +6,31 @@ import { GAME_LOOP, STATE } from './symbols';
 import { getUpdateFn } from './ecs';
 import { conjoin } from './util';
 
-type Timestamp = DOMHighResTimeStamp | number;
-type LoopState = {
-  startTime: Timestamp,
-  currentTime?: Timestamp,
-  dt?: Timestamp,
-};
+import type { Timestamp, LoopState } from './types';
 
 const loopStateLens = lensPath([STATE, GAME_LOOP]);
+export const getLoopState = (state: GameState) => view(loopStateLens, state);
+export const setLoopState = (state: GameState, loopState: LoopState) => (
+  over(loopStateLens, conjoin(loopState), state)
+);
 const updateLoopState = (state: GameState, timestamp: Timestamp): GameState => {
-  const loopState: LoopState = view(loopStateLens, state);
+  const loopState: LoopState = getLoopState(state);
   let newLoopState;
   if (!loopState) {
     newLoopState = {
       startTime: timestamp,
       currentTime: timestamp,
-      dt: 0.01,
+      frameTime: 0.01,
     };
   } else {
-    const { currentTime, startTime } = loopState;
     newLoopState = {
-      startTime,
+      ...loopState,
       currentTime: timestamp,
-      dt: timestamp - currentTime,
+      frameTime: timestamp - loopState.currentTime,
     };
   }
 
-  return over(loopStateLens, conjoin(newLoopState), state);
+  return setLoopState(state, newLoopState);
 };
 
 export const nextStateAfterLoop = (

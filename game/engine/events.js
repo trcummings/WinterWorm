@@ -10,10 +10,12 @@
 import { lensPath, assocPath, view } from 'ramda';
 
 import { STATE, EVENTS, QUEUE, META } from './symbols';
+import { getSubscribedEntityIds } from './ecs';
 
 import type {
   GameState,
   Selectors,
+  Selector,
   Action,
   Event,
   Events,
@@ -74,6 +76,16 @@ export const emitEventsToQueue = (state: GameState, events: Events): GameState =
   return assocPath(queuePath, eventQueue.concat(events), state);
 };
 
+export const emitBatchToQueue = (
+  state: GameState,
+  eventType: Selector,
+  action: Action
+): GameState => {
+  const entityIds = getSubscribedEntityIds(state, eventType);
+  const events = entityIds.map(id => makeEvent(action, [eventType, id]));
+  return emitEventsToQueue(state, events);
+};
+
 export const clearEventQueue = (state: GameState): GameState => (
   assocPath(queuePath, [], state)
 );
@@ -95,6 +107,5 @@ export const emitMetaEvents = (
   newEvents: Array<Event>
 ): GameState => {
   const events = getMetaEvents(state);
-  console.log(events, newEvents);
   return assocPath(metaPath, events.concat(newEvents), state);
 };

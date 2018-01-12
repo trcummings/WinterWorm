@@ -28,24 +28,27 @@ export const animationLoaderSpec = {
   path: path.resolve(process.env.ASSET_PATH, './player/player.json'),
 };
 
+const animationSpecs = {
+  [CLIMB]: { animName: CLIMB,   numFrames: 2, fps: 6 },
+  [DUCK_L]: { animName: DUCK_L,  numFrames: 1, fps: 6 },
+  [DUCK_R]: { animName: DUCK_R,  numFrames: 1, fps: 6 },
+  [HURT_L]: { animName: HURT_L,  numFrames: 1, fps: 6 },
+  [HURT_R]: { animName: HURT_R,  numFrames: 1, fps: 6 },
+  [IDLE]: { animName: IDLE,    numFrames: 1, fps: 6 },
+  [JUMP_L]: { animName: JUMP_L,  numFrames: 1, fps: 6 },
+  [JUMP_R]: { animName: JUMP_R,  numFrames: 1, fps: 6 },
+  [STAND_L]: { animName: STAND_L, numFrames: 1, fps: 6 },
+  [STAND_R]: { animName: STAND_R, numFrames: 1, fps: 6 },
+  [SWIM_L]: { animName: SWIM_L,  numFrames: 2, fps: 6 },
+  [SWIM_R]: { animName: SWIM_R,  numFrames: 2, fps: 6 },
+  [WALK_L]: { animName: WALK_L,  numFrames: 2, fps: 6 },
+  [WALK_R]: { animName: WALK_R,  numFrames: 2, fps: 6 },
+};
+
 export const spriteResourceSpec = {
   resourceName: PLAYER,
-  animationSpecs: [
-    { animName: CLIMB,   numFrames: 2 },
-    { animName: DUCK_L,  numFrames: 1 },
-    { animName: DUCK_R,  numFrames: 1 },
-    { animName: HURT_L,  numFrames: 1 },
-    { animName: HURT_R,  numFrames: 1 },
-    { animName: IDLE,    numFrames: 1 },
-    { animName: JUMP_L,  numFrames: 1 },
-    { animName: JUMP_R,  numFrames: 1 },
-    { animName: STAND_L, numFrames: 1 },
-    { animName: STAND_R, numFrames: 1 },
-    { animName: SWIM_L,  numFrames: 2 },
-    { animName: SWIM_R,  numFrames: 2 },
-    { animName: WALK_L,  numFrames: 2 },
-    { animName: WALK_R,  numFrames: 2 },
-  ] };
+  animationSpecs,
+};
 
 const positionState = utils.setPositionState({ x: 200, y: 200, z: 1 });
 // const boundRectState = ({ height: 50, width: 50, lineWidth: 1, lineColor: 0xFF00FF });
@@ -53,7 +56,7 @@ const positionState = utils.setPositionState({ x: 200, y: 200, z: 1 });
 const makePlayer = (state) => {
   const playerId = makeId(ENTITIES);
   const { pixiLoader: { resources }, stage } = getRenderEngine(state);
-  const { indexMap, nameMap, animation } = makeAnimations(resources, spriteResourceSpec);
+  const { animation, nameMap } = makeAnimations(resources, spriteResourceSpec);
 
   animation.x = positionState.x;
   animation.y = positionState.y;
@@ -66,10 +69,11 @@ const makePlayer = (state) => {
       { id: position.id, state: positionState },
       { id: animateable.id,
         state: {
-          indexMap,
           nameMap,
           animation,
           currentAnimation: SWIM_R,
+          animationSpecs,
+          tickAccum: 0,
           frame: 0,
         } },
       { id: renderable.id, state: undefined },

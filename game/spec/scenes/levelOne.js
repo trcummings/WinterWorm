@@ -1,4 +1,15 @@
-import { meta, clearEventQueue, render, position, boundingBox, input, inputDebug, animation, spriteRender } from '../../engine/systems';
+import {
+  meta,
+  clearEventQueue,
+  render,
+  position,
+  boundingBox,
+  input,
+  inputDebug,
+  animation,
+  spriteRender,
+  ticker,
+} from '../../engine/systems';
 import { SCENES } from '../../engine/symbols';
 import { makeId } from '../../engine/util';
 
@@ -6,6 +17,7 @@ const levelOne = {
   id: makeId(SCENES),
   systems: [
     input.id,
+    ticker.id,
     inputDebug.id,
     meta.id,
     position.id,

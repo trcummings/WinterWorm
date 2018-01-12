@@ -103,24 +103,20 @@ const makeSpriteList = (
   return textures;
 };
 
-const makeAnimation = (textures, resourceName) => (
-  { indexMap, nameMap, animation },
-  { animName, numFrames },
-  index
-) => {
-  const sprites = makeSpriteList(textures, animName, resourceName, numFrames);
-  const spriteContainer = new Container();
-  spriteContainer.addChild(...sprites);
-  spriteContainer.renderable = false;
+const makeAnimation =
+  (specs, textures, name) =>
+    ({ animation, nameMap }, animName, index) => {
+      const { numFrames } = specs[animName];
+      const sprites = makeSpriteList(textures, animName, name, numFrames);
+      const spriteContainer = new Container();
 
-  animation.addChild(spriteContainer);
+      spriteContainer.addChild(...sprites);
+      spriteContainer.renderable = false;
 
-  return {
-    indexMap: Object.assign(indexMap, { [index]: animName }),
-    nameMap: Object.assign(nameMap, { [animName]: index }),
-    animation,
-  };
-};
+      animation.addChild(spriteContainer);
+
+      return { animation, nameMap: Object.assign(nameMap, { [animName]: index }) };
+    };
 
 export const makeAnimations = (
   resources: Resource,
@@ -128,9 +124,8 @@ export const makeAnimations = (
 ): Array<Sprite> => {
   const { resourceName, animationSpecs } = resourceSpec;
   const textures = resources[resourceName].textures;
+  const animNames = Object.keys(animationSpecs);
+  const animFn = makeAnimation(animationSpecs, textures, resourceName);
 
-  return animationSpecs.reduce(
-    makeAnimation(textures, resourceName),
-    { indexMap: {}, nameMap: {}, animation: new Container() }
-  );
+  return animNames.reduce(animFn, { animation: new Container(), nameMap: {} });
 };
