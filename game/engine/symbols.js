@@ -28,6 +28,7 @@ export const META = 'meta';
 // Queue Event Types
 export const KEYBOARD_INPUT = 'keyboardInput';
 export const POSITION_CHANGE = 'positionChange';
+export const ACCELERATION_CHANGE = 'accelerationChange';
 export const SCENE_CHANGE = 'sceneChange';
 export const ANIMATION_CHANGE = 'animationChange';
 export const RENDER_ACTION = 'renderAction';

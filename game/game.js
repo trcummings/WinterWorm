@@ -7,7 +7,7 @@ import { isDev } from './engine/util';
 import { levelOne, levelOneLoader } from './spec/scenes';
 import { loader } from './spec/scenes/levelOneLoader';
 
-if (isDev()) require('./engine/fpsMeter'); // eslint-disable-line
+if (isDev()) require('./vendor/fpsMeter'); // eslint-disable-line
 
 document.addEventListener('DOMContentLoaded', () => {
   const { canvas, renderer, stage, pixiLoader } = createRenderingEngine();
@@ -32,5 +32,5 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log(gameState);
 
     gameLoop(gameState);
-  });
+  }, 300);
 });

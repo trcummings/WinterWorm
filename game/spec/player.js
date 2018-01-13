@@ -2,10 +2,12 @@ import path from 'path';
 
 import { makeId } from '../engine/util';
 import {
-  position,
+  positionable,
   animateable,
-  renderable,
+  accelerable,
   inputControllable,
+  moveable,
+  renderable,
   utils,
 } from '../engine/components';
 import { ENTITIES, ANIMATION_CHANGE } from '../engine/symbols';
@@ -56,8 +58,9 @@ export const spriteResourceSpec = {
   animationSpecs,
 };
 
-const positionState = utils.setPositionState({ x: 200, y: 200, z: 1 });
-// const boundRectState = ({ height: 50, width: 50, lineWidth: 1, lineColor: 0xFF00FF });
+const positionState = utils.makePositionState({ x: 200, y: 200, z: 1 });
+const accelerationState = utils.makeAccelState({ ax: 0, ay: -9.8 });
+const velocityState = utils.makeVelocityState({ vx: 0, vy: 0 });
 
 // const LEFT_ARROW = 'leftArrow';
 // const RIGHT_ARROW = 'rightArrow';
@@ -96,7 +99,14 @@ const makePlayer = (state) => {
     components: [
       { id: inputControllable.id,
         state: { inputEventMap: eventMap } },
-      { id: position.id, state: positionState },
+      { id: positionable.id,
+        state: positionState },
+      { id: accelerable.id,
+        state: accelerationState },
+      { id: moveable.id,
+        state: velocityState },
+      { id: renderable.id,
+        state: undefined },
       { id: animateable.id,
         state: {
           nameMap,
@@ -106,7 +116,6 @@ const makePlayer = (state) => {
           tickAccum: 0,
           frame: 0,
         } },
-      { id: renderable.id, state: undefined },
     ],
   };
   return setState(state, { type: ENTITIES, options: player });

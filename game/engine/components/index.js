@@ -1,20 +1,22 @@
 import { renderable } from './renderable';
-import { boundingRect } from './boundingRect';
-import { buttonPressDebug } from './buttonPressDebug';
-import { position, setPositionState } from './position';
+import { positionable, makePositionState } from './positionable';
 import { animateable } from './animateable';
 import { inputControllable } from './inputControllable';
+import { accelerable, makeAccelState } from './accelerable';
+import { moveable, makeVelocityState } from './moveable';
 
 const utils = {
-  setPositionState,
+  makePositionState,
+  makeAccelState,
+  makeVelocityState,
 };
 
 export {
-  boundingRect,
   renderable,
-  position,
-  buttonPressDebug,
-  inputControllable,
+  positionable,
   animateable,
+  inputControllable,
+  accelerable,
+  moveable,
   utils,
 };

@@ -1,30 +1,35 @@
 // // @flow
-// import { makeId } from '../util';
-// import { COMPONENTS, POSITION_CHANGE } from '../symbols';
-//
-// import type { Component } from '../types';
-//
-// export const setPositionState = ({ x, y, z }) => ({ x, y, z });
-//
-// const updateOffset = (
-//   { offsetX: totalX, offsetY: totalY },
-//   { offsetX: xO, offsetY: yO }
-// ) => ({ offsetX: totalX + xO, offsetY: totalY + yO });
-//
-// const MOVEABLE = 'moveable';
-//
-// const moveable: Component = {
-//   label: MOVEABLE,
-//   id: makeId(COMPONENTS),
-//   subscriptions: [POSITION_CHANGE],
-//   fn: (entityId, componentState, context = {}) => {
-//     const { inbox } = context;
-//     if (typeof inbox === 'undefined' || inbox.length === 0) return componentState;
-//     const { x, y, z } = componentState;
-//     const { offsetX, offsetY } = inbox.reduce(updateOffset, { offsetX: 0, offsetY: 0 });
-//
-//     return setPositionState({ x: x - offsetX, y: y - offsetY, z });
-//   },
-// };
-//
-// export { moveable };
+import { makeId } from '../util';
+import { COMPONENTS, TIME_TICK, POSITION_CHANGE } from '../symbols';
+// import { positionable } from './positionable';
+import { accelerable } from './accelerable';
+import { hasEventInInbox, makeEvent } from '../events';
+
+import type { Component } from '../types';
+
+export const makeVelocityState = ({ vx, vy }) => ({ vx, vy });
+
+const MOVEABLE = 'moveable';
+
+const moveable: Component = {
+  label: MOVEABLE,
+  id: makeId(COMPONENTS),
+  subscriptions: [TIME_TICK],
+  context: [accelerable.id],
+  fn: (entityId, componentState, context = {}) => {
+    const {
+      [accelerable.id]: { ay },
+      inbox,
+    } = context;
+    const { vy } = componentState;
+    const timeTick = hasEventInInbox(TIME_TICK)(inbox);
+    const t = (timeTick.frameTime / 1000);
+    const newVy = vy + (ay * t);
+    const newY = (vy * t) + ((1 / 2) * (ay) * Math.pow(t, 2));
+    const event = makeEvent({ offsetY: newY, offsetX: 0 }, [POSITION_CHANGE, entityId]);
+
+    return [{ ...componentState, vy: newVy }, [event]];
+  },
+};
+
+export { moveable };
