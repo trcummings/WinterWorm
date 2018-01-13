@@ -9,6 +9,7 @@ import {
   animation,
   spriteRender,
   ticker,
+  inputControl,
 } from '../../engine/systems';
 import { SCENES } from '../../engine/symbols';
 import { makeId } from '../../engine/util';
@@ -18,6 +19,7 @@ const levelOne = {
   systems: [
     input.id,
     ticker.id,
+    inputControl.id,
     inputDebug.id,
     meta.id,
     position.id,

@@ -1,8 +1,14 @@
 import path from 'path';
 
 import { makeId } from '../engine/util';
-import { position, animateable, renderable, utils } from '../engine/components';
-import { ENTITIES } from '../engine/symbols';
+import {
+  position,
+  animateable,
+  renderable,
+  inputControllable,
+  utils,
+} from '../engine/components';
+import { ENTITIES, ANIMATION_CHANGE } from '../engine/symbols';
 import { setState } from '../engine/core';
 import { makeAnimations, getRenderEngine } from '../engine/pixi';
 
@@ -29,12 +35,12 @@ export const animationLoaderSpec = {
 };
 
 const animationSpecs = {
+  [IDLE]: { animName: IDLE,    numFrames: 1, fps: 6 },
   [CLIMB]: { animName: CLIMB,   numFrames: 2, fps: 6 },
   [DUCK_L]: { animName: DUCK_L,  numFrames: 1, fps: 6 },
   [DUCK_R]: { animName: DUCK_R,  numFrames: 1, fps: 6 },
   [HURT_L]: { animName: HURT_L,  numFrames: 1, fps: 6 },
   [HURT_R]: { animName: HURT_R,  numFrames: 1, fps: 6 },
-  [IDLE]: { animName: IDLE,    numFrames: 1, fps: 6 },
   [JUMP_L]: { animName: JUMP_L,  numFrames: 1, fps: 6 },
   [JUMP_R]: { animName: JUMP_R,  numFrames: 1, fps: 6 },
   [STAND_L]: { animName: STAND_L, numFrames: 1, fps: 6 },
@@ -53,6 +59,28 @@ export const spriteResourceSpec = {
 const positionState = utils.setPositionState({ x: 200, y: 200, z: 1 });
 // const boundRectState = ({ height: 50, width: 50, lineWidth: 1, lineColor: 0xFF00FF });
 
+// const LEFT_ARROW = 'leftArrow';
+// const RIGHT_ARROW = 'rightArrow';
+// const UP_ARROW = 'upArrow';
+// const DOWN_ARROW = 'downArrow';
+
+const eventMap = {
+  '%': {
+    action: WALK_L,
+    selector: ANIMATION_CHANGE,
+  },
+  "'": {
+    action: WALK_R,
+    selector: ANIMATION_CHANGE,
+  },
+};
+// const keyboardInputEventMap = {
+//   '%': LEFT_ARROW,
+//   "'": RIGHT_ARROW,
+//   // '&': UP_ARROW,
+//   // '(': DOWN_ARROW,
+// };
+
 const makePlayer = (state) => {
   const playerId = makeId(ENTITIES);
   const { pixiLoader: { resources }, stage } = getRenderEngine(state);
@@ -66,12 +94,14 @@ const makePlayer = (state) => {
   const player = {
     id: playerId,
     components: [
+      { id: inputControllable.id,
+        state: { inputEventMap: eventMap } },
       { id: position.id, state: positionState },
       { id: animateable.id,
         state: {
           nameMap,
           animation,
-          currentAnimation: SWIM_R,
+          currentAnimation: IDLE,
           animationSpecs,
           tickAccum: 0,
           frame: 0,

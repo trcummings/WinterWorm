@@ -1,6 +1,7 @@
 // @flow
 import { makeId } from '../util';
-import { COMPONENTS, ANIMATION_CHANGE, TIME_TICK } from '../symbols';
+import { COMPONENTS, ANIMATION_CHANGE, TIME_TICK, RENDER_ACTION } from '../symbols';
+import { hasEventInInbox, makeEvent } from '../events';
 
 import type { Component } from '../types';
 
@@ -14,24 +15,22 @@ const getNextFrame = (numFrames, currentFrame) => {
   return currentFrame + 1;
 };
 
-const setSpriteForRender = (sprites, frame) => {
-  // if (spritesChanged) pastSprites.renderable = false; //eslint-disable-line
-  if (!sprites.renderable) sprites.renderable = true; //eslint-disable-line
+const pushToRenderEvents = (renderEvents, fn) => {
+  renderEvents.push(makeEvent(fn, [RENDER_ACTION]));
+};
 
+const setSpriteForRender = (sprites, frame, renderEvents) => {
   const numFrames = sprites.children.length;
   const prevFrame = getPrevFrame(numFrames, frame);
   const nextFrame = getNextFrame(numFrames, frame);
 
-  sprites.children[prevFrame].renderable = false; // eslint-disable-line
-  sprites.children[frame].renderable = true; // eslint-disable-line
+  pushToRenderEvents(renderEvents, () => {
+    if (!sprites.renderable) sprites.renderable = true; //eslint-disable-line
+    sprites.children[prevFrame].renderable = false; // eslint-disable-line
+    sprites.children[frame].renderable = true; // eslint-disable-line
+  });
 
   return nextFrame;
-};
-
-const hasEventInInbox = eventType => (inbox) => {
-  if (!inbox || inbox.length === 0) return undefined;
-  const event = inbox.find(({ eventId }) => eventId === eventType);
-  return event ? event.action : undefined;
 };
 
 const getAnimChange = hasEventInInbox(ANIMATION_CHANGE);
@@ -61,32 +60,61 @@ const animateable: Component = {
     const timeTick = getTimeTick(inbox);
     const animIndex = nameMap[currentAnimation];
     const sprites = animation.children[animIndex];
+    const animationChanged = animChange && animChange !== currentAnimation;
+    const renderEvents = [];
 
-    if (animChange) {
-      const newSprites = animation.children[nameMap[animChange]];
-      const newFrame = 0;
+    let newSprites = sprites;
+    let newFrame = frame;
+    let newTickAccum = tickAccum;
+    let newCurrentAnimation = currentAnimation;
 
-      sprites.renderable = false;
-      newSprites.renderable = true;
+    if (animationChanged) {
+      newCurrentAnimation = animChange;
+      newSprites = animation.children[nameMap[newCurrentAnimation]];
 
-      return { ...componentState, frame: newFrame, tickAccum: 0 };
+      // add a render event to the queue to turn off the current sprite
+      pushToRenderEvents(renderEvents, () => {
+        sprites.renderable = false;
+      });
     }
-    else if (timeTick) {
-      const fps = animationSpecs[currentAnimation].fps;
+
+    if (timeTick) {
+      const fps = animationSpecs[newCurrentAnimation].fps;
       const tickThreshold = 1000 / fps;
 
-      let newTick = tickAccum + timeTick.frameTime;
-      let newFrame = frame;
+      newTickAccum += timeTick.frameTime;
 
-      if (newTick > tickThreshold) {
-        newTick = 0;
-        newFrame = setSpriteForRender(sprites, frame);
+      if (newTickAccum > tickThreshold) {
+        newTickAccum = 0;
+        newFrame = setSpriteForRender(newSprites, newFrame, renderEvents);
       }
-
-      return { ...componentState, tickAccum: newTick, frame: newFrame };
     }
 
-    return componentState;
+    // if we had an update we want to make sure there was no frame
+    // mutation somewhere in there by catching double frame cases and no
+    // frame cases
+    if (animationChanged || timeTick) {
+      pushToRenderEvents(renderEvents, () => {
+        const spritesEqual = sprites === newSprites;
+        if (spritesEqual) return;
+        if (sprites.renderable && newSprites.renderable) {
+          sprites.renderable = false;
+        }
+        else if (!sprites.renderable && !newSprites.renderable) {
+          newSprites.renderable = true;
+        }
+      });
+    }
+
+    const newComponentState = {
+      ...componentState,
+      currentAnimation: newCurrentAnimation,
+      tickAccum: newTickAccum,
+      frame: newFrame,
+    };
+
+    if (renderEvents.length > 0) return [newComponentState, renderEvents];
+    return newComponentState;
   },
 };
 

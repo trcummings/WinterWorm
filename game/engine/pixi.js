@@ -1,11 +1,12 @@
 // @flow
 import {
-  Application,
+  autoDetectRenderer,
   Container,
   loader,
   Sprite,
   loaders,
 } from 'pixi.js';
+
 import { assoc, view, lensProp } from 'ramda';
 
 import { RENDER_ENGINE } from './symbols';
@@ -19,15 +20,13 @@ type ResourceSpec = {
 const { Resource } = loaders;
 
 export const createRenderingEngine = () => {
-  const app = new Application({
+  const renderer = new autoDetectRenderer({
     width: 800,
     height: 600,
     backgroundColor: 0x1099bb,
-    autoStart: false,
   });
-  const canvas = app.view;
-  const renderer = app.renderer;
-  const stage = app.stage;
+  const canvas = renderer.view;
+  const stage = new Container();
 
   document.body.appendChild(canvas);
 

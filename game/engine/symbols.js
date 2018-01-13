@@ -24,11 +24,11 @@ export const EVENTS = 'events';
 // EventTypes
 export const QUEUE = 'queue';
 export const META = 'meta';
-export const ASSET_PIPELINE = 'assetPipeline';
 
 // Queue Event Types
 export const KEYBOARD_INPUT = 'keyboardInput';
 export const POSITION_CHANGE = 'positionChange';
 export const SCENE_CHANGE = 'sceneChange';
 export const ANIMATION_CHANGE = 'animationChange';
+export const RENDER_ACTION = 'renderAction';
 export const TIME_TICK = 'timeTick';

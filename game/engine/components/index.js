@@ -3,6 +3,7 @@ import { boundingRect } from './boundingRect';
 import { buttonPressDebug } from './buttonPressDebug';
 import { position, setPositionState } from './position';
 import { animateable } from './animateable';
+import { inputControllable } from './inputControllable';
 
 const utils = {
   setPositionState,
@@ -13,6 +14,7 @@ export {
   renderable,
   position,
   buttonPressDebug,
+  inputControllable,
   animateable,
   utils,
 };

@@ -32,6 +32,10 @@ const getEvents = (path: Array<string>) => (state: GameState): Events => (
 export const getEventQueue = getEvents(queuePath);
 export const getMetaEvents = getEvents(metaPath);
 
+export const getEventsOfEventId = (state: GameState, eventId: Selector) => (
+  (getEventQueue(state) || []).filter(({ eventId: id }) => id === eventId)
+);
+
 // Returns an array of events that matches the collection of selectors for an entity.
 export const getSubscribedEvents = (
   eventQueue,
@@ -109,3 +113,17 @@ export const emitMetaEvents = (
   const events = getMetaEvents(state);
   return assocPath(metaPath, events.concat(newEvents), state);
 };
+
+export const getInboxEvents =
+  (eventType: Selector) =>
+    (inbox: Events = []): Events | [] => (
+      inbox.filter(({ eventId }) => eventId === eventType)
+    );
+
+export const hasEventInInbox =
+  (eventType: Selector) =>
+    (inbox: Events): Event | undefined => {
+      if (!inbox || inbox.length === 0) return undefined;
+      const event = inbox.find(({ eventId }) => eventId === eventType);
+      return event ? event.action : undefined;
+    };
