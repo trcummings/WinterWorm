@@ -21,9 +21,14 @@ const inputControllable: Component = {
 
     const { inputEventMap } = componentState;
     const inputEvents = Object.keys(input).reduce((events, key) => {
+      let newEvents;
       if (!inputEventMap[key]) return events;
-      const { selector, action } = inputEventMap[key];
-      return events.concat([makeEvent(action, [selector, entityId])]);
+      else if (Array.isArray(inputEventMap[key])) newEvents = inputEventMap[key];
+      else newEvents = [inputEventMap[key]];
+
+      return events.concat(newEvents.map(({ selector, action }) => (
+        makeEvent(action, [selector, entityId])
+      )));
     }, []);
 
     return [componentState, inputEvents];

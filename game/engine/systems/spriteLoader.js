@@ -6,11 +6,12 @@
 // switches to a given sceneId through a meta event dispatch of a changeScene
 // script.
 import { makeId } from '../util';
-import { SYSTEMS, SCRIPTS } from '../symbols';
+import { SYSTEMS, SCRIPTS, ENTITIES } from '../symbols';
 import { getRenderEngine } from '../pixi';
 import { emitMetaEvent } from '../events';
 import { changeScene } from '../scripts';
 import makePlayer from '../../spec/player';
+import floor from '../../spec/floor';
 
 import type { System, GameState, Id } from '../types';
 
@@ -56,17 +57,22 @@ const spriteLoader = (assetSpecs: Array<AssetSpec>, nextSceneId: Id): System => 
     // if we haven't loaded anything, lets start that process
     if (!loading && !completed) {
       startLoader(assetSpecs, getRenderEngine(state).pixiLoader);
-    } else if (completed && !switching) {
+    }
+    else if (completed && !switching) {
       switching = true;
 
       // dispatch a meta action to switch to the next scene
-      return emitMetaEvent(state, {
+      const next = emitMetaEvent(state, {
         type: SCRIPTS,
         options: changeScene(
           nextSceneId,
-          { type: SCRIPTS, options: makePlayer }
+          { type: SCRIPTS, options: makePlayer },
+          { type: ENTITIES, options: floor },
         ),
       });
+
+      console.log(next);
+      return next;
     }
     return state;
   },

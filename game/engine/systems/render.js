@@ -1,17 +1,14 @@
 // @flow
 
 // system for rendering the PIXI.js stage + fpsMeter
-import { view, lensProp } from 'ramda';
-
+import { getRenderEngine } from '../pixi';
 import { makeId, isDev } from '../util';
-import { RENDER_ENGINE, SYSTEMS, RENDER_ACTION } from '../symbols';
+import { SYSTEMS, RENDER_ACTION } from '../symbols';
 import { getEventsOfEventId } from '../events';
 
 import type { System, GameState } from '../types';
 
 const sortByZIndexHelper = (a, b) => a.position.z - b.position.z;
-
-export const getRenderEngine = state => view(lensProp(RENDER_ENGINE), state);
 
 const RENDER = 'render';
 

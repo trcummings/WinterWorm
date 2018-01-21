@@ -4,6 +4,8 @@ import { animateable } from './animateable';
 import { inputControllable } from './inputControllable';
 import { accelerable, makeAccelState } from './accelerable';
 import { moveable, makeVelocityState } from './moveable';
+import { fixture } from './fixture';
+import { rigidBody } from './rigidBody';
 
 const utils = {
   makePositionState,
@@ -18,5 +20,7 @@ export {
   inputControllable,
   accelerable,
   moveable,
+  fixture,
+  rigidBody,
   utils,
 };

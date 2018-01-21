@@ -11,6 +11,9 @@ export const makeVelocityState = ({ vx, vy }) => ({ vx, vy });
 
 const MOVEABLE = 'moveable';
 
+const calcVel = (v, a, t) => v + (a * t);
+const calcPos = (v, a, t) => (v * t) + ((1 / 2) * a * Math.pow(t, 2));
+
 const moveable: Component = {
   label: MOVEABLE,
   id: makeId(COMPONENTS),
@@ -18,17 +21,22 @@ const moveable: Component = {
   context: [accelerable.id],
   fn: (entityId, componentState, context = {}) => {
     const {
-      [accelerable.id]: { ay },
+      [accelerable.id]: { ax, ay },
       inbox,
     } = context;
-    const { vy } = componentState;
+    const { vy, vx } = componentState;
     const timeTick = hasEventInInbox(TIME_TICK)(inbox);
     const t = (timeTick.frameTime / 1000);
-    const newVy = vy + (ay * t);
-    const newY = (vy * t) + ((1 / 2) * (ay) * Math.pow(t, 2));
-    const event = makeEvent({ offsetY: newY, offsetX: 0 }, [POSITION_CHANGE, entityId]);
 
-    return [{ ...componentState, vy: newVy }, [event]];
+    const vx1 = calcVel(vx, ax, t);
+    const vy1 = calcVel(vy, ay, t);
+    const x1 = calcPos(vx, ax, t);
+    const y1 = calcPos(vy, ay, t);
+
+    return [
+      { ...componentState, vx: vx1, vy: vy1 },
+      makeEvent({ offsetY: y1, offsetX: x1 }, [POSITION_CHANGE, entityId]),
+    ];
   },
 };
 

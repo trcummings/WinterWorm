@@ -1,7 +1,14 @@
 import { setGameState, gameLoop } from './engine/core';
-import { SCENES, CURRENT_SCENE, SCRIPTS, RENDER_ENGINE } from './engine/symbols';
+import {
+  SCENES,
+  CURRENT_SCENE,
+  SCRIPTS,
+  RENDER_ENGINE,
+  PHYSICS_ENGINE,
+} from './engine/symbols';
 import { initEvents, setSceneSystemSpecs } from './engine/scripts';
 import { createRenderingEngine } from './engine/pixi';
+import { createPhysicsEngine } from './engine/planck';
 import { isDev } from './engine/util';
 
 import { levelOne, levelOneLoader } from './spec/scenes';
@@ -11,6 +18,7 @@ if (isDev()) require('./vendor/fpsMeter'); // eslint-disable-line
 
 document.addEventListener('DOMContentLoaded', () => {
   const { canvas, renderer, stage, pixiLoader } = createRenderingEngine();
+  const world = createPhysicsEngine();
 
   if (isDev()) window.meter = new window.FPSMeter();
   setTimeout(() => {
@@ -22,6 +30,8 @@ document.addEventListener('DOMContentLoaded', () => {
       {},
       { type: RENDER_ENGINE,
         options: { renderer, stage, canvas, pixiLoader } },
+      { type: PHYSICS_ENGINE,
+        options: world },
       { type: SCRIPTS, options: initEvents },
       { type: SCENES, options: levelOne },
       { type: SCENES, options: levelOneLoader },

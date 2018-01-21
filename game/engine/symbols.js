@@ -18,6 +18,7 @@ export const SUBSCRIPTIONS = 'subscriptions';
 export const CLEANUP_FN = 'cleanupFn';
 export const CONTEXT = 'context';
 export const RENDER_ENGINE = 'renderEngine';
+export const PHYSICS_ENGINE = 'physicsEngine';
 
 // Events
 export const EVENTS = 'events';
@@ -32,4 +33,5 @@ export const ACCELERATION_CHANGE = 'accelerationChange';
 export const SCENE_CHANGE = 'sceneChange';
 export const ANIMATION_CHANGE = 'animationChange';
 export const RENDER_ACTION = 'renderAction';
+export const PHYSICS_EVENT = 'physicsEvent';
 export const TIME_TICK = 'timeTick';

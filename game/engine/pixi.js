@@ -1,4 +1,5 @@
 // @flow
+// Convenience methods for dealing with PIXI.JS
 import {
   autoDetectRenderer,
   Container,
@@ -70,7 +71,7 @@ export const makeContainer = (children) => {
   return container;
 };
 
-const texturePathByFrame = (
+export const texturePathByFrame = (
   animName: string,
   loaderName: string,
   ext = 'png'

@@ -14,15 +14,15 @@ const accelerable: Component = {
   id: makeId(COMPONENTS),
   subscriptions: [ACCELERATION_CHANGE],
   fn: (entityId, componentState, context = {}) => {
-    const events = getInboxEvents(ACCELERATION_CHANGE, context.inbox);
+    const events = getInboxEvents(ACCELERATION_CHANGE)(context.inbox);
 
     if (events.length === 0) return componentState;
 
     const { ax, ay } = componentState;
-    const { ax: ax_, ay: ay_ } = events[events.length - 1];
+    const { ax: ax_ = ax, ay: ay_ = ay } = events[events.length - 1].action;
 
     if (ax === ax_ && ay === ay_) return componentState;
-    return Object.assign({}, { ax, ay }, { ax_, ay_ });
+    return Object.assign({}, { ax, ay }, { ax: ax_, ay: ay_ });
   },
 };
 

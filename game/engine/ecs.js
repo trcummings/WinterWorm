@@ -23,7 +23,7 @@ import {
   UPDATE_FNS,
   CLEANUP_FN,
 } from './symbols';
-import { conjoin, concatKeywords } from './util';
+import { conjoin, concatKeywords, isDev } from './util';
 import { getSubscribedEvents, emitEventsToQueue, getEventQueue } from './events';
 
 import type { GameState, Scene, Id } from './types';
@@ -227,11 +227,14 @@ const componentStateFromSpec = (entityId: Id) => (
   state: GameState,
   component
 ): GameState => {
-  const { id, state: componentState } = component;
+  const { id, state: componentState, fn } = component;
+  let initialState = componentState;
+  if (fn) initialState = fn(state);
+
   return compose(
     over(lensPath([ENTITIES, entityId]), append(id), __),
     over(lensPath([COMPONENTS, id, ENTITIES]), append(entityId), __),
-    setComponentState(__, id, entityId, componentState)
+    setComponentState(__, id, entityId, initialState)
   )(state);
 };
 

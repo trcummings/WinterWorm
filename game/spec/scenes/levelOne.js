@@ -10,6 +10,9 @@ import {
   spriteRender,
   ticker,
   inputControl,
+  physics,
+  rigidBodies,
+  fixtures,
 } from '../../engine/systems';
 import { SCENES } from '../../engine/symbols';
 import { makeId } from '../../engine/util';
@@ -21,12 +24,14 @@ const levelOne = {
     ticker.id,
     inputControl.id,
     meta.id,
+    physics.id,
+    rigidBodies.id,
+    fixtures.id,
     acceleration.id,
     movement.id,
     position.id,
     animation.id,
     spriteRender.id,
-    // boundingBox.id,
     render.id,
     clearEventQueue.id,
   ],

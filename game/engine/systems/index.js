@@ -10,6 +10,9 @@ import ticker from './ticker';
 import inputControl from './inputControl';
 import acceleration from './acceleration';
 import movement from './movement';
+import physics from './physics';
+import fixtures from './fixtures';
+import rigidBodies from './rigidBodies';
 
 // map of all non-factory systems (to use them in setSceneSystemSpec,
 // pass them in dynamically at run time using the fourth options parameter)
@@ -25,6 +28,9 @@ const systemMap = {
   [inputControl.id]: inputControl,
   [acceleration.id]: acceleration,
   [movement.id]: movement,
+  [physics.id]: physics,
+  [fixtures.id]: fixtures,
+  [rigidBodies.id]: rigidBodies,
 };
 
 export {
@@ -41,4 +47,7 @@ export {
   inputControl,
   acceleration,
   movement,
+  physics,
+  fixtures,
+  rigidBodies,
 };

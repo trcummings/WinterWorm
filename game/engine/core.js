@@ -9,6 +9,7 @@ import {
   UPDATE_FNS,
   SCRIPTS,
   RENDER_ENGINE,
+  PHYSICS_ENGINE,
   COMPONENTS,
   ENTITIES,
 } from './symbols';
@@ -23,6 +24,7 @@ import {
 } from './ecs';
 import { nextStateAfterLoop } from './loop';
 import { setRenderEngine } from './pixi';
+import { setPhysicsEngine } from './planck';
 
 import type { GameState, SpecType, Spec } from './types';
 import type { Timestamp } from './loop';
@@ -39,6 +41,7 @@ const setStateFn = (type: SpecType) => {
     case SCENES: { return applySpec(setScene); }
     case CURRENT_SCENE: { return applySpec(setCurrentScene); }
     case RENDER_ENGINE: { return applySpec(setRenderEngine); }
+    case PHYSICS_ENGINE: { return applySpec(setPhysicsEngine); }
     case SCRIPTS: {
       return (state: GameState, { options }): GameState => {
         const fn = options;

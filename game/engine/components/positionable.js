@@ -30,7 +30,7 @@ const positionable: Component = {
     const { x, y, z } = componentState;
     const { offsetX, offsetY } = events.reduce(updateOffset, INITIAL_OFFSET);
 
-    return makePositionState({ x: x - offsetX, y: y - offsetY, z });
+    return makePositionState({ x: x + offsetX, y: y - offsetY, z });
   },
 };
 
