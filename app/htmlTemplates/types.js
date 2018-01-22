@@ -13,7 +13,8 @@ function makeTemplateUrl(pathname: string): HtmlTemplateUrl {
   return url.format({ pathname, protocol: 'file:', slashes: true });
 }
 
-export const setupUrl = makeTemplateUrl(path.resolve('game/game.html'));
+export const gameUrl = makeTemplateUrl(path.resolve('game/game.html'));
+export const editorUrl = makeTemplateUrl(path.resolve('editor/editor.html'));
 
 // export const setupUrl = makeTemplateUrl(appPath, './setup.html');
 // export const preloadUrl = makeTemplateUrl(appPath, './preload.html');

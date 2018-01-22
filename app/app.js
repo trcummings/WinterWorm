@@ -1,7 +1,8 @@
 // @flow
 
 import { app, BrowserWindow } from 'electron';
-import { setupUrl } from './htmlTemplates/types';
+import { gameUrl, editorUrl } from './htmlTemplates/types';
+import { configureStore } from './store';
 
 const READY = 'ready';
 const ALL_WINDOWS_CLOSED = 'window-all-closed';
@@ -12,24 +13,34 @@ const quitApp = () => {
   app.quit();
 };
 
+configureStore();
+
 function window(): SetupWindow {
   // Create the browser window.
-  let win = new BrowserWindow({
+  let win1 = new BrowserWindow({
     width: 800,
     height: 600,
     frame: false,
     transparent: false,
   });
 
-  win.webContents.openDevTools();
+  let win2 = new BrowserWindow({
+    width: 800,
+    height: 600,
+    transparent: false,
+  });
+
+  // win.webContents.openDevTools();
 
   // Dereference the window object
-  win.on('closed', () => (win = null));
+  win1.on('closed', () => (win1 = null));
+  win2.on('closed', () => (win2 = null));
 
   // load the current htmlTemplate of the app.
-  win.loadURL(setupUrl);
+  win1.loadURL(gameUrl);
+  win2.loadURL(editorUrl);
 
-  return win;
+  return [win1, win2];
 }
 
 const Running = 'app/running';
@@ -60,10 +71,6 @@ let model = initialModel;
 
 const view = (currentModel: AppModel) => {
   switch (currentModel.appState) {
-    case Running: {
-      return;
-    }
-
     case Quitting: {
       // On macOS it is common for applications and their menu bar
       // to stay active until the user quits explicitly with Cmd + Q
@@ -71,6 +78,7 @@ const view = (currentModel: AppModel) => {
       return;
     }
 
+    case Running:
     default: return;
   }
 };

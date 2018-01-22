@@ -22,7 +22,8 @@ const updateLoopState = (state: GameState, timestamp: Timestamp): GameState => {
       currentTime: timestamp,
       frameTime: 0.01,
     };
-  } else {
+  }
+  else {
     newLoopState = {
       ...loopState,
       currentTime: timestamp,

@@ -12,6 +12,7 @@ module.exports = {
   entry: {
     app: './app/app.js',
     game: './game/game.js',
+    editor: './editor/editor.js',
   },
   output: {
     filename: '[name].js',
@@ -36,7 +37,7 @@ module.exports = {
     ],
   },
   resolve: {
-    modules: ['app', 'game', 'node_modules'],
+    modules: ['app', 'game', 'editor', 'node_modules'],
   },
   plugins: isProd ? [
     new ClosureCompiler({
