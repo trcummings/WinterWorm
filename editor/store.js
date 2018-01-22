@@ -5,15 +5,20 @@ import {
   getInitialStateRenderer,
 } from 'electron-redux';
 import { createStore, applyMiddleware, compose } from 'redux';
-import { createBrowserHistory } from 'history';
+import { createMemoryHistory } from 'history';
 import { createLogger } from 'redux-logger';
-import { routerMiddleware } from 'react-router-redux';
+// import { routerMiddleware, syncHistoryWithStore } from 'react-router-redux';
 
 import rootReducer from './reducer';
 
-export const history = createBrowserHistory();
+export const memoryHistory = createMemoryHistory();
 
 const isDev = process.env.NODE_ENV === 'development';
+
+const thunk = store => next => (action) => {
+  if (typeof action === 'function') return action(store.dispatch);
+  return next(action);
+};
 
 export const configureStore = () => {
   // Redux Configuration
@@ -21,8 +26,8 @@ export const configureStore = () => {
   const enhancers = [];
   const initialState = getInitialStateRenderer();
 
-  // // Thunk Middleware
-  // middleware.push(thunk);
+  // Thunk Middleware
+  middleware.push(thunk);
 
   // Logging Middleware
   if (isDev) {
@@ -30,9 +35,9 @@ export const configureStore = () => {
     middleware.push(logger);
   }
 
-  // Router Middleware
-  const router = routerMiddleware(history);
-  middleware.push(router);
+  // // Router Middleware
+  // const router = routerMiddleware(memoryHistory);
+  // middleware.push(router);
 
   // Apply Middleware & Compose Enhancers
   enhancers.push(applyMiddleware(forwardToMain, ...middleware));
@@ -41,13 +46,19 @@ export const configureStore = () => {
   // Create Store
   const store = createStore(rootReducer, initialState, enhancer);
 
-  if (isDev && module.hot) {
-    module.hot.accept('./reducer', () => {
-      const reducerModule = require('./reducer'); // eslint-disable-line global-require
-      store.replaceReducer(reducerModule);
-      return replayActionRenderer(store);
-    });
-  }
+  // if (isDev && module.hot) {
+  //   module.hot.accept('./reducer', () => {
+  //     const reducerModule = require('./reducer'); // eslint-disable-line global-require
+  //     store.replaceReducer(reducerModule);
+  //     replayActionRenderer(store);
+  //
+  //     return store;
+  //   });
+  // }
 
-  return replayActionRenderer(store);
+  replayActionRenderer(store);
+
+  // const history = syncHistoryWithStore(memoryHistory, store);
+
+  return { store };
 };

@@ -1,9 +1,11 @@
 // @flow
 import { combineReducers } from 'redux';
-import { routerReducer as router } from 'react-router-redux';
+import loader from './modules/loader';
+import preview from './modules/preview';
 
 const reducer = combineReducers({
-  router,
+  preview,
+  loader,
 });
 
 export default reducer;

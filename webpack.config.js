@@ -12,7 +12,7 @@ module.exports = {
   entry: {
     app: './app/app.js',
     game: './game/game.js',
-    editor: './editor/editor.js',
+    editor: './editor/Editor.jsx',
   },
   output: {
     filename: '[name].js',
@@ -21,12 +21,16 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.js$/,
+        test: /\.jsx?$/,
         exclude: /(node_modules|bower_components)/,
         use: {
           loader: 'babel-loader',
           options: {
-            presets: ['@babel/preset-env', '@babel/preset-flow'],
+            presets: [
+              '@babel/preset-env',
+              '@babel/preset-flow',
+              '@babel/preset-react',
+            ],
             plugins: [
               '@babel/plugin-proposal-class-properties',
               '@babel/plugin-proposal-object-rest-spread',
@@ -38,6 +42,7 @@ module.exports = {
   },
   resolve: {
     modules: ['app', 'game', 'editor', 'node_modules'],
+    extensions: ['.js', '.jsx', '.css', '.json'],
   },
   plugins: isProd ? [
     new ClosureCompiler({
