@@ -49,9 +49,7 @@ const startGame = () => {
 
   game.webContents.openDevTools();
   game.loadURL(gameUrl);
-
-  // close both windows if the editor closes
-  editor.on(CLOSED, () => {
+  game.on(CLOSED, () => {
     game = null;
     // reset the redux state too
     store.dispatch(stopGame());

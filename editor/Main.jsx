@@ -1,42 +1,62 @@
+// @flow
 import React, { PureComponent } from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
+import { Tabs, Tab } from 'material-ui/Tabs';
+import {
+  Toolbar,
+  ToolbarGroup,
+  ToolbarSeparator,
+  ToolbarTitle,
+} from 'material-ui/Toolbar';
+import IconButton from 'material-ui/IconButton';
+import FontIcon from 'material-ui/FontIcon';
 
-// import { loadConfigs } from './modules/loader';
-import { isGameRunning, startGame, stopGame } from './modules/preview';
-
-const mapStateToProps = state => ({
-  isGameRunning: isGameRunning(state),
-});
-
-const mapDispatchToProps = dispatch => bindActionCreators({
-  runGame: startGame,
-  haltGame: stopGame,
-}, dispatch);
+import GameControl from './aspects/GameControl';
+import SceneControl from './aspects/SceneControl';
+// import { components } from './constants';
 
 const START_GAME = 'START GAME';
 const STOP_GAME = 'STOP GAME';
 
+// npm install --save-dev prop-types redux-saga reselect immutable
+
 class Main extends PureComponent {
   render() {
-    const { isGameRunning, runGame, haltGame } = this.props;
-    const onClick = isGameRunning ? haltGame : runGame;
-    const text = isGameRunning ? STOP_GAME : START_GAME;
-
     return (
       <div>
-        <h1>Whadda hell... bulnosaur</h1>
-        <button onClick={onClick}>{text}</button>
+        <h4>Game Editor</h4>
         <div>
-          <ul>
-            <li>1</li>
-            <li>2</li>
-            <li>3</li>
-          </ul>
+          <GameControl>
+            { ({ isRunning, startGame, stopGame }) => (
+              <button onClick={isRunning ? stopGame : startGame}>
+                {isRunning ? STOP_GAME : START_GAME}
+              </button>
+            ) }
+          </GameControl>
         </div>
+        <SceneControl>
+          {({ scenes, currentScene, setCurrentScene, addScene }) => (
+            <Toolbar>
+              <ToolbarGroup firstChild>
+                <ToolbarTitle text="Scenes" />
+                <ToolbarSeparator />
+                <Tabs value={currentScene} onChange={setCurrentScene}>
+                  { scenes.map(({ label, id }) => (
+                    <Tab key={id} label={label} value={id} />
+                  )) }
+                </Tabs>
+              </ToolbarGroup>
+              <ToolbarGroup>
+                <ToolbarSeparator />
+                <IconButton tooltip="Add Scene" onClick={addScene}>
+                  <FontIcon className="material-icons">add</FontIcon>
+                </IconButton>
+              </ToolbarGroup>
+            </Toolbar>
+          )}
+        </SceneControl>
       </div>
     );
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Main);
+export default Main;
