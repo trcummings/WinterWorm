@@ -19,14 +19,11 @@ const mapDispatchToProps = dispatch => bindActionCreators({
 
 // npm install --save-dev prop-types redux-saga
 
-export class GameControlUndec extends PureComponent {
+export class GameControl extends PureComponent {
   render() {
     const { isRunning, runGame, haltGame, children } = this.props;
     return children({ startGame: runGame, stopGame: haltGame, isRunning });
   }
 }
 
-const GameControl = connect(mapStateToProps, mapDispatchToProps)(GameControlUndec);
-GameControl.displayName = 'GameControl';
-
-export default GameControl;
+export default connect(mapStateToProps, mapDispatchToProps)(GameControl);

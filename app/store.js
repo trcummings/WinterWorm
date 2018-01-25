@@ -5,33 +5,27 @@ import {
   replayActionMain,
 } from 'electron-redux';
 import { createStore, applyMiddleware, compose } from 'redux';
-// import { createMemoryHistory } from 'history';
-// import { createLogger } from 'redux-logger';
-// import { routerMiddleware, syncHistoryWithStore } from 'react-router-redux';
 
 import rootReducer from '../editor/reducer';
+import { thunk } from '../editor/store';
 
-// const memoryHistory = createMemoryHistory();
+const logger = _ => next => (action) => {
+  console.log(JSON.stringify(action, null, 2));
+  return next(action);
+};
 
-// const isDev = process.env.NODE_ENV === 'development';
+const isDev = process.env.NODE_ENV === 'development';
 
 export const configureStore = () => {
   // Redux Configuration
   const middleware = [];
   const enhancers = [];
 
-  // // Thunk Middleware
-  // middleware.push(thunk);
+  // Thunk Middleware
+  middleware.push(thunk);
 
   // Logging Middleware
-  // if (isDev) {
-  //   const logger = createLogger({ level: 'info', collapsed: true });
-  //   middleware.push(logger);
-  // }
-
-  // // // Router Middleware
-  // const router = routerMiddleware(memoryHistory);
-  // middleware.push(router);
+  if (isDev) middleware.push(logger);
 
   // Apply Middleware & Compose Enhancers
   enhancers.push(applyMiddleware(triggerAlias, ...middleware, forwardToRenderer));
@@ -49,7 +43,6 @@ export const configureStore = () => {
   //     return store;
   //   });
   // }
-  // const history = syncHistoryWithStore(memoryHistory, store);
 
   replayActionMain(store);
 

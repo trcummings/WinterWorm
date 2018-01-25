@@ -3,12 +3,12 @@ export const RUN_GAME = 'preview/RUN_GAME';
 export const STOP_GAME = 'preview/STOP_GAME';
 
 // Action creators
-export const startGame = payload => ({
+export const startGame = payload => dispatch => dispatch({
   type: RUN_GAME,
   payload,
 });
 
-export const stopGame = () => ({
+export const stopGame = () => dispatch => dispatch({
   type: STOP_GAME,
 });
 

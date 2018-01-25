@@ -10,12 +10,12 @@ export const getCurrentScene = state => state.scenes.currentScene;
 export const getScenes = state => state.scenes.allScenes;
 
 // Action Creators
-export const selectScene = sceneId => ({
+export const selectScene = sceneId => dispatch => dispatch({
   type: SELECT_SCENE,
   payload: sceneId,
 });
 
-export const addNewScene = () => ({
+export const addNewScene = () => dispatch => dispatch({
   type: ADD_SCENE,
 });
 

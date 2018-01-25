@@ -2,7 +2,7 @@ const INITIAL_STATE = {
 
 };
 
-export const loadConfigs = () => ({
+export const loadConfigs = () => dispatch => dispatch({
   type: 'LOAD_CONFIGS',
 });
 

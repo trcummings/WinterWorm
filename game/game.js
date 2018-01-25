@@ -1,3 +1,5 @@
+import { ipcRenderer } from 'electron';
+
 import { setGameState, gameLoop } from './engine/core';
 import {
   SCENES,
@@ -14,22 +16,21 @@ import { isDev } from './engine/util';
 import { levelOne, levelOneLoader } from './spec/scenes';
 import { loader } from './spec/scenes/levelOneLoader';
 
-const setSystems = setSceneSystemSpecs(levelOneLoader.id, {
-  [loader.id]: loader,
-});
+import { START_GAME, SYNC } from '../app/app';
 
-const specs = [
-  { type: SCENES, options: levelOne },
-  { type: SCENES, options: levelOneLoader },
-  { type: CURRENT_SCENE, options: levelOneLoader.id },
-  { type: SCRIPTS, options: setSystems },
-];
+ipcRenderer.on(START_GAME, (_, msg) => {
+  console.log(msg);
 
-document.addEventListener('DOMContentLoaded', () => {
-  if (isDev()) {
-    require('./vendor/fpsMeter'); // eslint-disable-line
-    window.meter = new window.FPSMeter();
-  }
+  const setSystems = setSceneSystemSpecs(levelOneLoader.id, {
+    [loader.id]: loader,
+  });
+
+  const specs = [
+    { type: SCENES, options: levelOne },
+    { type: SCENES, options: levelOneLoader },
+    { type: CURRENT_SCENE, options: levelOneLoader.id },
+    { type: SCRIPTS, options: setSystems },
+  ];
 
   const { canvas, renderer, stage, pixiLoader } = createRenderingEngine();
   const world = createPhysicsEngine();
@@ -46,5 +47,13 @@ document.addEventListener('DOMContentLoaded', () => {
   console.log(gameState);
 
   gameLoop(gameState);
-  // }, 300);
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  if (isDev()) {
+    require('./vendor/fpsMeter'); // eslint-disable-line
+    window.meter = new window.FPSMeter();
+  }
+
+  ipcRenderer.send(SYNC);
 });

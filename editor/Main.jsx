@@ -9,17 +9,16 @@ import {
 } from 'material-ui/Toolbar';
 import IconButton from 'material-ui/IconButton';
 import FontIcon from 'material-ui/FontIcon';
+import RaisedButton from 'material-ui/RaisedButton';
 
-import GameControl from './aspects/GameControl';
-import SceneControl from './aspects/SceneControl';
+import { default as GameControl } from './aspects/GameControl';
+import { default as SceneControl } from './aspects/SceneControl';
 // import { components } from './constants';
 
 const START_GAME = 'START GAME';
 const STOP_GAME = 'STOP GAME';
 
-// npm install --save-dev prop-types redux-saga reselect immutable
-
-class Main extends PureComponent {
+export default class Main extends PureComponent {
   render() {
     return (
       <div>
@@ -27,9 +26,9 @@ class Main extends PureComponent {
         <div>
           <GameControl>
             { ({ isRunning, startGame, stopGame }) => (
-              <button onClick={isRunning ? stopGame : startGame}>
+              <RaisedButton onClick={() => (isRunning ? stopGame() : startGame())}>
                 {isRunning ? STOP_GAME : START_GAME}
-              </button>
+              </RaisedButton>
             ) }
           </GameControl>
         </div>
@@ -58,5 +57,3 @@ class Main extends PureComponent {
     );
   }
 }
-
-export default Main;

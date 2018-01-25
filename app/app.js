@@ -1,10 +1,14 @@
 // @flow
 
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
 import { gameUrl, editorUrl } from './htmlTemplates/types';
 import { configureStore } from './store';
 
 import { isGameRunning, stopGame } from '../editor/modules/preview';
+
+
+export const SYNC = 'sync';
+export const START_GAME = 'start_game';
 
 const READY = 'ready';
 // const ALL_WINDOWS_CLOSED = 'window-all-closed';
@@ -21,6 +25,7 @@ const { store } = configureStore();
 
 let editor;
 let game;
+let unsubscribe;
 
 const startEditor = () => {
   editor = new BrowserWindow({
@@ -36,6 +41,7 @@ const startEditor = () => {
   editor.on(CLOSED, () => {
     editor = null;
     game = null;
+    if (unsubscribe) unsubscribe();
   });
 };
 
@@ -53,11 +59,21 @@ const startGame = () => {
     game = null;
     // reset the redux state too
     store.dispatch(stopGame());
+    if (unsubscribe) unsubscribe();
   });
 };
 
-store.subscribe(() => {
-  if (isGameRunning(store.getState())) startGame();
+ipcMain.on('sync', (event) => {
+  // once the game window dom content is loaded, start the game
+  event.sender.send('start_game', store.getState());
+});
+
+let gameRunning;
+unsubscribe = store.subscribe(() => {
+  if (!gameRunning && isGameRunning(store.getState())) {
+    gameRunning = true;
+    startGame();
+  }
 });
 
 app.on(READY, startEditor);

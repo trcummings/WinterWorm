@@ -19,7 +19,7 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   setCurrentScene: selectScene,
 }, dispatch);
 
-class SceneControlUndec extends PureComponent {
+export class SceneControl extends PureComponent {
   render() {
     const {
       children,
@@ -38,7 +38,4 @@ class SceneControlUndec extends PureComponent {
   }
 }
 
-const SceneControl = connect(mapStateToProps, mapDispatchToProps)(SceneControlUndec);
-SceneControl.displayName = 'SceneControl';
-
-export default SceneControl;
+export default connect(mapStateToProps, mapDispatchToProps)(SceneControl);

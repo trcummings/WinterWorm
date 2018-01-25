@@ -5,18 +5,14 @@ import {
   getInitialStateRenderer,
 } from 'electron-redux';
 import { createStore, applyMiddleware, compose } from 'redux';
-import { createMemoryHistory } from 'history';
 import { createLogger } from 'redux-logger';
-// import { routerMiddleware, syncHistoryWithStore } from 'react-router-redux';
 
 import rootReducer from './reducer';
 
-export const memoryHistory = createMemoryHistory();
-
 const isDev = process.env.NODE_ENV === 'development';
 
-const thunk = store => next => (action) => {
-  if (typeof action === 'function') return action(store.dispatch);
+export const thunk = ({ dispatch, getState }) => next => (action) => {
+  if (typeof action === 'function') return action(dispatch, getState);
   return next(action);
 };
 
@@ -34,10 +30,6 @@ export const configureStore = () => {
     const logger = createLogger({ level: 'info', collapsed: true });
     middleware.push(logger);
   }
-
-  // // Router Middleware
-  // const router = routerMiddleware(memoryHistory);
-  // middleware.push(router);
 
   // Apply Middleware & Compose Enhancers
   enhancers.push(applyMiddleware(forwardToMain, ...middleware));
@@ -57,8 +49,6 @@ export const configureStore = () => {
   // }
 
   replayActionRenderer(store);
-
-  // const history = syncHistoryWithStore(memoryHistory, store);
 
   return { store };
 };
