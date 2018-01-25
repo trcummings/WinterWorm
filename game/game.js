@@ -16,9 +16,10 @@ import { isDev } from './engine/util';
 import { levelOne, levelOneLoader } from './spec/scenes';
 import { loader } from './spec/scenes/levelOneLoader';
 
-import { START_GAME, SYNC } from '../app/app';
+const SYNC = 'sync';
+const START_GAME = 'start_game';
 
-ipcRenderer.on(START_GAME, (_, msg) => {
+ipcRenderer.once(START_GAME, (_, msg) => {
   console.log(msg);
 
   const setSystems = setSceneSystemSpecs(levelOneLoader.id, {

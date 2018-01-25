@@ -7,8 +7,8 @@ import { configureStore } from './store';
 import { isGameRunning, stopGame } from '../editor/modules/preview';
 
 
-export const SYNC = 'sync';
-export const START_GAME = 'start_game';
+const SYNC = 'sync';
+const START_GAME = 'start_game';
 
 const READY = 'ready';
 // const ALL_WINDOWS_CLOSED = 'window-all-closed';
@@ -37,10 +37,8 @@ const startEditor = () => {
   editor.webContents.openDevTools();
   editor.loadURL(editorUrl);
 
-  // close both windows if the editor closes
   editor.on(CLOSED, () => {
     editor = null;
-    game = null;
     if (unsubscribe) unsubscribe();
   });
 };
@@ -55,6 +53,7 @@ const startGame = () => {
 
   game.webContents.openDevTools();
   game.loadURL(gameUrl);
+
   game.on(CLOSED, () => {
     game = null;
     // reset the redux state too
@@ -62,11 +61,6 @@ const startGame = () => {
     if (unsubscribe) unsubscribe();
   });
 };
-
-ipcMain.on('sync', (event) => {
-  // once the game window dom content is loaded, start the game
-  event.sender.send('start_game', store.getState());
-});
 
 let gameRunning;
 unsubscribe = store.subscribe(() => {
@@ -77,6 +71,11 @@ unsubscribe = store.subscribe(() => {
 });
 
 app.on(READY, startEditor);
+
+ipcMain.once(SYNC, (event) => {
+  // once the game window dom content is loaded, start the game
+  event.sender.send(START_GAME, store.getState());
+});
 
 // function window(): SetupWindow {
 //   // Create the browser window.
