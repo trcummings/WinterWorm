@@ -1,5 +1,4 @@
-import { makeId } from '../../game/engine/util';
-import { SCENES } from '../../game/engine/symbols';
+import { makeId, symbols } from '../constants';
 
 const SELECT_SCENE = 'scenes/SELECT_SCENE';
 const ADD_SCENE = 'scenes/ADD_SCENE';
@@ -34,7 +33,7 @@ export default function scenes(state = INITIAL_STATE, action = {}) {
     }
 
     case ADD_SCENE: {
-      const id = makeId(SCENES);
+      const id = makeId(symbols.SCENES);
       const numScenes = state.allScenes.length;
       const newScene = { id, label: `New Scene ${numScenes + 1}`, systems: [] };
 

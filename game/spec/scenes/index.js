@@ -1,7 +1,8 @@
 import levelOne from './levelOne';
-import levelOneLoader from './levelOneLoader';
+import levelOneLoader, { loader } from './levelOneLoader';
 
 export {
   levelOne,
   levelOneLoader,
+  loader,
 };

@@ -1,3 +1,10 @@
 import * as components from '../game/engine/components';
+import * as symbols from '../game/engine/symbols';
 
-export { components };
+import { makeId } from '../game/engine/util';
+
+export {
+  components,
+  makeId,
+  symbols,
+};

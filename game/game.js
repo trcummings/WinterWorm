@@ -1,53 +1,59 @@
 import { ipcRenderer } from 'electron';
 
-import { setGameState, gameLoop } from './engine/core';
+import { setGameState } from './engine/core';
+import { gameLoop } from './engine/loop';
 import {
-  SCENES,
-  CURRENT_SCENE,
+  // CURRENT_SCENE,
+  // SYSTEMS,
   SCRIPTS,
   RENDER_ENGINE,
   PHYSICS_ENGINE,
 } from './engine/symbols';
-import { initEvents, setSceneSystemSpecs } from './engine/scripts';
+import { initEvents } from './engine/scripts';
 import { createRenderingEngine } from './engine/pixi';
 import { createPhysicsEngine } from './engine/planck';
 import { isDev } from './engine/util';
 
-import { levelOne, levelOneLoader } from './spec/scenes';
-import { loader } from './spec/scenes/levelOneLoader';
+// import { levelOne, levelOneLoader } from './spec/scenes';
+// import { loader } from './spec/scenes/levelOneLoader';
 
 const SYNC = 'sync';
 const START_GAME = 'start_game';
 
-ipcRenderer.once(START_GAME, (_, msg) => {
-  console.log(msg);
+// const setSystems = setSceneSystemSpecs(levelOneLoader.id, {
+//   [loader.id]: loader,
+// });
+//
+// const specs = [
+//   { type: SCENES, options: levelOne },
+//   { type: SCENES, options: levelOneLoader },
+//   { type: CURRENT_SCENE, options: levelOneLoader.id },
+//   { type: SCRIPTS, options: setSystems },
+// ];
 
-  const setSystems = setSceneSystemSpecs(levelOneLoader.id, {
-    [loader.id]: loader,
-  });
 
-  const specs = [
-    { type: SCENES, options: levelOne },
-    { type: SCENES, options: levelOneLoader },
-    { type: CURRENT_SCENE, options: levelOneLoader.id },
-    { type: SCRIPTS, options: setSystems },
-  ];
+ipcRenderer.once(START_GAME, (_, specs) => {
+  const loader = document.getElementById('loader');
 
-  const { canvas, renderer, stage, pixiLoader } = createRenderingEngine();
-  const world = createPhysicsEngine();
-  const gameState = setGameState(
-    {},
-    { type: RENDER_ENGINE,
-      options: { renderer, stage, canvas, pixiLoader } },
-    { type: PHYSICS_ENGINE,
-      options: world },
-    { type: SCRIPTS, options: initEvents },
-    ...specs
-  );
+  setTimeout(() => {
+    document.body.removeChild(loader);
 
-  console.log(gameState);
+    const { canvas, renderer, stage, pixiLoader } = createRenderingEngine();
+    const world = createPhysicsEngine();
+    const gameState = setGameState(
+      {},
+      { type: RENDER_ENGINE,
+        options: { renderer, stage, canvas, pixiLoader } },
+      { type: PHYSICS_ENGINE,
+        options: world },
+      { type: SCRIPTS, options: initEvents },
+      ...specs
+    );
 
-  gameLoop(gameState);
+    console.log(gameState);
+
+    gameLoop(gameState);
+  }, 8000);
 });
 
 document.addEventListener('DOMContentLoaded', () => {

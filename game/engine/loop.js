@@ -34,7 +34,7 @@ const updateLoopState = (state: GameState, timestamp: Timestamp): GameState => {
   return setLoopState(state, newLoopState);
 };
 
-export const nextStateAfterLoop = (
+const nextStateAfterLoop = (
   state: GameState,
   timestamp: Timestamp
 ): GameState => {
@@ -42,3 +42,9 @@ export const nextStateAfterLoop = (
   const updateFn = getUpdateFn(next);
   return updateFn(next);
 };
+
+export const gameLoop = (state: GameState): number => (
+  window.requestAnimationFrame((timestamp: Timestamp) => (
+    gameLoop(nextStateAfterLoop(state, timestamp))
+  ))
+);

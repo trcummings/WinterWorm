@@ -22,12 +22,10 @@ import {
   setSystem,
   setEntity,
 } from './ecs';
-import { nextStateAfterLoop } from './loop';
 import { setRenderEngine } from './pixi';
 import { setPhysicsEngine } from './planck';
 
 import type { GameState, SpecType, Spec } from './types';
-import type { Timestamp } from './loop';
 
 const applySpec = specFn => (state: GameState, { options }): GameState => (
   specFn(state, options)
@@ -92,9 +90,3 @@ export const setGameState = (initialState: {}, ...specs: Array<Spec>) => {
 
   return assocPath([UPDATE_FNS, sceneId], updateFn, state);
 };
-
-export const gameLoop = (state: GameState): number => (
-  window.requestAnimationFrame((timestamp: Timestamp) => (
-    gameLoop(nextStateAfterLoop(state, timestamp))
-  ))
-);

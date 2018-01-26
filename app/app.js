@@ -1,5 +1,4 @@
 // @flow
-
 import { app, BrowserWindow, ipcMain } from 'electron';
 import { gameUrl, editorUrl } from './htmlTemplates/types';
 import { configureStore } from './store';
@@ -48,7 +47,7 @@ const startGame = () => {
     width: 800,
     height: 600,
     frame: false,
-    transparent: false,
+    transparent: true,
   });
 
   game.webContents.openDevTools();
@@ -73,8 +72,9 @@ unsubscribe = store.subscribe(() => {
 app.on(READY, startEditor);
 
 ipcMain.once(SYNC, (event) => {
+  const specs = store.getState().specs;
   // once the game window dom content is loaded, start the game
-  event.sender.send(START_GAME, store.getState());
+  event.sender.send(START_GAME, specs);
 });
 
 // function window(): SetupWindow {

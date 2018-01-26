@@ -7,13 +7,14 @@ import {
   ToolbarSeparator,
   ToolbarTitle,
 } from 'material-ui/Toolbar';
-import IconButton from 'material-ui/IconButton';
-import FontIcon from 'material-ui/FontIcon';
 import RaisedButton from 'material-ui/RaisedButton';
 
 import { default as GameControl } from './aspects/GameControl';
-import { default as SceneControl } from './aspects/SceneControl';
 // import { components } from './constants';
+
+import SceneControl from './sceneComposer/SceneControl';
+import SceneComposerContainer from './sceneComposer/SceneComposerContainer';
+import AddSceneButton from './sceneComposer/AddSceneButton';
 
 const START_GAME = 'START GAME';
 const STOP_GAME = 'STOP GAME';
@@ -22,8 +23,8 @@ export default class Main extends PureComponent {
   render() {
     return (
       <div>
-        <h4>Game Editor</h4>
         <div>
+          <h4>Game Editor</h4>
           <GameControl>
             { ({ isRunning, startGame, stopGame }) => (
               <RaisedButton onClick={() => (isRunning ? stopGame() : startGame())}>
@@ -39,16 +40,23 @@ export default class Main extends PureComponent {
                 <ToolbarTitle text="Scenes" />
                 <ToolbarSeparator />
                 <Tabs value={currentScene} onChange={setCurrentScene}>
-                  { scenes.map(({ label, id }) => (
-                    <Tab key={id} label={label} value={id} />
+                  { Object.keys(scenes).map(id => (
+                    <Tab key={id} label={scenes[id].label} value={id}>
+                      <SceneComposerContainer
+                        label={scenes[id].label}
+                        id={id}
+                      />
+                    </Tab>
                   )) }
                 </Tabs>
               </ToolbarGroup>
               <ToolbarGroup>
                 <ToolbarSeparator />
-                <IconButton tooltip="Add Scene" onClick={addScene}>
-                  <FontIcon className="material-icons">add</FontIcon>
-                </IconButton>
+                <AddSceneButton
+                  numScenes={Object.keys(scenes).length}
+                  setCurrentScene={setCurrentScene}
+                  addScene={addScene}
+                />
               </ToolbarGroup>
             </Toolbar>
           )}
