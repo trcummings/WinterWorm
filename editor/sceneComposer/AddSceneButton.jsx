@@ -9,21 +9,21 @@ import { makeNewScene } from './SceneControl';
 export default class AddSceneButton extends PureComponent {
   static propTypes = {
     numScenes: PropTypes.number.isRequired,
-    addScene: PropTypes.func.isRequired,
+    setScene: PropTypes.func.isRequired,
     setCurrentScene: PropTypes.func.isRequired,
   };
 
-  addScene = () => {
-    const { numScenes, addScene, setCurrentScene } = this.props;
+  setScene = () => {
+    const { numScenes, setScene, setCurrentScene } = this.props;
     const scene = makeNewScene(numScenes);
 
-    addScene(scene);
+    setScene(scene);
     setCurrentScene(scene.id);
   }
 
   render() {
     return (
-      <IconButton tooltip="Add Scene" onClick={this.addScene}>
+      <IconButton tooltip="Add Scene" onClick={this.setScene}>
         <FontIcon className="material-icons">add</FontIcon>
       </IconButton>
     );

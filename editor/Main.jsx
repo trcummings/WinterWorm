@@ -1,13 +1,16 @@
 // @flow
-import React, { PureComponent } from 'react';
-import { Tabs, Tab } from 'material-ui/Tabs';
+import React, { PureComponent, Fragment } from 'react';
+import AppBar from 'material-ui/AppBar';
+import DropDownMenu from 'material-ui/DropDownMenu';
+import MenuItem from 'material-ui/MenuItem';
 import {
   Toolbar,
   ToolbarGroup,
   ToolbarSeparator,
   ToolbarTitle,
 } from 'material-ui/Toolbar';
-import RaisedButton from 'material-ui/RaisedButton';
+import FlatButton from 'material-ui/FlatButton';
+import FontIcon from 'material-ui/FontIcon';
 
 import { default as GameControl } from './aspects/GameControl';
 // import { components } from './constants';
@@ -16,49 +19,62 @@ import SceneControl from './sceneComposer/SceneControl';
 import SceneComposerContainer from './sceneComposer/SceneComposerContainer';
 import AddSceneButton from './sceneComposer/AddSceneButton';
 
-const START_GAME = 'START GAME';
-const STOP_GAME = 'STOP GAME';
+const START_GAME = 'play_arrow';
+const STOP_GAME = 'stop';
 
 export default class Main extends PureComponent {
   render() {
     return (
       <div>
-        <div>
-          <h4>Game Editor</h4>
-          <GameControl>
-            { ({ isRunning, startGame, stopGame }) => (
-              <RaisedButton onClick={() => (isRunning ? stopGame() : startGame())}>
-                {isRunning ? STOP_GAME : START_GAME}
-              </RaisedButton>
-            ) }
-          </GameControl>
-        </div>
+        <AppBar
+          title="GameEditor"
+          iconElementRight={
+            <GameControl>
+              { ({ isRunning, startGame, stopGame }) => (
+                <FlatButton onClick={() => (isRunning ? stopGame() : startGame())}>
+                  <FontIcon className="material-icons">
+                    {isRunning ? STOP_GAME : START_GAME}
+                  </FontIcon>
+                </FlatButton>
+              ) }
+            </GameControl>
+          }
+        />
         <SceneControl>
-          {({ scenes, currentScene, setCurrentScene, addScene }) => (
-            <Toolbar>
-              <ToolbarGroup firstChild>
-                <ToolbarTitle text="Scenes" />
-                <ToolbarSeparator />
-                <Tabs value={currentScene} onChange={setCurrentScene}>
-                  { Object.keys(scenes).map(id => (
-                    <Tab key={id} label={scenes[id].label} value={id}>
-                      <SceneComposerContainer
-                        label={scenes[id].label}
-                        id={id}
-                      />
-                    </Tab>
-                  )) }
-                </Tabs>
-              </ToolbarGroup>
-              <ToolbarGroup>
-                <ToolbarSeparator />
-                <AddSceneButton
-                  numScenes={Object.keys(scenes).length}
-                  setCurrentScene={setCurrentScene}
-                  addScene={addScene}
-                />
-              </ToolbarGroup>
-            </Toolbar>
+          {({ scenes, currentScene, setCurrentScene, setScene }) => (
+            <Fragment>
+              <Toolbar>
+                <ToolbarGroup firstChild>
+                  <ToolbarTitle text="Scenes" />
+                  { Object.keys(scenes).length && (
+                    <DropDownMenu
+                      value={currentScene}
+                      onChange={(event, _, value) => setCurrentScene(value)}
+                    >
+                      { Object.keys(scenes).map(id => (
+                        <MenuItem key={id} primaryText={scenes[id].label} value={id} />
+                      )) }
+                    </DropDownMenu>
+                  ) }
+                </ToolbarGroup>
+                <ToolbarGroup>
+                  <ToolbarSeparator />
+                  <AddSceneButton
+                    numScenes={Object.keys(scenes).length}
+                    setCurrentScene={setCurrentScene}
+                    setScene={setScene}
+                  />
+                </ToolbarGroup>
+              </Toolbar>
+              <div>
+                { currentScene && scenes[currentScene] && (
+                  <SceneComposerContainer
+                    scene={scenes[currentScene]}
+                    setScene={setScene}
+                  />
+                ) }
+              </div>
+            </Fragment>
           )}
         </SceneControl>
       </div>

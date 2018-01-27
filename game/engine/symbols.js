@@ -4,21 +4,28 @@
 export const ID = 'id';
 export const FN = 'fn';
 export const UPDATE_FNS = 'updateFns';
-export const GAME_LOOP = 'gameLoop';
 export const SCENES = 'scenes';
 export const SCRIPTS = 'scripts';
 export const SYSTEMS = 'systems';
 export const SYSTEM_FN = 'systemFn';
 export const ENTITIES = 'entities';
 export const COMPONENTS = 'components';
-export const STATE = 'state';
 export const CURRENT_SCENE = 'currentScene';
 export const ENTITY_TRASHCAN = 'entityTrashcan';
 export const SUBSCRIPTIONS = 'subscriptions';
 export const CLEANUP_FN = 'cleanupFn';
 export const CONTEXT = 'context';
+
+export const STATE = 'state';
+
+export const GAME_LOOP = 'gameLoop';
 export const RENDER_ENGINE = 'renderEngine';
 export const PHYSICS_ENGINE = 'physicsEngine';
+
+// Asset Loaders
+export const ASSET_LOADERS = 'assetLoaders';
+// LoaderTypes
+export const SPRITE_LOADER = 'spriteLoader';
 
 // Events
 export const EVENTS = 'events';

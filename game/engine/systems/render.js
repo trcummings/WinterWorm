@@ -1,8 +1,8 @@
 // @flow
 
-// system for rendering the PIXI.js stage + fpsMeter
+// system for rendering the PIXI.js stage
 import { getRenderEngine } from '../pixi';
-import { makeId, isDev } from '../util';
+import { makeId } from '../util';
 import { SYSTEMS, RENDER_ACTION } from '../symbols';
 import { getEventsOfEventId } from '../events';
 
@@ -18,9 +18,6 @@ const render: System = {
   label: RENDER,
   id: makeId(SYSTEMS),
   fn: (state: GameState): GameState => {
-    // // start checking the fps meter frame rate
-    if (isDev()) window.meter.tickStart();
-
     const { renderer, stage } = getRenderEngine(state);
     const events = getEventsOfEventId(state, RENDER_ACTION);
 
@@ -30,9 +27,6 @@ const render: System = {
     for (const event of events) if (event.action) event.action();
     stage.children.sort(sortByZIndexHelper);
     renderer.render(stage);
-
-    // finish checking the fps meter frame rate
-    if (isDev()) window.meter.tick();
 
     return state;
   },

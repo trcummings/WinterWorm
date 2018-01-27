@@ -28,10 +28,10 @@ export default class SceneControl extends PureComponent {
 
     return (
       <MetaSpecControl specType={symbols.SCENES}>
-        { ({ specs: scenes, setSpec: addScene }) => children({
+        { ({ specs: scenes, setSpec: setScene }) => children({
           setCurrentScene: this.setCurrentScene,
           currentScene: this.state.currentScene,
-          addScene,
+          setScene,
           scenes,
         }) }
       </MetaSpecControl>

@@ -17,13 +17,11 @@ const muiTheme = getMuiTheme({
   },
 });
 
-document.addEventListener('DOMContentLoaded', () => {
-  render(
-    <Provider store={store}>
-      <MuiThemeProvider muiTheme={muiTheme}>
-        <Main />
-      </MuiThemeProvider>
-    </Provider>,
-    document.getElementById('root')
-  );
-});
+document.addEventListener('DOMContentLoaded', () => render(
+  <Provider store={store}>
+    <MuiThemeProvider muiTheme={muiTheme}>
+      <Main />
+    </MuiThemeProvider>
+  </Provider>,
+  document.getElementById('root')
+));

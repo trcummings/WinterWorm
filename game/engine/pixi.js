@@ -29,8 +29,6 @@ export const createRenderingEngine = () => {
   const canvas = renderer.view;
   const stage = new Container();
 
-  document.body.appendChild(canvas);
-
   return { canvas, stage, renderer, pixiLoader: loader };
 };
 

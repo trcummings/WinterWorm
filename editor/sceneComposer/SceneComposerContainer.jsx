@@ -1,18 +1,39 @@
 // @flow
-import React, { PureComponent } from 'react';
+import React, { Fragment, PureComponent } from 'react';
 import PropTypes from 'prop-types';
+import Chip from 'material-ui/Chip';
+
+import { systems } from '../constants';
 
 export default class SceneComposerContainer extends PureComponent {
   static propTypes = {
-    label: PropTypes.string,
-    id: PropTypes.string.isRequired,
-  };
-
-  static defaultProps = {
-    label: '',
+    scene: PropTypes.object.isRequired,
+    setScene: PropTypes.func.isRequired,
   };
 
   render() {
-    return <div>{ this.props.id }{ this.props.label }</div>;
+    const { scene: { systems: systemIds } } = this.props;
+
+    return (
+      <Fragment>
+        { Object.keys(systems).map(systemId => (
+          <Chip
+            key={systemId}
+            onClick={() => {}}
+          >
+            { systems[systemId].label }
+          </Chip>
+        ))}
+        { systemIds.map(systemId => (
+          <Chip
+            key={systemId}
+            onRequestDelete={() => {}}
+            onClick={() => {}}
+          >
+            { systems[systemId].label }
+          </Chip>
+        ))}
+      </Fragment>
+    );
   }
 }
