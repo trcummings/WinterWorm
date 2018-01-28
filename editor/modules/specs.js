@@ -4,10 +4,16 @@ import { createSelector } from 'reselect';
 import { symbols } from '../constants';
 
 const ADD_SPEC = 'specs/ADD_SPEC';
+const LOAD_SPEC = 'specs/LOAD_SPEC';
 
 // Action Creators
 export const setSpec = spec => dispatch => dispatch({
   type: ADD_SPEC,
+  payload: spec,
+});
+
+export const loadSpec = spec => dispatch => dispatch({
+  type: LOAD_SPEC,
   payload: spec,
 });
 
@@ -51,6 +57,7 @@ export default function specs(state = INITIAL_STATE, action = {}) {
 
   switch (type) {
     case ADD_SPEC: return setSpecInState(state, payload);
+    case LOAD_SPEC: return payload;
     default: return state;
   }
 }

@@ -1,9 +1,10 @@
-import React, { PureComponent } from 'react';
+import { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
 import { symbols, makeId } from '../constants';
 
 import { default as MetaSpecControl } from '../aspects/MetaSpecControl';
+import hofToHoc from '../aspects/HofToHoc';
 
 export const makeNewScene = numScenes => ({
   id: makeId(symbols.SCENES),
@@ -11,30 +12,50 @@ export const makeNewScene = numScenes => ({
   systems: [],
 });
 
-export default class SceneControl extends PureComponent {
+export class SceneControl extends PureComponent {
   static propTypes = {
     children: PropTypes.func.isRequired,
+    scenes: PropTypes.shape({
+      specs: PropTypes.object,
+      setSpec: PropTypes.func.isRequired,
+    }).isRequired,
   }
 
   state = {
     currentScene: null,
   };
 
+  componentWillReceiveProps(nextProps) {
+    const { currentScene } = this.state;
+    const { scenes: { specs: scenes } } = nextProps;
+    const sceneIds = Object.keys(scenes);
+
+    if (!sceneIds.includes(currentScene)) {
+      if (sceneIds.length > 0) this.setCurrentScene(sceneIds[0]);
+      else this.setCurrentScene(null);
+    }
+  }
+
   setCurrentScene = sceneId =>
     this.setState(() => ({ currentScene: sceneId }));
 
   render() {
-    const { children } = this.props;
+    const {
+      children,
+      scenes: { specs: scenes, setSpec: setScene },
+    } = this.props;
 
-    return (
-      <MetaSpecControl specType={symbols.SCENES}>
-        { ({ specs: scenes, setSpec: setScene }) => children({
-          setCurrentScene: this.setCurrentScene,
-          currentScene: this.state.currentScene,
-          setScene,
-          scenes,
-        }) }
-      </MetaSpecControl>
-    );
+    return children({
+      setCurrentScene: this.setCurrentScene,
+      currentScene: this.state.currentScene,
+      setScene,
+      scenes,
+    });
   }
 }
+
+export default hofToHoc(
+  MetaSpecControl,
+  'scenes',
+  { specType: symbols.SCENES }
+)(SceneControl);

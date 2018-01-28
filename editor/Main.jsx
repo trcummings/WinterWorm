@@ -46,7 +46,7 @@ export default class Main extends PureComponent {
           }
           iconElementLeft={
             <FilesystemControl>
-              { ({ isSaving, saveGame }) => (
+              { ({ isSaving, saveGame, savedFiles, loadFile }) => (
                 <IconMenu
                   disabled={isSaving}
                   iconButtonElement={<IconButton><MoreVertIcon /></IconButton>}
@@ -56,6 +56,18 @@ export default class Main extends PureComponent {
                     leftIcon={<Download />}
                     primaryText="Save Game"
                   />
+                  { savedFiles.length > 0 && (
+                    <MenuItem
+                      primaryText="Load Game"
+                      menuItems={savedFiles.map(fileName => (
+                        <MenuItem
+                          key={fileName}
+                          onClick={() => loadFile(fileName)}
+                          primaryText={fileName}
+                        />
+                      ))}
+                    />
+                  ) }
                 </IconMenu>
               ) }
             </FilesystemControl>
