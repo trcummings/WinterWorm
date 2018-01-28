@@ -1,11 +1,13 @@
 // @flow
 import { combineReducers } from 'redux';
-import preview from './modules/preview';
 import specs from './modules/specs';
+import preview from './modules/preview';
+import filesystem from './modules/filesystem';
 
 const reducer = combineReducers({
-  preview,
   specs,
+  preview,
+  filesystem,
 });
 
 export default reducer;

@@ -1,10 +1,16 @@
 // @flow
+import fs from 'fs';
+import path from 'path';
 import { app, BrowserWindow, ipcMain } from 'electron';
 import { gameUrl, editorUrl } from './htmlTemplates/types';
 import { configureStore } from './store';
 
-import { isGameRunning, stopGame } from '../editor/modules/preview';
-
+import { isGameRunning } from '../editor/modules/preview';
+import {
+  isGameSaving,
+  EDITOR_SAVE_ERROR,
+  EDITOR_SAVE_COMPLETE,
+} from '../editor/modules/filesystem';
 
 const SYNC = 'sync';
 const START_GAME = 'start_game';
@@ -52,20 +58,50 @@ const startGame = () => {
 
   game.webContents.openDevTools();
   game.loadURL(gameUrl);
+};
 
-  game.on(CLOSED, () => {
-    game = null;
-    // reset the redux state too
-    store.dispatch(stopGame());
-    if (unsubscribe) unsubscribe();
-  });
+const saveGame = () => {
+  const specs = store.getState().specs;
+
+  try {
+    const state = JSON.stringify(specs);
+    const filePath = path.join(
+      process.env.CONFIG_PATH,
+      `editorFiles/editor_${Date.now()}.json`
+    );
+
+    fs.writeFile(filePath, state, (err) => {
+      if (err) throw new Error(err);
+      store.dispatch({ type: EDITOR_SAVE_COMPLETE });
+    });
+  }
+  catch (err) {
+    const errorAction = { type: EDITOR_SAVE_ERROR, payload: err };
+    store.dispatch(errorAction);
+  }
 };
 
 let gameRunning;
+let gameSaving;
 unsubscribe = store.subscribe(() => {
-  if (!gameRunning && isGameRunning(store.getState())) {
+  const state = store.getState();
+
+  if (!gameRunning && isGameRunning(state)) {
     gameRunning = true;
     startGame();
+  }
+  else if (gameRunning && !isGameRunning(state)) {
+    gameRunning = false;
+    game.close();
+    game = null;
+  }
+
+  if (!gameSaving && isGameSaving(state)) {
+    gameSaving = true;
+    saveGame();
+  }
+  else if (gameSaving && !isGameSaving(state)) {
+    gameSaving = false;
   }
 });
 

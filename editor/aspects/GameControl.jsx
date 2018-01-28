@@ -14,11 +14,6 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   haltGame: stopGame,
 }, dispatch);
 
-// const START_GAME = 'START GAME';
-// const STOP_GAME = 'STOP GAME';
-
-// npm install --save-dev prop-types redux-saga
-
 export class GameControl extends PureComponent {
   render() {
     const { isRunning, runGame, haltGame, children } = this.props;

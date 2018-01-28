@@ -71,6 +71,7 @@ module.exports = {
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify('development'),
       'process.env.ASSET_PATH': JSON.stringify(path.resolve(__dirname, './game/assets')),
+      'process.env.CONFIG_PATH': JSON.stringify(path.resolve(__dirname, './config')),
     }),
   ],
 };

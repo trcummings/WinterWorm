@@ -11,8 +11,13 @@ import {
 } from 'material-ui/Toolbar';
 import FlatButton from 'material-ui/FlatButton';
 import FontIcon from 'material-ui/FontIcon';
+import IconButton from 'material-ui/IconButton';
+import IconMenu from 'material-ui/IconMenu';
+import Download from 'material-ui/svg-icons/file/file-download';
+import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
 
 import { default as GameControl } from './aspects/GameControl';
+import { default as FilesystemControl } from './aspects/FilesystemControl';
 // import { components } from './constants';
 
 import SceneControl from './sceneComposer/SceneControl';
@@ -38,6 +43,22 @@ export default class Main extends PureComponent {
                 </FlatButton>
               ) }
             </GameControl>
+          }
+          iconElementLeft={
+            <FilesystemControl>
+              { ({ isSaving, saveGame }) => (
+                <IconMenu
+                  disabled={isSaving}
+                  iconButtonElement={<IconButton><MoreVertIcon /></IconButton>}
+                >
+                  <MenuItem
+                    onClick={saveGame}
+                    leftIcon={<Download />}
+                    primaryText="Save Game"
+                  />
+                </IconMenu>
+              ) }
+            </FilesystemControl>
           }
         />
         <SceneControl>
