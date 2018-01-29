@@ -22,7 +22,7 @@ const typePathMap = {
   [symbols.SCENES]: scenePath,
 };
 
-const getSpecs = state => state.specs;
+export const getSpecs = state => state.specs;
 const getPropSpecType = (_, ownProps) => ownProps.specType;
 
 export const getSpecsOfType = createSelector(
@@ -36,16 +36,6 @@ const setSpecInState = (state, spec) => over(
   conjoin({ [spec.options.id]: spec.options }),
   state
 );
-
-// const INITIAL_STATE = [
-//   { type: symbols.SCENES, options: scenes.levelOne },
-//   { type: symbols.SCENES, options: scenes.levelOneLoader },
-//   { type: symbols.CURRENT_SCENE, options: scenes.levelOneLoader.id },
-//   { type: symbols.SCRIPTS,
-//     options: scripts.setSceneSystemSpecs(scenes.levelOneLoader.id, {
-//       [scenes.loader.id]: scenes.loader,
-//     }) },
-// ];
 
 const INITIAL_STATE = {
   [symbols.CURRENT_SCENE]: null,

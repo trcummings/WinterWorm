@@ -3,6 +3,7 @@ import React, { PureComponent, Fragment } from 'react';
 import AppBar from 'material-ui/AppBar';
 import DropDownMenu from 'material-ui/DropDownMenu';
 import MenuItem from 'material-ui/MenuItem';
+import Divider from 'material-ui/Divider';
 import {
   Toolbar,
   ToolbarGroup,
@@ -18,16 +19,12 @@ import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
 
 import { default as GameControl } from './aspects/GameControl';
 import { default as FilesystemControl } from './aspects/FilesystemControl';
-// import { components } from './constants';
 
-import SceneControl from './sceneComposer/SceneControl';
+import { default as SceneControl } from './sceneComposer/SceneControl';
 import SceneComposerContainer from './sceneComposer/SceneComposerContainer';
 import AddSceneButton from './sceneComposer/AddSceneButton';
 
-const START_GAME = 'play_arrow';
-const STOP_GAME = 'stop';
-
-export default class Main extends PureComponent {
+export default class Main extends PureComponent { // eslint-disable-line
   render() {
     return (
       <div>
@@ -38,7 +35,7 @@ export default class Main extends PureComponent {
               { ({ isRunning, startGame, stopGame }) => (
                 <FlatButton onClick={() => (isRunning ? stopGame() : startGame())}>
                   <FontIcon className="material-icons">
-                    {isRunning ? STOP_GAME : START_GAME}
+                    {isRunning ? 'stop' : 'play_arrow'}
                   </FontIcon>
                 </FlatButton>
               ) }
@@ -46,10 +43,21 @@ export default class Main extends PureComponent {
           }
           iconElementLeft={
             <FilesystemControl>
-              { ({ isSaving, saveGame, savedFiles, loadFile }) => (
+              { ({
+                isSaving,
+                saveGame,
+                savedFiles,
+                loadFile,
+                exportGameSpec,
+                exportConfig,
+              }) => (
                 <IconMenu
                   disabled={isSaving}
-                  iconButtonElement={<IconButton><MoreVertIcon /></IconButton>}
+                  iconButtonElement={
+                    <IconButton>
+                      <MoreVertIcon />
+                    </IconButton>
+                  }
                 >
                   <MenuItem
                     onClick={saveGame}
@@ -68,6 +76,25 @@ export default class Main extends PureComponent {
                       ))}
                     />
                   ) }
+                  <Divider />
+                  <MenuItem
+                    onClick={exportGameSpec}
+                    leftIcon={
+                      <FontIcon className="material-icons">
+                        build
+                      </FontIcon>
+                    }
+                    primaryText="Export Game Spec"
+                  />
+                  <MenuItem
+                    onClick={exportConfig}
+                    leftIcon={
+                      <FontIcon className="material-icons">
+                        save
+                      </FontIcon>
+                    }
+                    primaryText="Export Config"
+                  />
                 </IconMenu>
               ) }
             </FilesystemControl>

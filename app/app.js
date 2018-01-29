@@ -1,19 +1,30 @@
 // @flow
 import fs from 'fs';
 import path from 'path';
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, screen } from 'electron';
 import { gameUrl, editorUrl } from './htmlTemplates/types';
 import { configureStore } from './store';
 
 import { isGameRunning } from '../editor/modules/preview';
 import {
-  isGameSaving,
+  isEditorSaving,
+  isSpecExporting,
   EDITOR_SAVE_ERROR,
   EDITOR_SAVE_COMPLETE,
+  SPEC_EXPORT_ERROR,
+  SPEC_EXPORT_COMPLETE,
 } from '../editor/modules/filesystem';
+import {
+  isConfigSaving,
+  getConfigState,
+  CONFIG_SAVE_ERROR,
+  CONFIG_SAVE_COMPLETE,
+} from '../editor/modules/config';
+import { getSpecs } from '../editor/modules/specs';
 
 const SYNC = 'sync';
 const START_GAME = 'start_game';
+const MAXIMIZE = 'maximize';
 
 const READY = 'ready';
 // const ALL_WINDOWS_CLOSED = 'window-all-closed';
@@ -26,69 +37,98 @@ const CLOSED = 'closed';
 //   app.quit();
 // };
 
+const isProd = process.env.NODE_ENV === 'production';
 const { store } = configureStore();
 
 let editor;
 let game;
 let unsubscribe;
 
-const startEditor = () => {
-  editor = new BrowserWindow({
-    width: 800,
-    height: 600,
-    transparent: false,
-  });
-
-  editor.webContents.openDevTools();
+const startEditor = (editorWindow = {}) => {
+  editor = new BrowserWindow({ ...editorWindow });
+  // editor.webContents.openDevTools();
   editor.loadURL(editorUrl);
-
   editor.on(CLOSED, () => {
     editor = null;
     if (unsubscribe) unsubscribe();
   });
 };
 
-const startGame = () => {
+const startGame = (gameWindow = {}) => {
   game = new BrowserWindow({
-    width: 800,
-    height: 600,
+    ...gameWindow,
     frame: false,
+    resizeable: false,
     transparent: true,
   });
-
-  game.webContents.openDevTools();
+  // game.webContents.openDevTools();
   game.loadURL(gameUrl);
 };
 
-const saveGame = () => {
-  const specs = store.getState().specs;
-
+const makeConfigFilePath = filename => path.join(process.env.CONFIG_PATH, `${filename}.json`);
+const writeFile = (filename, data, { onError, onSuccess }) => {
   try {
-    const state = JSON.stringify(specs);
-    const filePath = path.join(
-      process.env.CONFIG_PATH,
-      `editorFiles/editor_${Date.now()}.json`
-    );
+    const state = JSON.stringify(data);
 
-    fs.writeFile(filePath, state, (err) => {
-      if (err) throw new Error(err);
-      store.dispatch({ type: EDITOR_SAVE_COMPLETE });
-    });
+    fs.writeFileSync(filename, state);
+    onSuccess();
   }
   catch (err) {
-    const errorAction = { type: EDITOR_SAVE_ERROR, payload: err };
-    store.dispatch(errorAction);
+    onError(err);
   }
 };
 
+const makeDispatch = ({ successType, errorType }) => ({
+  onSuccess: () => store.dispatch({ type: successType }),
+  onError: err => store.dispatch({ type: errorType, payload: err }),
+});
+
+const saveEditorFile = specs => writeFile(
+  makeConfigFilePath(`editorFiles/editor_${Date.now()}`),
+  specs,
+  makeDispatch({
+    successType: EDITOR_SAVE_COMPLETE,
+    errorType: EDITOR_SAVE_ERROR,
+  })
+);
+
+const CONFIG_FILE_PATH = makeConfigFilePath('gameConfig');
+const saveConfigFile = config => writeFile(
+  CONFIG_FILE_PATH,
+  config,
+  makeDispatch({
+    successType: CONFIG_SAVE_COMPLETE,
+    errorType: CONFIG_SAVE_ERROR,
+  })
+);
+
+const SPECS_FILE_PATH = makeConfigFilePath('gameSpecs');
+const saveSpecFile = gameSpecs => writeFile(
+  SPECS_FILE_PATH,
+  gameSpecs,
+  makeDispatch({
+    successType: SPEC_EXPORT_ERROR,
+    errorType: SPEC_EXPORT_COMPLETE,
+  })
+);
+
+const getScreenDims = () => {
+  const display = screen.getPrimaryDisplay();
+  const { size: { height, width } } = display;
+  return { height, width };
+};
+
 let gameRunning;
-let gameSaving;
+let editorSaving;
+let configSaving;
+let specsSaving;
 unsubscribe = store.subscribe(() => {
   const state = store.getState();
 
   if (!gameRunning && isGameRunning(state)) {
     gameRunning = true;
-    startGame();
+    const { height, width } = getScreenDims();
+    startGame({ height, width: Math.floor((2 * width) / 3), x: 0, y: 0 });
   }
   else if (gameRunning && !isGameRunning(state)) {
     gameRunning = false;
@@ -96,118 +136,62 @@ unsubscribe = store.subscribe(() => {
     game = null;
   }
 
-  if (!gameSaving && isGameSaving(state)) {
-    gameSaving = true;
-    saveGame();
+  if (!editorSaving && isEditorSaving(state)) {
+    editorSaving = true;
+    saveEditorFile(getSpecs(state));
   }
-  else if (gameSaving && !isGameSaving(state)) {
-    gameSaving = false;
+  else if (editorSaving && !isEditorSaving(state)) {
+    editorSaving = false;
+  }
+
+  if (!configSaving && isConfigSaving(state)) {
+    configSaving = true;
+    saveConfigFile(getConfigState(state));
+  }
+  else if (configSaving && !isConfigSaving(state)) {
+    configSaving = false;
+  }
+
+  if (!specsSaving && isSpecExporting(state)) {
+    specsSaving = true;
+    saveSpecFile(getSpecs(state));
+  }
+  else if (specsSaving && !isSpecExporting(state)) {
+    specsSaving = false;
   }
 });
 
-app.on(READY, startEditor);
+app.on(READY, () => {
+  if (isProd) startGame();
+  else {
+    const { height, width } = getScreenDims();
+    const thirdWidth = Math.floor(width / 3);
+    startEditor({ height, width: thirdWidth, x: thirdWidth * 2, y: 0 });
+  }
+});
 
-ipcMain.once(SYNC, (event) => {
-  const specs = store.getState().specs;
+ipcMain.on(SYNC, (event) => {
+  let specs;
+  let config;
+  if (isProd) {
+    try {
+      specs = JSON.parse(fs.readFileSync(SPECS_FILE_PATH, 'utf8'));
+      config = JSON.parse(fs.readFileSync(CONFIG_FILE_PATH, 'utf8'));
+    }
+    catch (err) {
+      throw new Error(err);
+    }
+  }
+  else {
+    const state = store.getState();
+    specs = state.specs;
+    config = state.config;
+  }
   // once the game window dom content is loaded, start the game
-  event.sender.send(START_GAME, specs);
+  event.sender.send(START_GAME, { specs, config });
 });
 
-// function window(): SetupWindow {
-//   // Create the browser window.
-//   let win1 = new BrowserWindow({
-//     width: 800,
-//     height: 600,
-//     frame: false,
-//     transparent: false,
-//   });
-//
-//   let win2 = new BrowserWindow({
-//     width: 800,
-//     height: 600,
-//     transparent: false,
-//   });
-//
-//   win2.webContents.openDevTools();
-//
-//   // Dereference the window object
-//   win1.on('closed', () => (win1 = null));
-//   win2.on('closed', () => (win2 = null));
-//
-//   // load the current htmlTemplate of the app.
-//   win1.loadURL(gameUrl);
-//   win2.loadURL(editorUrl);
-//
-//   return [win1, win2];
-// }
-
-// const Running = 'app/running';
-// const Quitting = 'app/quitting';
-//
-// opaque type RunningApp : Running = Running;
-// opaque type QuittingApp : Running = Quitting;
-// opaque type Action : string = READY | ALL_WINDOWS_CLOSED | ACTIVATE;
-//
-// type AppState = typeof RunningApp | typeof QuittingApp;
-// type AppWindow =
-//   | SetupWindow
-//   | PreloadWindow
-//   | GameWindow
-//   | null;
-//
-// type AppModel = {
-//   appState: AppState,
-//   appWindow: AppWindow,
-// };
-//
-// const initialModel = {
-//   appWindow: null,
-//   appState: Running,
-// };
-//
-// let model = initialModel;
-//
-// const view = (currentModel: AppModel) => {
-//   switch (currentModel.appState) {
-//     case Quitting: {
-//       // On macOS it is common for applications and their menu bar
-//       // to stay active until the user quits explicitly with Cmd + Q
-//       if (isPlatformDarwin()) quitApp();
-//       return;
-//     }
-//
-//     case Running:
-//     default: return;
-//   }
-// };
-//
-// const update = (action: Action) => () => {
-//   switch (action) {
-//     case READY: {
-//       model = { appWindow: window(), appState: Running };
-//       break;
-//     }
-//
-//     case ALL_WINDOWS_CLOSED: {
-//       model = { ...model, appState: Quitting };
-//       break;
-//     }
-//
-//     case ACTIVATE: {
-//       if (!model.appWindow) model = { appWindow: window(), appState: Running };
-//       break;
-//     }
-//
-//     default: break;
-//   }
-//
-//   view(model);
-// };
-//
-// const main = () => {
-//   app.on(READY, update(READY));
-//   app.on(ALL_WINDOWS_CLOSED, update(ALL_WINDOWS_CLOSED));
-//   app.on(ACTIVATE, update(ACTIVATE));
-// };
-//
-// main();
+ipcMain.on(MAXIMIZE, () => {
+  console.log('maximize game!');
+  game.maximize();
+});

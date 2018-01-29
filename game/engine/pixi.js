@@ -20,12 +20,15 @@ type ResourceSpec = {
 
 const { Resource } = loaders;
 
-export const createRenderingEngine = () => {
-  const renderer = new autoDetectRenderer({
-    width: 800,
-    height: 600,
-    backgroundColor: 0x1099bb,
-  });
+// const ASPECT_RATIO = 16/9;
+const makeHeight = width => Math.floor((9 / 16) * width);
+
+export const createRenderingEngine = ({
+  width = 800,
+  backgroundColor = 0x1099bb,
+}) => {
+  const height = makeHeight(width);
+  const renderer = new autoDetectRenderer({ width, height, backgroundColor });
   const canvas = renderer.view;
   const stage = new Container();
 

@@ -5,15 +5,30 @@ import { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-import { isGameSaving, startSave } from '../modules/filesystem';
+import {
+  isEditorSaving,
+  saveEditor,
+  exportSpec,
+  isSpecExporting,
+} from '../modules/filesystem';
+import {
+  isConfigSaving,
+  saveConfig,
+} from '../modules/config';
 import { loadSpec } from '../modules/specs';
 
 const mapStateToProps = state => ({
-  isSaving: isGameSaving(state),
+  isSaving: (
+    isEditorSaving(state) ||
+    isSpecExporting(state) ||
+    isConfigSaving(state)
+  ),
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators({
-  saveGame: startSave,
+  saveGame: saveEditor,
+  exportGameSpec: exportSpec,
+  exportConfig: saveConfig,
   loadSpecFromFile: loadSpec,
 }, dispatch);
 
@@ -53,10 +68,19 @@ export class FilesystemControl extends PureComponent {
   }
 
   render() {
-    const { saveGame, isSaving, children } = this.props;
+    const {
+      isSaving,
+      children,
+      saveGame,
+      exportGameSpec,
+      exportConfig,
+    } = this.props;
+
     return children({
       saveGame,
       isSaving,
+      exportGameSpec,
+      exportConfig,
       savedFiles: this.state.files,
       loadFile: this.loadFile,
     });

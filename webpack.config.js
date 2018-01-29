@@ -1,9 +1,9 @@
 const webpack = require('webpack');
 const path = require('path');
 // const CircularDependencyPlugin = require('circular-dependency-plugin');
-const ClosureCompiler = require('google-closure-compiler-js').webpack;
+// const ClosureCompiler = require('google-closure-compiler-js').webpack;
 
-const isProd = process.env.NODE_ENV === 'production';
+// const isProd = process.env.NODE_ENV === 'production';
 
 module.exports = {
   context: __dirname,
@@ -44,16 +44,23 @@ module.exports = {
     modules: ['app', 'game', 'editor', 'node_modules'],
     extensions: ['.js', '.jsx', '.css', '.json'],
   },
-  plugins: isProd ? [
-    new ClosureCompiler({
-      options: {
-        languageIn: 'ECMASCRIPT6',
-        languageOut: 'ECMASCRIPT5',
-        compilationLevel: 'ADVANCED',
-        warningLevel: 'VERBOSE',
-      },
+  plugins: [
+    new webpack.DefinePlugin({
+      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
+      'process.env.ASSET_PATH': JSON.stringify(path.resolve(__dirname, './game/assets')),
+      'process.env.CONFIG_PATH': JSON.stringify(path.resolve(__dirname, './config')),
     }),
-  ] : [
+  // ]
+  // plugins: isProd ? [
+  //   new ClosureCompiler({
+  //     options: {
+  //       languageIn: 'ECMASCRIPT6',
+  //       languageOut: 'ECMASCRIPT5',
+  //       compilationLevel: 'ADVANCED',
+  //       warningLevel: 'VERBOSE',
+  //     },
+  //   }),
+  // ] : [
     // new CircularDependencyPlugin({
     //   // exclude detection of files based on a RegExp
     //   exclude: /a\.js|node_modules/,
@@ -68,10 +75,10 @@ module.exports = {
     //     compilation.errors.push(new Error(webpackModuleRecord));
     //   },
     // }),
-    new webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify('development'),
-      'process.env.ASSET_PATH': JSON.stringify(path.resolve(__dirname, './game/assets')),
-      'process.env.CONFIG_PATH': JSON.stringify(path.resolve(__dirname, './config')),
-    }),
+    // new webpack.DefinePlugin({
+    //   'process.env.NODE_ENV': JSON.stringify('development'),
+    //   'process.env.ASSET_PATH': JSON.stringify(path.resolve(__dirname, './game/assets')),
+    //   'process.env.CONFIG_PATH': JSON.stringify(path.resolve(__dirname, './config')),
+    // }),
   ],
 };
