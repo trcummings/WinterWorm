@@ -20,6 +20,7 @@ import { animationLoaderSpec } from './spec/player';
 
 const SYNC = 'sync';
 const START_GAME = 'start_game';
+const MAXIMIZE = 'maximize';
 
 const swapLoaderWithCanvas = (canvas) => {
   const loader = document.getElementById('loader');
@@ -32,6 +33,8 @@ ipcRenderer.once(START_GAME, (_, { specs, config }) => {
   const gameSpecs = gameSpecsToSpecs(specs);
 
   setTimeout(() => {
+    ipcRenderer.send(MAXIMIZE);
+
     const { canvas, renderer, stage, pixiLoader } = createRenderingEngine(config);
     swapLoaderWithCanvas(canvas);
 

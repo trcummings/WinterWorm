@@ -191,7 +191,4 @@ ipcMain.on(SYNC, (event) => {
   event.sender.send(START_GAME, { specs, config });
 });
 
-ipcMain.on(MAXIMIZE, () => {
-  console.log('maximize game!');
-  game.maximize();
-});
+ipcMain.on(MAXIMIZE, () => game.setFullScreen(true));
