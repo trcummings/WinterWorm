@@ -1,6 +1,7 @@
 import { ipcRenderer } from 'electron';
 import { __ } from 'ramda';
 
+import { getNextState, applyMiddlewares } from './engine/ecs';
 import { setGameState } from './engine/core';
 import { gameLoop } from './engine/loop';
 import {
@@ -33,10 +34,12 @@ ipcRenderer.once(START_GAME, (_, { specs, config }) => {
   const gameSpecs = gameSpecsToSpecs(specs);
 
   setTimeout(() => {
-    ipcRenderer.send(MAXIMIZE);
+    const startTime = performance.now();
 
     const { canvas, renderer, stage, pixiLoader } = createRenderingEngine(config);
     swapLoaderWithCanvas(canvas);
+
+    if (!isDev()) ipcRenderer.send(MAXIMIZE);
 
     const assetLoader = spriteLoader(makeLoaderState({
       assetSpecs: [animationLoaderSpec],
@@ -58,7 +61,10 @@ ipcRenderer.once(START_GAME, (_, { specs, config }) => {
 
     console.log(gameState);
 
-    gameLoop(gameState);
+    const update = applyMiddlewares(getNextState);
+    const start = gameLoop(window.requestAnimationFrame, gameState, update);
+
+    start(startTime);
   }, 2000);
 });
 

@@ -23,7 +23,7 @@ import {
   UPDATE_FNS,
   CLEANUP_FN,
 } from './symbols';
-import { conjoin, concatKeywords, isDev } from './util';
+import { conjoin, concatKeywords } from './util';
 import { getSubscribedEvents, emitEventsToQueue, getEventQueue } from './events';
 
 import type { GameState, Scene, Id } from './types';
@@ -53,6 +53,16 @@ export const getUpdateFn = (state: GameState) => {
   const updateFnLens = lensPath([UPDATE_FNS, currentSceneId]);
   return view(updateFnLens, state);
 };
+
+export const getNextState = (state: GameState): GameState => {
+  const updateFn = getUpdateFn(state);
+  return updateFn(state);
+};
+
+export const applyMiddlewares = (updateFn, ...middlewares) => compose(
+  updateFn,
+  ...middlewares.reverse()
+);
 
 // Return array of system functions with a uId incl. in the systemIds
 export const getSystemFns = (state: GameState, systemIds: Array<Id>) => (

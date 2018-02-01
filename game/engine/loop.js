@@ -1,5 +1,5 @@
 // @flow
-import { view, lensPath, over } from 'ramda';
+import { view, lensPath, over, compose } from 'ramda';
 
 import { GAME_LOOP, STATE } from './symbols';
 
@@ -13,7 +13,7 @@ export const getLoopState = (state: GameState) => view(loopStateLens, state);
 export const setLoopState = (state: GameState, loopState: LoopState) => (
   over(loopStateLens, conjoin(loopState), state)
 );
-const updateLoopState = (state: GameState, timestamp: Timestamp): GameState => {
+const updateLoopState = (timestamp: Timestamp) => (state: GameState): GameState => {
   const loopState: LoopState = getLoopState(state);
   let newLoopState;
   if (!loopState) {
@@ -34,17 +34,11 @@ const updateLoopState = (state: GameState, timestamp: Timestamp): GameState => {
   return setLoopState(state, newLoopState);
 };
 
-const nextStateAfterLoop = (
+export const gameLoop = (
+  loopFn: () => number,
   state: GameState,
-  timestamp: Timestamp
-): GameState => {
-  const next = updateLoopState(state, timestamp);
-  const updateFn = getUpdateFn(next);
-  return updateFn(next);
+  update: GameState => GameState,
+) => (timestamp?: Timestamp): number => {
+  const updateFn = compose(update, updateLoopState(timestamp));
+  return loopFn(gameLoop(loopFn, updateFn(state), update));
 };
-
-export const gameLoop = (state: GameState): number => (
-  window.requestAnimationFrame((timestamp: Timestamp) => (
-    gameLoop(nextStateAfterLoop(state, timestamp))
-  ))
-);
