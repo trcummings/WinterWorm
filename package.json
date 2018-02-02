@@ -58,7 +58,10 @@
     "react-router-redux": "^4.0.8",
     "redux": "^3.7.2",
     "redux-logger": "^3.0.6",
+    "redux-saga": "^0.16.0",
+    "regenerator-runtime": "^0.11.1",
     "reselect": "^3.0.1",
     "webpack": "^3.10.0"
-  }
+  },
+  "dependencies": {}
 }
