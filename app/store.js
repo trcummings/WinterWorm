@@ -1,10 +1,12 @@
 // @flow
+import 'regenerator-runtime/runtime';
 import {
   forwardToRenderer,
   triggerAlias,
   replayActionMain,
 } from 'electron-redux';
 import { createStore, applyMiddleware, compose } from 'redux';
+import createSagaMiddleware, { END } from 'redux-saga';
 
 import rootReducer from '../editor/reducer';
 import { thunk } from '../editor/store';
@@ -16,7 +18,7 @@ const logger = _ => next => (action) => {
 
 const isDev = process.env.NODE_ENV === 'development';
 
-export const configureStore = () => {
+export const configureStore = (gameIpcMiddleware) => {
   // Redux Configuration
   const middleware = [];
   const enhancers = [];
@@ -26,6 +28,13 @@ export const configureStore = () => {
 
   // Logging Middleware
   if (isDev) middleware.push(logger);
+
+  // Saga middleware
+  const sagaMiddleware = createSagaMiddleware();
+  middleware.push(sagaMiddleware);
+
+  // IPC Middleware
+  if (isDev) middleware.push(gameIpcMiddleware);
 
   // Apply Middleware & Compose Enhancers
   enhancers.push(applyMiddleware(triggerAlias, ...middleware, forwardToRenderer));
@@ -43,6 +52,9 @@ export const configureStore = () => {
   //     return store;
   //   });
   // }
+
+  store.runSaga = sagaMiddleware.run;
+  store.close = () => store.dispatch(END);
 
   replayActionMain(store);
 
