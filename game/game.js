@@ -1,5 +1,5 @@
 import { ipcRenderer } from 'electron';
-import { __ } from 'ramda';
+import { __, partial } from 'ramda';
 
 import { getNextState, applyMiddlewares } from './engine/ecs';
 import { setGameState } from './engine/core';
@@ -18,61 +18,64 @@ import { gameSpecsToSpecs } from './engine/specUtil';
 import spriteLoader, { setSpriteLoaderFn } from './engine/loaders/spriteLoader';
 import { makeLoaderState } from './engine/loaders/loader';
 import { animationLoaderSpec } from './spec/player';
+import { setUpFpsMeter } from './engine/utils/fpsMeterUtil';
 
-const SYNC = 'sync';
-const START_GAME = 'start_game';
-const MAXIMIZE = 'maximize';
+import {
+  SYNC,
+  START_GAME,
+  MAXIMIZE,
+} from '../app/actionTypes';
 
-const swapLoaderWithCanvas = (canvas) => {
+const swapLoaderWithCanvas = () => {
+  // document.body.appendChild(canvas);
   const loader = document.getElementById('loader');
   document.body.style['background-color'] = '#000000';
   document.body.removeChild(loader);
-  document.body.appendChild(canvas);
 };
 
 ipcRenderer.once(START_GAME, (_, { specs, config }) => {
   const gameSpecs = gameSpecsToSpecs(specs);
+  const startTime = performance.now();
 
-  setTimeout(() => {
-    const startTime = performance.now();
+  const { canvas, renderer, stage, pixiLoader } = createRenderingEngine(config);
+  document.body.appendChild(canvas);
 
-    const { canvas, renderer, stage, pixiLoader } = createRenderingEngine(config);
-    swapLoaderWithCanvas(canvas);
+  const renderEngine = { renderer, stage, canvas, pixiLoader };
+  const world = createPhysicsEngine();
 
+  const partialGame = (...s) => setGameState(
+    {},
+    { type: RENDER_ENGINE,
+      options: renderEngine },
+    { type: PHYSICS_ENGINE,
+      options: world },
+    { type: SCRIPTS, options: initEvents },
+    ...s,
+  );
+
+  const assetLoader = spriteLoader(makeLoaderState({
+    assetSpecs: [animationLoaderSpec],
+    pixiLoader,
+    progress: 0,
+  }), (...args) => {
     if (!isDev()) ipcRenderer.send(MAXIMIZE);
 
-    const assetLoader = spriteLoader(makeLoaderState({
-      assetSpecs: [animationLoaderSpec],
-      pixiLoader,
-      progress: 0,
-    }));
+    swapLoaderWithCanvas(canvas);
+    return args;
+  });
 
-    const world = createPhysicsEngine();
-    const gameState = setGameState(
-      {},
-      { type: RENDER_ENGINE,
-        options: { renderer, stage, canvas, pixiLoader } },
-      { type: PHYSICS_ENGINE,
-        options: world },
-      { type: SCRIPTS, options: initEvents },
-      { type: SCRIPTS, options: setSpriteLoaderFn(__, assetLoader) },
-      ...gameSpecs
-    );
+  const gameState = partialGame(
+    { type: SCRIPTS, options: setSpriteLoaderFn(__, assetLoader) },
+    ...gameSpecs
+  );
 
-    console.log(gameState);
+  const update = applyMiddlewares(getNextState);
+  const start = gameLoop(window.requestAnimationFrame, gameState, update);
 
-    const update = applyMiddlewares(getNextState);
-    const start = gameLoop(window.requestAnimationFrame, gameState, update);
-
-    start(startTime);
-  }, 2000);
+  start(startTime);
 });
 
 document.addEventListener('DOMContentLoaded', () => {
-  if (isDev()) {
-    require('./vendor/fpsMeter'); // eslint-disable-line
-    window.meter = new window.FPSMeter();
-  }
-
+  if (isDev()) setUpFpsMeter();
   ipcRenderer.send(SYNC);
 });

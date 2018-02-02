@@ -1,4 +1,5 @@
 // @flow
+import { compose } from 'ramda';
 import loader, {
   getLoaderState,
   setLoaderState,
@@ -41,11 +42,11 @@ const setSpriteLoaderState = setLoaderState(SPRITE_LOADER);
 export const getSpriteLoaderFn = getLoaderFn(SPRITE_LOADER);
 export const setSpriteLoaderFn = setLoaderFn(SPRITE_LOADER);
 
-const spriteLoader = (initialLoaderState: LoaderState): LoaderFn => (
+const spriteLoader = (initialLoaderState: LoaderState, onLoaderComplete): LoaderFn => (
   loader(initialLoaderState, {
     onStart,
     onProgress,
-    onComplete,
+    onComplete: compose(onLoaderComplete, onComplete),
     getLoaderState: getSpriteLoaderState,
     setLoaderState: setSpriteLoaderState,
   })

@@ -2,8 +2,6 @@
 import { view, lensPath, over, compose } from 'ramda';
 
 import { GAME_LOOP, STATE } from './symbols';
-
-import { getUpdateFn } from './ecs';
 import { conjoin } from './util';
 
 import type { Timestamp, LoopState } from './types';
