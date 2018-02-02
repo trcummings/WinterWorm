@@ -7,9 +7,9 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "flow-init": "./node_modules/.bin/flow init",
     "flow": "./node_modules/.bin/flow",
-    "app": "./node_modules/.bin/webpack --progress --config ./webpack.config.js; ./node_modules/.bin/electron ./dist/app.js",
-    "prod-app": "NODE_ENV=production ./node_modules/.bin/webpack --config ./webpack.config.js; ./node_modules/.bin/electron ./dist/app.js",
-    "test-game": "./node_modules/.bin/mocha-webpack --webpack-config ./webpack.config.js \"game/**/*.test.js\""
+    "base": "./node_modules/.bin/electron ./dist/app.js",
+    "app:dev": "NODE_ENV=development ./node_modules/.bin/webpack --progress --config ./webpack.config.js; npm run base",
+    "app:prod": "NODE_ENV=production ./node_modules/.bin/webpack --config ./webpack.config.js; npm run base"
   },
   "keywords": [],
   "author": "moodprobiotic",

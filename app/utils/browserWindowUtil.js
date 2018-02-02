@@ -2,11 +2,9 @@ import { BrowserWindow } from 'electron';
 
 import { gameUrl, editorUrl } from '../htmlTemplates/types';
 
-const isProd = process.env.NODE_ENV === 'production';
-
 export const startEditor = (editorWindow = {}) => {
   const editor = new BrowserWindow({ ...editorWindow });
-  if (!isProd) editor.webContents.openDevTools();
+  if (!process.env.DEBUG_EDITOR) editor.webContents.openDevTools();
   editor.loadURL(editorUrl);
 
   return editor;
@@ -19,7 +17,7 @@ export const startGame = (gameWindow = {}) => {
     resizeable: false,
     transparent: true,
   });
-  if (!isProd) game.webContents.openDevTools();
+  if (!process.env.DEBUG_GAME) game.webContents.openDevTools();
   game.loadURL(gameUrl);
 
   return game;
