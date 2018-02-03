@@ -27,32 +27,34 @@ export default class Library extends PureComponent {
     const { selected } = this.state;
 
     return (
-      <VerticalDivider>
-        <List>
-          <Subheader>Object Types</Subheader>
-          <Divider />
-          <ListItem
-            key={CURRENT_SCENE}
-            primaryText="Current Scene"
-            onClick={this.selectType(CURRENT_SCENE)}
-          />
-          <ListItem
-            key={SCENES}
-            primaryText="Scenes"
-            onClick={this.selectType(SCENES)}
-          />
-          <ListItem
-            key={ENTITIES}
-            primaryText="Entities"
-            onClick={this.selectType(ENTITIES)}
-          />
-        </List>
-        <div style={{ height: '100%', width: '100%' }}>
-          { selected === CURRENT_SCENE && <CurrentScene /> }
-          { selected === SCENES && <Scenes /> }
-          { selected === ENTITIES && <Entities /> }
-        </div>
-      </VerticalDivider>
+      <div style={{ maxHeight: '200px' }}>
+        <VerticalDivider>
+          <List>
+            <Subheader>Object Types</Subheader>
+            <Divider />
+            <ListItem
+              key={CURRENT_SCENE}
+              primaryText="Current Scene"
+              onClick={this.selectType(CURRENT_SCENE)}
+            />
+            <ListItem
+              key={SCENES}
+              primaryText="Scenes"
+              onClick={this.selectType(SCENES)}
+            />
+            <ListItem
+              key={ENTITIES}
+              primaryText="Entities"
+              onClick={this.selectType(ENTITIES)}
+            />
+          </List>
+          <div style={{ height: '100%', width: '100%' }}>
+            { selected === CURRENT_SCENE && <CurrentScene /> }
+            { selected === SCENES && <Scenes /> }
+            { selected === ENTITIES && <Entities /> }
+          </div>
+        </VerticalDivider>
+      </div>
     );
   }
 }

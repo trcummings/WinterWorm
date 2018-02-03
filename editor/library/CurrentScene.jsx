@@ -30,7 +30,7 @@ class CurrentScene extends PureComponent { // eslint-disable-line
   render() {
     const { scenes, currentScene, setAsCurrentScene } = this.props;
     return (
-      <List>
+      <List style={{ padding: 0, overflowY: 'scroll', height: '200px' }}>
         <Subheader>Current Scene</Subheader>
         <Divider />
         { Object.keys(scenes).map(id => (

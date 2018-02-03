@@ -30,7 +30,7 @@ export default class GameObjectList extends PureComponent { // eslint-disable-li
   render() {
     const { gameObjects, openInInspector, addNew, title, selectedObjectId } = this.props;
     return (
-      <List style={{ padding: 0 }}>
+      <List style={{ padding: 0, overflowY: 'scroll', height: '200px' }}>
         <div style={flex}>
           <Subheader>{ title }</Subheader>
           <FlatButton onClick={addNew}>
