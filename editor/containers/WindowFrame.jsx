@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Card, CardHeader, CardText } from 'material-ui/Card';
+import { grey500 } from 'material-ui/styles/colors';
 
 import {
   toggleWindow,
@@ -42,7 +43,7 @@ class WindowFrame extends PureComponent {
     return (
       <Card expanded={!isWindowMinimized} expandable>
         <CardHeader
-          style={{ padding: '8px' }}
+          style={{ padding: '8px', backgroundColor: grey500 }}
           title={windowType}
           onClick={this.toggleWindow}
           showExpandableButton
