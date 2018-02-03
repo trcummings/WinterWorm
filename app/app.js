@@ -2,7 +2,8 @@
 import fs from 'fs';
 import { app, ipcMain } from 'electron';
 import { configureStore } from './store';
-import rootSaga from './sagas';
+import createRootSaga from './sagas';
+import { createGameIpcMiddleware } from './ipcMiddleware';
 
 import {
   SYNC,
@@ -16,7 +17,6 @@ import { getScreenDims, getEditorDims } from './utils/screenUtil';
 import { startEditor, startGame } from './utils/browserWindowUtil';
 import { CONFIG_FILE_PATH, SPECS_FILE_PATH } from './utils/filesystemUtils';
 
-import { createGameIpcMiddleware } from './ipcMiddleware';
 
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -24,6 +24,7 @@ const initialAppState = { editor: null, game: null };
 const gameIpcMiddleware = createGameIpcMiddleware(initialAppState);
 const { store } = configureStore(gameIpcMiddleware);
 
+const rootSaga = createRootSaga();
 store.runSaga(rootSaga);
 
 app.on(READY, () => {

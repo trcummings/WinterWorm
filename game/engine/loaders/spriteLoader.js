@@ -11,7 +11,9 @@ import { SPRITE_LOADER } from '../symbols';
 import type { LoaderState, LoaderFn } from './loader';
 
 const addLoaderItem = (pixiLoader, spec) => (
-  pixiLoader.add(spec.name, spec.path)
+  pixiLoader.resources[spec.name]
+    ? pixiLoader
+    : pixiLoader.add(spec.name, spec.path)
 );
 
 const onStart = (loaderState: LoaderState): LoaderState => {

@@ -2,6 +2,7 @@
 import fs from 'fs';
 import path from 'path';
 import { PureComponent } from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
@@ -35,6 +36,15 @@ const mapDispatchToProps = dispatch => bindActionCreators({
 const filePath = path.resolve(process.env.CONFIG_PATH, './editorFiles');
 
 export class FilesystemControl extends PureComponent {
+  static propTypes = {
+    isSaving: PropTypes.bool.isRequired,
+    loadSpecFromFile: PropTypes.func.isRequired,
+    saveGame: PropTypes.func.isRequired,
+    exportGameSpec: PropTypes.func.isRequired,
+    exportConfig: PropTypes.func.isRequired,
+    children: PropTypes.func.isRequired,
+  };
+
   state = {
     files: [],
   };

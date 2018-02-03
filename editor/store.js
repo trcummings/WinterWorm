@@ -1,4 +1,5 @@
 // @flow
+import 'regenerator-runtime/runtime';
 import {
   forwardToMain,
   replayActionRenderer,
@@ -6,6 +7,7 @@ import {
 } from 'electron-redux';
 import { createStore, applyMiddleware, compose } from 'redux';
 import { createLogger } from 'redux-logger';
+import createSagaMiddleware, { END } from 'redux-saga';
 
 import rootReducer from './reducer';
 
@@ -31,6 +33,10 @@ export const configureStore = () => {
     middleware.push(logger);
   }
 
+  // Saga middleware
+  const sagaMiddleware = createSagaMiddleware();
+  middleware.push(sagaMiddleware);
+
   // Apply Middleware & Compose Enhancers
   enhancers.push(applyMiddleware(forwardToMain, ...middleware));
   const enhancer = compose(...enhancers);
@@ -47,6 +53,9 @@ export const configureStore = () => {
   //     return store;
   //   });
   // }
+
+  store.runSaga = sagaMiddleware.run;
+  store.close = () => store.dispatch(END);
 
   replayActionRenderer(store);
 

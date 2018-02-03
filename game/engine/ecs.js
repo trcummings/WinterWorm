@@ -59,7 +59,10 @@ export const getNextState = (state: GameState): GameState => {
   return updateFn(state);
 };
 
-export const applyMiddlewares = (updateFn, ...middlewares) => compose(
+export const applyMiddlewares = (
+  updateFn: GameState => GameState,
+  ...middlewares: Array<(GameState) => GameState>
+) => compose(
   updateFn,
   ...middlewares.reverse()
 );

@@ -4,7 +4,7 @@ import { gameUrl, editorUrl } from '../htmlTemplates/types';
 
 export const startEditor = (editorWindow = {}) => {
   const editor = new BrowserWindow({ ...editorWindow });
-  if (!process.env.DEBUG_EDITOR) editor.webContents.openDevTools();
+  if (process.env.DEBUG_EDITOR) editor.webContents.openDevTools();
   editor.loadURL(editorUrl);
 
   return editor;
@@ -17,7 +17,7 @@ export const startGame = (gameWindow = {}) => {
     resizeable: false,
     transparent: true,
   });
-  if (!process.env.DEBUG_GAME) game.webContents.openDevTools();
+  if (process.env.DEBUG_GAME) game.webContents.openDevTools();
   game.loadURL(gameUrl);
 
   return game;

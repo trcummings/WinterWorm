@@ -81,9 +81,14 @@ export const getSceneSystemIds = (state: GameState): [Array<Id>, Id] => {
   return [view(lensPath([SCENES, sceneId, SYSTEMS]), state), sceneId];
 };
 
+export const applySpecs = (initialState: {}, ...specs: Array<Spec>) => (
+  specs.reduce(setState, initialState)
+);
+
 // takes an initial state (usually an empty object) and a spec array.
 export const setGameState = (initialState: {}, ...specs: Array<Spec>) => {
-  const state = specs.reduce(setState, initialState);
+  const state = applySpecs(initialState, ...specs);
+
   // get the systemIds from the current scene to get the update fn
   const [systemIds, sceneId] = getSceneSystemIds(state);
   const updateFn = getUpdateFn(state, systemIds);

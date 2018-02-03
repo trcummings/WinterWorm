@@ -14,6 +14,12 @@ import {
 } from '../editor/modules/config';
 import { getSpecs } from '../editor/modules/specs';
 
+import {
+  // PLAY,
+  // PAUSE,
+  REFRESH,
+  // LOAD_SPEC,
+} from './actionTypes';
 import { getDevDims } from './utils/screenUtil';
 import { startGame } from './utils/browserWindowUtil';
 import {
@@ -50,6 +56,13 @@ export const createGameIpcMiddleware = appState => store => next => (action) => 
 
     case CONFIG_SAVE_START: {
       saveSpecFile(dispatch)(getSpecs(getState()));
+      break;
+    }
+
+    case 'REFRESH_GAME': {
+      // pass it in twice so that the payload in the game is the same
+      // as it is in queueMiddleare's args
+      appState.game.send(REFRESH, REFRESH);
       break;
     }
 

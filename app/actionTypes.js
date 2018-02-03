@@ -7,3 +7,8 @@ export const READY = 'ready';
 // const ACTIVATE = 'activate';
 
 export const CLOSED = 'closed';
+
+export const PLAY = 'play';
+export const PAUSE = 'pause';
+export const REFRESH = 'refresh';
+export const LOAD_SPEC = 'loadSpec';
