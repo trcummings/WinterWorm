@@ -22,6 +22,7 @@
     "no-unused-vars": ["error", { "argsIgnorePattern": "_" }],
     "no-plusplus": ["error", { "allowForLoopAfterthoughts": true }],
     "no-multi-spaces": "off",
-    "brace-style": ["error", "stroustrup"]
+    "brace-style": ["error", "stroustrup"],
+    "react/no-unused-prop-types": ["error", { skipShapeProps: true }]
   }
 }

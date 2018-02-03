@@ -1,15 +1,23 @@
 // @flow
 import React, { PureComponent } from 'react';
 
+import GameObjectList from './GameObjectList';
+import { default as ScenesController } from './ScenesController';
+
 export default class Scenes extends PureComponent { // eslint-disable-line
   render() {
     return (
-      <div>
-        list of all scenes
-        add scene button at top
-        on new scene, create scene, select inspector with that scene
-        on select, select inspector with that scene
-      </div>
+      <ScenesController>
+        { ({ scenes, selectedSceneId, addNewScene, selectScene }) => (
+          <GameObjectList
+            title="Scenes"
+            selectedObjectId={selectedSceneId}
+            gameObjects={Object.keys(scenes).map(id => scenes[id])}
+            openInInspector={selectScene}
+            addNew={addNewScene}
+          />
+        ) }
+      </ScenesController>
     );
   }
 }

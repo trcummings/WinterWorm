@@ -1,15 +1,23 @@
 // @flow
 import React, { PureComponent } from 'react';
 
+import GameObjectList from './GameObjectList';
+import { default as EntitiesController } from './EntitiesController';
+
 export default class Entities extends PureComponent { // eslint-disable-line
   render() {
     return (
-      <div>
-        list of all entity
-        add scene button at top
-        on new entity, create entity, select inspector with that entity
-        on select, select inspector with that entity
-      </div>
+      <EntitiesController>
+        { ({ entities, selectedEntityId, addNewEntity, selectEntity }) => (
+          <GameObjectList
+            title="Entities"
+            selectedObjectId={selectedEntityId}
+            gameObjects={Object.keys(entities).map(id => entities[id])}
+            openInInspector={selectEntity}
+            addNew={addNewEntity}
+          />
+        ) }
+      </EntitiesController>
     );
   }
 }

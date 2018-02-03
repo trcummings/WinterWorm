@@ -5,11 +5,17 @@ import { symbols } from '../constants';
 
 const ADD_SPEC = 'specs/ADD_SPEC';
 const LOAD_SPEC = 'specs/LOAD_SPEC';
+const SET_CURRENT_SCENE = 'specs/SET_CURRENT_SCENE';
 
 // Action Creators
 export const setSpec = spec => dispatch => dispatch({
   type: ADD_SPEC,
   payload: spec,
+});
+
+export const setCurrentScene = sceneId => dispatch => dispatch({
+  type: SET_CURRENT_SCENE,
+  payload: sceneId,
 });
 
 export const loadSpec = spec => dispatch => dispatch({
@@ -18,8 +24,10 @@ export const loadSpec = spec => dispatch => dispatch({
 });
 
 const scenePath = [symbols.SCENES];
+const entityPath = [symbols.ENTITIES];
 const typePathMap = {
   [symbols.SCENES]: scenePath,
+  [symbols.ENTITIES]: entityPath,
 };
 
 export const getSpecs = state => state.specs;
@@ -40,6 +48,7 @@ const setSpecInState = (state, spec) => over(
 const INITIAL_STATE = {
   [symbols.CURRENT_SCENE]: null,
   [symbols.SCENES]: {},
+  [symbols.ENTITIES]: {},
 };
 
 export default function specs(state = INITIAL_STATE, action = {}) {
@@ -48,6 +57,7 @@ export default function specs(state = INITIAL_STATE, action = {}) {
   switch (type) {
     case ADD_SPEC: return setSpecInState(state, payload);
     case LOAD_SPEC: return payload;
+    case SET_CURRENT_SCENE: return { ...state, [symbols.CURRENT_SCENE]: payload };
     default: return state;
   }
 }

@@ -2,10 +2,13 @@
 import React, { PureComponent } from 'react';
 import { List, ListItem } from 'material-ui/List';
 import Subheader from 'material-ui/Subheader';
+import Divider from 'material-ui/Divider';
 
-import CurrentScene from './CurrentScene';
-import Scenes from './Scenes';
-import Entities from './Entities';
+import VerticalDivider from '../components/VerticalDivider';
+
+import { default as CurrentScene } from './CurrentScene';
+import { default as Scenes } from './Scenes';
+import { default as Entities } from './Entities';
 
 import {
   CURRENT_SCENE,
@@ -13,7 +16,7 @@ import {
   ENTITIES,
 } from '../../game/engine/symbols';
 
-export default class Library extends PureComponent { // eslint-disable-line
+export default class Library extends PureComponent {
   state = {
     selected: null,
   };
@@ -24,33 +27,32 @@ export default class Library extends PureComponent { // eslint-disable-line
     const { selected } = this.state;
 
     return (
-      <div style={{ display: 'inline-block', width: '100%' }}>
-        <div style={{ display: 'inline-block', width: '50%' }}>
-          <List>
-            <Subheader>Object Types</Subheader>
-            <ListItem
-              key={CURRENT_SCENE}
-              primaryText="Current Scene"
-              onClick={this.selectType(CURRENT_SCENE)}
-            />
-            <ListItem
-              key={SCENES}
-              primaryText="Scenes"
-              onClick={this.selectType(SCENES)}
-            />
-            <ListItem
-              key={ENTITIES}
-              primaryText="Entities"
-              onClick={this.selectType(ENTITIES)}
-            />
-          </List>
-        </div>
-        <div style={{ display: 'inline-block', width: '50%' }}>
+      <VerticalDivider>
+        <List>
+          <Subheader>Object Types</Subheader>
+          <Divider />
+          <ListItem
+            key={CURRENT_SCENE}
+            primaryText="Current Scene"
+            onClick={this.selectType(CURRENT_SCENE)}
+          />
+          <ListItem
+            key={SCENES}
+            primaryText="Scenes"
+            onClick={this.selectType(SCENES)}
+          />
+          <ListItem
+            key={ENTITIES}
+            primaryText="Entities"
+            onClick={this.selectType(ENTITIES)}
+          />
+        </List>
+        <div style={{ height: '100%', width: '100%' }}>
           { selected === CURRENT_SCENE && <CurrentScene /> }
           { selected === SCENES && <Scenes /> }
           { selected === ENTITIES && <Entities /> }
         </div>
-      </div>
+      </VerticalDivider>
     );
   }
 }
