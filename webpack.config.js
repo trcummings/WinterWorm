@@ -41,7 +41,12 @@ module.exports = {
     ],
   },
   resolve: {
-    modules: ['app', 'game', 'editor', 'node_modules'],
+    modules: ['node_modules'],
+    alias: {
+      Editor: path.resolve(__dirname, './editor/'),
+      Game: path.resolve(__dirname, './game/'),
+      App: path.resolve(__dirname, './app/'),
+    },
     extensions: ['.js', '.jsx', '.css', '.json'],
   },
   plugins: [

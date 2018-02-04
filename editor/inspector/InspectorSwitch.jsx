@@ -5,6 +5,8 @@ import { connect } from 'react-redux';
 
 import { getInspectorControl } from '../modules/inspector';
 
+import { default as EntityInspectorContainer } from './entityInspector/EntityInspectorContainer';
+
 import {
   CURRENT_SCENE,
   SCENES,
@@ -32,7 +34,7 @@ export class InspectorSwitch extends PureComponent {
     switch (inspectorType) {
       case CURRENT_SCENE: return <div>{ id }</div>;
       case SCENES: return <div>{ id }</div>;
-      case ENTITIES: return <div>{ id }</div>;
+      case ENTITIES: return <EntityInspectorContainer id={id} />;
       default: return null;
     }
   }
