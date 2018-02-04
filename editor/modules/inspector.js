@@ -1,4 +1,5 @@
 import { combineReducers } from 'redux';
+import entity from './inspector/entityInspector';
 
 // Action Types
 const SELECT_INSPECTOR = 'inspector/SELECT_INSPECTOR';
@@ -29,6 +30,7 @@ function control(state = INITIAL_STATE, action = {}) {
 
 const inspector = combineReducers({
   control,
+  entity,
 });
 
 export default inspector;

@@ -89,6 +89,14 @@ export type Component = {|
   context?: Array<Id>,
 |};
 
+export type Param = {
+  +id: Id,
+  parentId: Id,
+  linkTo: Set<Id>,
+  linkFrom: Set<Id>,
+  children: Array<Id>,
+};
+
 export type SpecType =
   | typeof SCRIPTS
   | typeof SCENES
@@ -100,8 +108,8 @@ export type SpecOption =
   | Scene
   | System
   | CurrentScene
-  // | Component
-  // | Entity
+  | Component
+  | Entity
 
 export type Spec = {
   +type: SpecType,

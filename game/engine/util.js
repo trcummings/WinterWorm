@@ -6,6 +6,7 @@ import {
   COMPONENTS,
   SYSTEMS,
   SCENES,
+  PARAMETERS,
 } from './symbols';
 
 import type { Id } from './types';
@@ -15,12 +16,14 @@ type MakeIdType =
   | typeof COMPONENTS
   | typeof SYSTEMS
   | typeof SCENES
+  | typeof PARAMETERS
 
 const counterDict = {
   [ENTITIES]: 0,
   [COMPONENTS]: 0,
   [SYSTEMS]: 0,
   [SCENES]: 0,
+  [PARAMETERS]: 0,
 };
 
 export const makeId = (type: MakeIdType): Id => {
