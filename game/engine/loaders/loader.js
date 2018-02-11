@@ -33,14 +33,14 @@ export const makeLoaderState = (meta: mixed): LoaderState => ({
 });
 
 const getLoaderProp = curry((
-  prop: STATE | FN,
+  prop: typeof STATE | typeof FN,
   loaderType: LoaderType,
   state: GameState,
 ): LoaderState => (
   view(lensPath([STATE, ASSET_LOADERS, loaderType, prop]), state)
 ));
 const setLoaderProp = curry((
-  prop: STATE | FN,
+  prop: typeof STATE | typeof FN,
   loaderType: LoaderType,
   state: GameState,
   loaderProp: LoaderState | LoaderFn,

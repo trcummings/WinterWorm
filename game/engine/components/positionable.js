@@ -1,7 +1,8 @@
 // @flow
 import { makeId } from '../util';
-import { COMPONENTS, POSITION_CHANGE, PARAMETERS, POSITION_PARAM } from '../symbols';
+import { COMPONENTS, POSITION_CHANGE, POSITION_PARAM } from '../symbols';
 import { getInboxEvents } from '../events';
+import { toParam } from '../utils/parameters';
 
 import type { Component } from '../types';
 
@@ -14,18 +15,22 @@ const updateOffset = (
   { action: { offsetX: xO, offsetY: yO } }
 ) => ({ offsetX: totalX + xO, offsetY: totalY + yO });
 
-const toParameter = (name, type, param) => ({
-  id: makeId(PARAMETERS),
-  label: name,
-  linkFrom: new Set(),
-  linkTo: new Set(),
-  parentId: '',
-  children: [],
-  type,
-  param,
-});
-
 const POSITIONABLE = 'positionable';
+
+const contract = toParam(POSITION, POSITION_PARAM, {
+  x: {
+    type: 'number',
+    defaultsTo: 0,
+  },
+  y: {
+    type: 'number',
+    defaultsTo: 0,
+  },
+  z: {
+    type: 'number',
+    defaultsTo: 0,
+  },
+});
 
 // Calculates the entities position on the map and on the screen. Listens
 // for position changes in the format of [POSITION_CHANGE, entityId] with a
@@ -45,20 +50,7 @@ const positionable: Component = {
     return makePositionState({ x: x + offsetX, y: y - offsetY, z });
   },
   // for component state
-  contract: toParameter(POSITION, POSITION_PARAM, {
-    x: {
-      type: 'number',
-      defaultsTo: 0,
-    },
-    y: {
-      type: 'number',
-      defaultsTo: 0,
-    },
-    z: {
-      type: 'number',
-      defaultsTo: 0,
-    },
-  }),
+  contract,
 };
 
 export { positionable };

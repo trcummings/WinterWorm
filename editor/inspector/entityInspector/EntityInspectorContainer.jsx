@@ -12,15 +12,17 @@ import FontIcon from 'material-ui/FontIcon';
 import DropDownMenu from 'material-ui/DropDownMenu';
 import MenuItem from 'material-ui/MenuItem';
 
-import { components, symbols } from 'Editor/constants';
+import { components } from 'Editor/constants';
 import { getSpecs } from 'Editor/modules/specs';
 import { default as VerticalDivider } from 'Editor/components/VerticalDivider';
 import { setEntity, getInspectorEntity } from 'Editor/modules/inspector/entityInspector';
+import { default as MetaSpecControl } from 'Editor/aspects/MetaSpecControl';
+import { ENTITIES } from 'Symbols';
 
 import { default as ComponentCard } from './ComponentCard';
 
 const mapStateToProps = (state, ownProps) => ({
-  entity: getSpecs(state)[symbols.ENTITIES][ownProps.id],
+  entity: getSpecs(state)[ENTITIES][ownProps.id],
   inspectorEntity: getInspectorEntity(state, ownProps),
 });
 
@@ -39,6 +41,23 @@ const stateFromContract = (contract = {}) => (
   }), {})
 );
 
+const styles = {
+  button: {
+    margin: 12,
+  },
+  // exampleImageInput: {
+  //   cursor: 'pointer',
+  //   position: 'absolute',
+  //   top: 0,
+  //   bottom: 0,
+  //   right: 0,
+  //   left: 0,
+  //   width: '100%',
+  //   opacity: 0,
+  // },
+};
+
+
 export class EntityInspectorContainer extends PureComponent {
   static propTypes = {
     // id: PropTypes.string.isRequired,
@@ -52,8 +71,7 @@ export class EntityInspectorContainer extends PureComponent {
   }
 
   componentWillMount() {
-    const { updateEntity, entity } = this.props;
-    updateEntity(entity);
+    this.revertEntity();
   }
 
   getCandidateLabelSet = () => {
@@ -90,12 +108,16 @@ export class EntityInspectorContainer extends PureComponent {
     updateEntity(assocPath(['components', index, 'state'], state, inspectorEntity));
   }
 
-  saveEntity = () => {}
-
-  revertEntity = () => {}
+  revertEntity = () => {
+    const { updateEntity, entity } = this.props;
+    updateEntity(entity);
+  }
 
   render() {
-    const { inspectorEntity: { id, label, components: componentList } } = this.props;
+    const {
+      inspectorEntity,
+      inspectorEntity: { id, label, components: componentList },
+    } = this.props;
 
     return (
       <div>
@@ -142,18 +164,28 @@ export class EntityInspectorContainer extends PureComponent {
         ) }
         <Divider />
         <div>
-          <RaisedButton onClick={this.revertEntity}>
+          <RaisedButton
+            styles={styles.button}
+            onClick={this.revertEntity}
+          >
             <FontIcon className="material-icons">
               restore page
             </FontIcon>
             Cancel
           </RaisedButton>
-          <RaisedButton onClick={this.saveEntity}>
-            <FontIcon className="material-icons">
-              done
-            </FontIcon>
-            Save
-          </RaisedButton>
+          <MetaSpecControl specType={ENTITIES}>
+            { ({ setSpec }) => (
+              <RaisedButton
+                styles={styles.button}
+                onClick={() => setSpec(inspectorEntity)}
+              >
+                <FontIcon className="material-icons">
+                  done
+                </FontIcon>
+                Save
+              </RaisedButton>
+            ) }
+          </MetaSpecControl>
         </div>
       </div>
     );

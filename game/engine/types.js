@@ -1,14 +1,6 @@
 // @flow
 
-import {
-  SCENES,
-  SYSTEMS,
-  CURRENT_SCENE,
-  SCRIPTS,
-  // UPDATE_FNS,
-  // COMPONENTS,
-  // ENTITIES,
-} from './symbols';
+import * as symbols from './symbols';
 
 /* eslint-disable no-use-before-define */
 export type Timestamp = DOMHighResTimeStamp | number;
@@ -33,7 +25,7 @@ export type GameState = {
   },
 };
 
-type Selector = string;
+export type Selector = string;
 export type Selectors = Array<Selector>;
 
 export type Action = mixed;
@@ -45,37 +37,50 @@ export type Event = {
 };
 
 export type Events = Array<Event>;
+export type EventType =
+  | typeof symbols.KEYBOARD_INPUT
+  | typeof symbols.POSITION_CHANGE
+  | typeof symbols.ACCELERATION_CHANGE
+  | typeof symbols.SCENE_CHANGE
+  | typeof symbols.ANIMATION_CHANGE
+  | typeof symbols.RENDER_ACTION
+  | typeof symbols.PHYSICS_EVENT
+  | typeof symbols.TIME_TICK
 
-export type CurrentScene = Id;
-
+export type SceneId = Id;
 export type Scene = {|
-  +id: Id,
-  +systems: Array<Id>
+  +id: SceneId,
+  +systems: Array<SystemId>
 |};
 
+export type CurrentScene = SceneId;
+
+export type SystemId = Id;
 export type System = {|
-  +id: Id,
+  +id: SystemId,
   +label: string,
   +fn?: GameState => GameState,
   +component?: Component
 |};
 
-type EntityComponentSpec = {
+export type EntityComponentSpec = {
   +id: Id,
   +state?: mixed,
   +fn?: GameState => mixed,
 };
 
+export type EntityId = Id;
 export type Entity = {|
-  +id: Id,
+  +id: EntityId,
   +label: string,
   +components: Array<EntityComponentSpec>
 |};
 
 export type Script = GameState => GameState;
 
+export type ComponentId = Id;
 export type Component = {|
-  id: Id,
+  id: ComponentId,
   // this fn function takes an entityId, the previous component state,
   // and an object that points the component state of the componentIds
   // (or componentId, entityId objects to give this component the state
@@ -84,25 +89,17 @@ export type Component = {|
   // or a single event.
   fn: () => mixed,
   +label: string,
-  subscriptions?: Array<string>,
+  subscriptions?: Array<EventType>,
   cleanupFn?: () => mixed,
-  context?: Array<Id>,
+  context?: Array<ComponentId>,
 |};
 
-export type Param = {
-  +id: Id,
-  parentId: Id,
-  linkTo: Set<Id>,
-  linkFrom: Set<Id>,
-  children: Array<Id>,
-};
-
 export type SpecType =
-  | typeof SCRIPTS
-  | typeof SCENES
-  | typeof SYSTEMS
-  | typeof CURRENT_SCENE
-  | typeof ENTITIES
+  | typeof symbols.SCRIPTS
+  | typeof symbols.SCENES
+  | typeof symbols.SYSTEMS
+  | typeof symbols.CURRENT_SCENE
+  | typeof symbols.ENTITIES
 
 export type SpecOption =
   | Scene
@@ -115,5 +112,20 @@ export type Spec = {
   +type: SpecType,
   +options: SpecOption,
 };
+
+export type ParamType =
+  | typeof symbols.POSITION_PARAM
+
+export type ParamId = Id;
+export type Param<ParamValue> = {
+  +id: ParamId,
+  +label: string,
+  linkFrom: Set<ParamId>,
+  linkTo: Set<ParamId>,
+  parentId?: ParamId,
+  children: Array<ParamId>,
+  +type: ParamType,
+  param: ParamValue,
+}
 
 /* eslint-disable no-use-before-define */

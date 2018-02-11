@@ -26,6 +26,7 @@ export const makeNewScene = numScenes => ({
   id: makeId(symbols.SCENES),
   label: `New Scene ${numScenes + 1}`,
   systems: [],
+  entities: [],
 });
 
 export class ScenesController extends PureComponent {

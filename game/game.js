@@ -20,6 +20,7 @@ import { makeLoaderState } from './engine/loaders/loader';
 import { animationLoaderSpec } from './spec/player';
 import { setUpFpsMeter } from './engine/utils/fpsMeterUtil';
 import { setUpQueue, queueMiddleware } from './engine/queueMiddleware';
+import { loggerMiddleware } from './engine/loggerMiddleware';
 
 import {
   SYNC,
@@ -82,7 +83,13 @@ ipcRenderer.once(START_GAME, (_, { specs, config }) => {
     makeGameState,
     setUpQueue()
   );
-  const update = applyMiddlewares(getNextState, ipcMiddleware);
+
+  // add middlewares for interacting with editor
+  const middlewares = [];
+  middlewares.push(ipcMiddleware);
+  if (isDev()) middlewares.push(loggerMiddleware);
+
+  const update = applyMiddlewares(getNextState, ...middlewares);
   const start = gameLoop(window.requestAnimationFrame, makeGameState(), update);
 
   start(startTime);
