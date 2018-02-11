@@ -43,3 +43,7 @@ export const ANIMATION_CHANGE = 'animationChange';
 export const RENDER_ACTION = 'renderAction';
 export const PHYSICS_EVENT = 'physicsEvent';
 export const TIME_TICK = 'timeTick';
+
+
+// Parameter types
+export const POSITION_PARAM = 'positionParam';

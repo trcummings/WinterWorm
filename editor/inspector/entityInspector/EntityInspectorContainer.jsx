@@ -7,15 +7,15 @@ import Subheader from 'material-ui/Subheader';
 import Divider from 'material-ui/Divider';
 import FlatButton from 'material-ui/FlatButton';
 import FontIcon from 'material-ui/FontIcon';
-import Card from 'material-ui/Card';
 import DropDownMenu from 'material-ui/DropDownMenu';
 import MenuItem from 'material-ui/MenuItem';
 
 import { components, symbols } from 'Editor/constants';
 import { getSpecs } from 'Editor/modules/specs';
 import { default as VerticalDivider } from 'Editor/components/VerticalDivider';
-
 import { setEntity, getInspectorEntity } from 'Editor/modules/inspector/entityInspector';
+
+import ComponentCard from './ComponentCard';
 
 const mapStateToProps = (state, ownProps) => ({
   entity: getSpecs(state)[symbols.ENTITIES][ownProps.id],
@@ -85,7 +85,7 @@ export class EntityInspectorContainer extends PureComponent {
         <Subheader>components</Subheader>
         { componentIds.map(cId => (
           <div key={cId}>
-            { JSON.stringify(components[componentLabels[cId]], null, 2) }
+            <ComponentCard component={components[componentLabels[cId]]} />
           </div>
         )) }
         { this.state.addingComponent ? (

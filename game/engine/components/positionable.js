@@ -1,6 +1,6 @@
 // @flow
 import { makeId } from '../util';
-import { COMPONENTS, POSITION_CHANGE, PARAMETERS } from '../symbols';
+import { COMPONENTS, POSITION_CHANGE, PARAMETERS, POSITION_PARAM } from '../symbols';
 import { getInboxEvents } from '../events';
 
 import type { Component } from '../types';
@@ -14,13 +14,14 @@ const updateOffset = (
   { action: { offsetX: xO, offsetY: yO } }
 ) => ({ offsetX: totalX + xO, offsetY: totalY + yO });
 
-const toParameter = (param, name) => ({
+const toParameter = (name, type, param) => ({
   id: makeId(PARAMETERS),
   label: name,
   linkFrom: new Set(),
   linkTo: new Set(),
   parentId: '',
   children: [],
+  type,
   param,
 });
 
@@ -44,7 +45,7 @@ const positionable: Component = {
     return makePositionState({ x: x + offsetX, y: y - offsetY, z });
   },
   // for component state
-  contract: toParameter(POSITION, {
+  contract: toParameter(POSITION, POSITION_PARAM, {
     x: {
       type: 'number',
       defaultsTo: 0,
