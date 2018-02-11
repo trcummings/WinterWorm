@@ -46,6 +46,8 @@ module.exports = {
       Editor: path.resolve(__dirname, './editor/'),
       Game: path.resolve(__dirname, './game/'),
       App: path.resolve(__dirname, './app/'),
+      Types: path.resolve(__dirname, './game/engine/types'),
+      Symbols: path.resolve(__dirname, './game/engine/symbols'),
     },
     extensions: ['.js', '.jsx', '.css', '.json'],
   },

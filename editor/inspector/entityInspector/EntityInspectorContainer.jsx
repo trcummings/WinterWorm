@@ -1,11 +1,13 @@
 // @flow
 import React, { PureComponent, Fragment } from 'react';
+import { assocPath } from 'ramda';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import Subheader from 'material-ui/Subheader';
 import Divider from 'material-ui/Divider';
 import FlatButton from 'material-ui/FlatButton';
+import RaisedButton from 'material-ui/RaisedButton';
 import FontIcon from 'material-ui/FontIcon';
 import DropDownMenu from 'material-ui/DropDownMenu';
 import MenuItem from 'material-ui/MenuItem';
@@ -15,7 +17,7 @@ import { getSpecs } from 'Editor/modules/specs';
 import { default as VerticalDivider } from 'Editor/components/VerticalDivider';
 import { setEntity, getInspectorEntity } from 'Editor/modules/inspector/entityInspector';
 
-import ComponentCard from './ComponentCard';
+import { default as ComponentCard } from './ComponentCard';
 
 const mapStateToProps = (state, ownProps) => ({
   entity: getSpecs(state)[symbols.ENTITIES][ownProps.id],
@@ -30,6 +32,12 @@ const componentLabels = Object.keys(components).reduce((total, key) => ({
   ...total,
   [components[key].id]: components[key].label,
 }), {});
+
+const stateFromContract = (contract = {}) => (
+  Object.keys(contract.param).reduce((total, key) => Object.assign(total, {
+    [key]: contract.param[key].defaultsTo,
+  }), {})
+);
 
 export class EntityInspectorContainer extends PureComponent {
   static propTypes = {
@@ -64,16 +72,30 @@ export class EntityInspectorContainer extends PureComponent {
 
   addComponent = (id) => {
     const { updateEntity, inspectorEntity } = this.props;
+    const componentSpec = components[componentLabels[id]];
 
     updateEntity({
       ...inspectorEntity,
-      components: [...inspectorEntity.components, id],
+      components: [
+        ...inspectorEntity.components,
+        { id, state: stateFromContract(componentSpec.contract) },
+      ],
     });
     this.unsetAdding();
   }
 
+  updateComponentState = (index, state) => {
+    const { updateEntity, inspectorEntity } = this.props;
+
+    updateEntity(assocPath(['components', index, 'state'], state, inspectorEntity));
+  }
+
+  saveEntity = () => {}
+
+  revertEntity = () => {}
+
   render() {
-    const { inspectorEntity: { id, label, components: componentIds } } = this.props;
+    const { inspectorEntity: { id, label, components: componentList } } = this.props;
 
     return (
       <div>
@@ -83,9 +105,14 @@ export class EntityInspectorContainer extends PureComponent {
         </VerticalDivider>
         <Divider />
         <Subheader>components</Subheader>
-        { componentIds.map(cId => (
+        { componentList.map(({ id: cId, state }, index) => (
           <div key={cId}>
-            <ComponentCard component={components[componentLabels[cId]]} />
+            <ComponentCard
+              index={index}
+              componentState={state}
+              component={components[componentLabels[cId]]}
+              updateComponentState={this.updateComponentState}
+            />
           </div>
         )) }
         { this.state.addingComponent ? (
@@ -113,6 +140,21 @@ export class EntityInspectorContainer extends PureComponent {
             Add Component
           </FlatButton>
         ) }
+        <Divider />
+        <div>
+          <RaisedButton onClick={this.revertEntity}>
+            <FontIcon className="material-icons">
+              restore page
+            </FontIcon>
+            Cancel
+          </RaisedButton>
+          <RaisedButton onClick={this.saveEntity}>
+            <FontIcon className="material-icons">
+              done
+            </FontIcon>
+            Save
+          </RaisedButton>
+        </div>
       </div>
     );
   }
