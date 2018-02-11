@@ -251,13 +251,24 @@ const componentStateFromSpec = (entityId: Id) => (
   )(state);
 };
 
+const ID_RECORD = 'idRecord';
+const makeNewEntityId = (state: GameState): { id: number, } => {
+  const path = [ID_RECORD, ENTITIES];
+  const incr = (view(lensPath(path), state) || 0) + 1;
+  return { id: `entities-${incr}`, next: assocPath(path, incr, state) };
+};
+
 export const setEntity = (state: GameState, entity) => {
-  const { id, components } = entity;
+  const { components } = entity;
+  // we don't want to use the entity id that comes from the spec because
+  // that was defined statically, and we can't be sure that the spec's id
+  // won't have conflicts.
+  const { next, id } = makeNewEntityId(state);
   const componentStateFn = componentStateFromSpec(id);
 
   return components.reduce((nextState, component) => (
     componentStateFn(nextState, component)
-  ), state);
+  ), next);
 };
 
 const removeEntityFromComponentIndex = (
