@@ -92,7 +92,7 @@ const eventMap = {
 // };
 
 const getSourceSize = (frameName, frameInfo) => frameInfo[frameName].sourceSize;
-const getFrameInfo = resources => resources[PLAYER].spritesheet.data.frames;
+const getFrameInfo = (resources, resourceName) => resources[resourceName].spritesheet.data.frames;
 
 const makePlayer = (state: GameState) => {
   // make pixi animation container for player
@@ -108,7 +108,7 @@ const makePlayer = (state: GameState) => {
   stage.addChild(animation);
 
   const { resourceName } = spriteResourceSpec;
-  const frameInfo = getFrameInfo(resources);
+  const frameInfo = getFrameInfo(resources, resourceName);
   const namePath = texturePathByFrame(currentAnimation, resourceName)();
   const { h, w } = getSourceSize(namePath, frameInfo);
   // const box = Box(w / 2, h / 2);

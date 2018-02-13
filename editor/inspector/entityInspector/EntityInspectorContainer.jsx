@@ -19,7 +19,7 @@ import { setEntity, getInspectorEntity } from 'Editor/modules/inspector/entityIn
 import { default as MetaSpecControl } from 'Editor/aspects/MetaSpecControl';
 import { ENTITIES } from 'Symbols';
 
-import { default as ComponentCard } from './ComponentCard';
+import ComponentCard, { componentLabels } from './ComponentCard';
 
 const mapStateToProps = (state, ownProps) => ({
   entity: getSpecs(state)[ENTITIES][ownProps.id],
@@ -30,15 +30,15 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   updateEntity: setEntity,
 }, dispatch);
 
-const componentLabels = Object.keys(components).reduce((total, key) => ({
-  ...total,
-  [components[key].id]: components[key].label,
-}), {});
-
-const stateFromContract = (contract = {}) => (
-  Object.keys(contract.param).reduce((total, key) => Object.assign(total, {
-    [key]: contract.param[key].defaultsTo,
-  }), {})
+export const stateFromContract = (param = {}) => (
+  Object.keys(param).reduce((total, key) => {
+    const { defaultsTo, type, factory } = param[key];
+    return Object.assign(total, {
+      [key]: type === 'factory' && factory
+        ? () => stateFromContract(factory)
+        : defaultsTo,
+    });
+  }, {})
 );
 
 const styles = {
@@ -65,7 +65,8 @@ export class EntityInspectorContainer extends PureComponent {
   }
 
   getCandidateLabelSet = () => {
-    const { inspectorEntity: { components: componentIds } } = this.props;
+    const { inspectorEntity: { components: entityComponents } } = this.props;
+    const componentIds = entityComponents.map(({ id }) => id);
     const componentSet = new Set(...componentIds);
     return Object.keys(components).reduce((total, key) => (
       componentSet.has(components[key].id)
@@ -81,12 +82,13 @@ export class EntityInspectorContainer extends PureComponent {
   addComponent = (id) => {
     const { updateEntity, inspectorEntity } = this.props;
     const componentSpec = components[componentLabels[id]];
+    const state = stateFromContract(componentSpec.contract.param);
 
     updateEntity({
       ...inspectorEntity,
       components: [
         ...inspectorEntity.components,
-        { id, state: stateFromContract(componentSpec.contract) },
+        { id, state },
       ],
     });
     this.unsetAdding();

@@ -4,11 +4,12 @@ import React from 'react';
 import { symbols } from 'Editor/constants';
 
 import PositionParam from './paramTypes/PositionParam';
+import AnimateableParams from './paramTypes/AnimateableParams';
 
-const Param = ({ param, type, updateParam, componentState }) => {
-  const props = { param, componentState, updateParam };
+const Param = ({ type, ...rest }) => {
   switch (type) {
-    case symbols.POSITION_PARAM: return <PositionParam {...props} />;
+    case symbols.POSITION_PARAM: return <PositionParam {...rest} />;
+    case symbols.ANIMATEABLE_PARAM: return <AnimateableParams {...rest} />;
     default: return <div>type not currently supported</div>;
   }
 };

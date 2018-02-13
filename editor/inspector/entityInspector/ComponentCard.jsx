@@ -1,32 +1,19 @@
 // @flow
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import { Card, CardTitle, CardText } from 'material-ui/Card';
 import Divider from 'material-ui/Divider';
 
-import { components, symbols } from 'Editor/constants';
-import { getSpecs } from 'Editor/modules/specs';
-import { setEntity, getInspectorEntity } from 'Editor/modules/inspector/entityInspector';
+import { components } from 'Editor/constants';
 
 import ParamEditor from './paramEditor/ParamEditor';
 
-const mapStateToProps = (state, ownProps) => ({
-  entity: getSpecs(state)[symbols.ENTITIES][ownProps.id],
-  inspectorEntity: getInspectorEntity(state, ownProps),
-});
-
-const mapDispatchToProps = dispatch => bindActionCreators({
-  updateEntity: setEntity,
-}, dispatch);
-
-const componentLabels = Object.keys(components).reduce((total, key) => ({
+export const componentLabels = Object.keys(components).reduce((total, key) => ({
   ...total,
   [components[key].id]: components[key].label,
 }), {});
 
-export class ComponentCard extends PureComponent {
+export default class ComponentCard extends PureComponent {
   static propTypes = {
     componentState: PropTypes.object.isRequired,
     component: PropTypes.object.isRequired,
@@ -63,5 +50,3 @@ export class ComponentCard extends PureComponent {
     );
   }
 }
-
-export default connect(mapStateToProps, mapDispatchToProps)(ComponentCard);

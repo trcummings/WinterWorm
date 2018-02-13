@@ -47,3 +47,4 @@ export const TIME_TICK = 'timeTick';
 
 // Parameter types
 export const POSITION_PARAM = 'positionParam';
+export const ANIMATEABLE_PARAM = 'animateableParam';

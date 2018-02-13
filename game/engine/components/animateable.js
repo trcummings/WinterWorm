@@ -1,7 +1,8 @@
 // @flow
 import { makeId } from '../util';
-import { COMPONENTS, ANIMATION_CHANGE, TIME_TICK, RENDER_ACTION } from '../symbols';
+import { COMPONENTS, ANIMATION_CHANGE, TIME_TICK, RENDER_ACTION, ANIMATEABLE_PARAM } from '../symbols';
 import { hasEventInInbox, makeEvent } from '../events';
+import { toParam } from '../utils/parameters';
 
 import type { Component } from '../types';
 
@@ -41,6 +42,7 @@ const ANIMATEABLE = 'animateable';
 // animations. Otherwise, the animation frame is incremented to the next
 // frame as specified by the animation spec.
 // a frame is a texture
+
 const animateable: Component = {
   label: ANIMATEABLE,
   id: makeId(COMPONENTS),
@@ -116,6 +118,30 @@ const animateable: Component = {
     if (renderEvents.length > 0) return [newComponentState, renderEvents];
     return newComponentState;
   },
+  contract: toParam(ANIMATEABLE, ANIMATEABLE_PARAM, {
+    resourceName: {
+      type: 'string',
+      required: true,
+    },
+    animationSpecs: {
+      type: 'factory',
+      required: true,
+      factory: {
+        animName: {
+          type: 'string',
+          required: true,
+        },
+        numFrames: {
+          type: 'number',
+          required: true,
+        },
+        fps: {
+          type: 'number',
+          defaultsTo: 6,
+        },
+      },
+    },
+  }),
 };
 
 export { animateable };

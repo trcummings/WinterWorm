@@ -13,7 +13,7 @@ const hofToHoc = (HOF, namespace, staticProps = {}) => (
       renderChild = (...args) => (
         <BaseComponent
           {...this.props}
-          {...({ [namespace]: args[0] })}
+          {...(namespace ? { [namespace]: args[0] } : args[0])}
         />
       )
 
