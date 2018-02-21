@@ -64,6 +64,5 @@
     "regenerator-runtime": "^0.11.1",
     "reselect": "^3.0.1",
     "webpack": "^3.10.0"
-  },
-  "dependencies": {}
+  }
 }
