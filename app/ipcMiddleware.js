@@ -3,16 +3,16 @@
 import {
   RUN_GAME,
   STOP_GAME,
-} from '../editor/modules/preview';
+} from 'Editor/modules/preview';
 import {
   EDITOR_SAVE_START,
   SPEC_EXPORT_START,
-} from '../editor/modules/filesystem';
+} from 'Editor/modules/filesystem';
 import {
   getConfigState,
   CONFIG_SAVE_START,
-} from '../editor/modules/config';
-import { getSpecs } from '../editor/modules/specs';
+} from 'Editor/modules/config';
+import { getSpecs } from 'Editor/modules/specs';
 
 import {
   // PLAY,

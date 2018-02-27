@@ -1,4 +1,4 @@
-// @flow
+// 
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Card, CardTitle, CardText } from 'material-ui/Card';

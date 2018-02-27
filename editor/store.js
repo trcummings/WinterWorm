@@ -1,4 +1,4 @@
-// @flow
+// 
 import 'regenerator-runtime/runtime';
 import {
   forwardToMain,

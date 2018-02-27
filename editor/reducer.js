@@ -1,4 +1,4 @@
-// @flow
+// 
 import { combineReducers } from 'redux';
 import specs from './modules/specs';
 import preview from './modules/preview';

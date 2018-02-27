@@ -1,4 +1,4 @@
-// @flow
+// 
 import React, { PureComponent, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import DropDownMenu from 'material-ui/DropDownMenu';

@@ -1,4 +1,3 @@
-// @flow
 import { PureComponent } from 'react';
 import fs from 'fs';
 import PropTypes from 'prop-types';

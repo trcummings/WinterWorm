@@ -1,4 +1,4 @@
-// @flow
+// 
 import React, { PureComponent } from 'react';
 import { List, ListItem } from 'material-ui/List';
 import Subheader from 'material-ui/Subheader';

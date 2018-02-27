@@ -1,4 +1,4 @@
-// @flow
+// 
 import React, { Fragment, PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import Chip from 'material-ui/Chip';

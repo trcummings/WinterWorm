@@ -39,5 +39,10 @@ declare module 'electron-redux' {
 [lints]
 
 [options]
+module.name_mapper='^Editor' ->'<PROJECT_ROOT>/editor'
+module.name_mapper='^Game' ->'<PROJECT_ROOT>/game'
+module.name_mapper='^App' ->'<PROJECT_ROOT>/app'
+module.name_mapper='^Types' ->'<PROJECT_ROOT>/game/engine/types'
+module.name_mapper='^Symbols' ->'<PROJECT_ROOT>/game/engine/symbols'
 
 [strict]

@@ -1,4 +1,4 @@
-// @flow
+// 
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { grey300 } from 'material-ui/styles/colors';
