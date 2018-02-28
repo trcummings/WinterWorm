@@ -1,9 +1,44 @@
 const webpack = require('webpack');
 const path = require('path');
+
+// const { sequelize } = require('./orm/models');
+
+// console.log(sequelize);
 // const CircularDependencyPlugin = require('circular-dependency-plugin');
 // const ClosureCompiler = require('google-closure-compiler-js').webpack;
 
 // const isProd = process.env.NODE_ENV === 'production';
+
+const DIST_PATH = path.join(__dirname, './dist');
+
+class DBPlugin {
+  constructor() {
+    this.startTime = Date.now();
+    this.prevTimestamps = {};
+
+    this.onEmit = this.onEmit.bind(this);
+  }
+
+  apply(compiler) {
+    compiler.plugin('emit', this.onEmit);
+  }
+
+  onEmit(compilation, cb) {
+    const changedFiles = [];
+    const timestamps = compilation.fileTimestamps;
+
+    for (const entry of timestamps) {
+      const [watchFile, currentTimeTouched] = entry;
+      const lastTimeTouched = this.prevTimestamps[watchFile] || this.startTime;
+
+      if (lastTimeTouched < currentTimeTouched) changedFiles.push(watchFile);
+    }
+
+    this.prevTimestamps = timestamps;
+
+    cb();
+  }
+}
 
 module.exports = {
   context: __dirname,
@@ -16,8 +51,13 @@ module.exports = {
   },
   output: {
     filename: '[name].js',
-    path: path.join(__dirname, './dist'),
+    path: DIST_PATH,
   },
+  // devServer: {
+  //   contentBase: DIST_PATH,
+  //   port: 3000,
+  //   hot: true,
+  // },
   module: {
     rules: [
       {
@@ -34,6 +74,7 @@ module.exports = {
             plugins: [
               '@babel/plugin-proposal-class-properties',
               '@babel/plugin-proposal-object-rest-spread',
+              'transform-es2015-arrow-functions',
             ],
           },
         },
@@ -52,6 +93,9 @@ module.exports = {
     extensions: ['.js', '.jsx', '.css', '.json'],
   },
   plugins: [
+    new DBPlugin(),
+    new webpack.NamedModulesPlugin(),
+    new webpack.HotModuleReplacementPlugin(),
     new webpack.DefinePlugin({
       'process.env.DEBUG_GAME': JSON.stringify(process.env.DEBUG_GAME),
       'process.env.DEBUG_EDITOR': JSON.stringify(process.env.DEBUG_EDITOR),

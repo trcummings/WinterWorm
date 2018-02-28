@@ -17,7 +17,6 @@ import { getScreenDims, getEditorDims } from './utils/screenUtil';
 import { startEditor, startGame } from './utils/browserWindowUtil';
 import { CONFIG_FILE_PATH, SPECS_FILE_PATH } from './utils/filesystemUtils';
 
-
 const isProd = process.env.NODE_ENV === 'production';
 
 const initialAppState = { editor: null, game: null };
