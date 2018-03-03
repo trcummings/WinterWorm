@@ -1,0 +1,14 @@
+{
+  "label": "positionable",
+  "contract": {
+    "x": {
+      "type": "number",
+      "defaultsTo": 0
+    },
+    "y": {
+      "type": "number",
+      "defaultsTo": 0
+    }
+  },
+  "subscriptions": ["positionChange"]
+}

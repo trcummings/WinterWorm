@@ -16,6 +16,7 @@ import {
 import { getScreenDims, getEditorDims } from './utils/screenUtil';
 import { startEditor, startGame } from './utils/browserWindowUtil';
 import { CONFIG_FILE_PATH, SPECS_FILE_PATH } from './utils/filesystemUtils';
+import initDb from './initDb';
 
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -28,7 +29,12 @@ store.runSaga(rootSaga);
 
 app.on(READY, () => {
   if (isProd) startGame(getScreenDims());
-  else startEditor(getEditorDims());
+  else {
+    initDb((gameObjects) => {
+      console.log(JSON.parse(gameObjects));
+      startEditor(getEditorDims());
+    });
+  }
 });
 
 ipcMain.on(SYNC, (event) => {

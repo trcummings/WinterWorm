@@ -44,6 +44,16 @@ export const RENDER_ACTION = 'renderAction';
 export const PHYSICS_EVENT = 'physicsEvent';
 export const TIME_TICK = 'timeTick';
 
+export const events = {
+  [KEYBOARD_INPUT]: KEYBOARD_INPUT,
+  [POSITION_CHANGE]: POSITION_CHANGE,
+  [ACCELERATION_CHANGE]: ACCELERATION_CHANGE,
+  [SCENE_CHANGE]: SCENE_CHANGE,
+  [ANIMATION_CHANGE]: ANIMATION_CHANGE,
+  [RENDER_ACTION]: RENDER_ACTION,
+  [PHYSICS_EVENT]: PHYSICS_EVENT,
+  [TIME_TICK]: TIME_TICK,
+};
 
 // Parameter types
 export const POSITION_PARAM = 'positionParam';

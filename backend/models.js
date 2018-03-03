@@ -24,8 +24,6 @@ const Component = db.define('component', {
     type: Sequelize.TEXT,
     defaultValue: '',
   },
-  // subscriptions: {},
-  // context: {},
 });
 
 const System = db.define('system', {
@@ -41,18 +39,6 @@ const System = db.define('system', {
   devOnly: {
     defaultValue: false,
     type: Sequelize.BOOLEAN,
-  },
-});
-
-const Entity = db.define('entity', {
-  label: {
-    type: Sequelize.STRING,
-    unique: true,
-    allowNull: false,
-  },
-  description: {
-    type: Sequelize.TEXT,
-    defaultValue: '',
   },
 });
 
@@ -75,17 +61,36 @@ const EventType = db.define('eventType', {
 // systems
 // system fns
 
+
 // Every component that is created by default has a system which manages it
 // however, systems may operate on many different properties of the current game state,
 // and need not be bound to a component.
-Component.hasOne(System);
+System.belongsTo(Component);
 
-module.exports = {
-  db,
-  models: {
-    Component,
-    System,
-    Entity,
-    EventType,
-  },
+// Subscriptions:
+// Components can subscribe to events dispatched through the event queue
+// A component can have multiple subscriptions to different event types
+Component.belongsToMany(EventType, {
+  as: { singular: 'subscription', plural: 'subscriptions' },
+  through: 'componentSubscription',
+});
+
+EventType.belongsToMany(Component, { through: 'componentSubscription' });
+
+// Context
+// Components can get component state from other components to use in
+// their state update function
+Component.belongsToMany(Component, {
+  as: { singular: 'context', plural: 'contexts' },
+  through: 'componentContext',
+  foreignKey: 'componentId',
+  otherKey: 'componentContextId',
+});
+
+const models = {
+  components: Component,
+  systems: System,
+  eventTypes: EventType,
 };
+
+module.exports = { db, models };

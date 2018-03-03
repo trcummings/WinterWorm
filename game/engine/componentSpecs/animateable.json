@@ -1,0 +1,4 @@
+{
+  "label": "animateable",
+  "subscriptions": ["animationChange", "timeTick"]
+}

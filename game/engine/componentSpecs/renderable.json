@@ -1,0 +1,4 @@
+{
+  "label": "renderable",
+  "context": ["positionable", "animateable"]
+}
