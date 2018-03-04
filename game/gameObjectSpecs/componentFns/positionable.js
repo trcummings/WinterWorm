@@ -1,5 +1,5 @@
-import { POSITION_CHANGE } from '../symbols';
-import { getInboxEvents } from '../events';
+import { POSITION_CHANGE } from 'Engine/symbols';
+import { getInboxEvents } from 'Engine/events';
 
 const INITIAL_OFFSET = { offsetX: 0, offsetY: 0 };
 

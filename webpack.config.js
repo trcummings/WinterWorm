@@ -84,9 +84,10 @@ module.exports = {
   resolve: {
     modules: ['node_modules'],
     alias: {
-      Editor: path.resolve(__dirname, './editor/'),
-      Game: path.resolve(__dirname, './game/'),
-      App: path.resolve(__dirname, './app/'),
+      Editor: path.resolve(__dirname, './editor'),
+      Game: path.resolve(__dirname, './game'),
+      App: path.resolve(__dirname, './app'),
+      Engine: path.resolve(__dirname, './game/engine'),
       Types: path.resolve(__dirname, './game/engine/types'),
       Symbols: path.resolve(__dirname, './game/engine/symbols'),
     },
@@ -102,6 +103,7 @@ module.exports = {
       'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
       'process.env.ASSET_PATH': JSON.stringify(path.resolve(__dirname, './game/assets')),
       'process.env.COMPONENT_SPEC_PATH': JSON.stringify(path.resolve(__dirname, './game/engine/componentSpecs')),
+      'process.env.SYSTEM_FN_PATH': JSON.stringify(path.resolve(__dirname, './game/engine/systemFns')),
       'process.env.CONFIG_PATH': JSON.stringify(path.resolve(__dirname, './config')),
     }),
   // ]

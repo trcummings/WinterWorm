@@ -12,15 +12,21 @@ const serviceMap = {
   systems: Systems,
 };
 
+// const logAccessors = (type) => {
+//   const associations = models[type].associations;
+//   const accessors = Object.keys(associations).map(key => associations[key].accessors);
+//   console.log('accessors', accessors);
+// };
+
 app.post('/init', async (req, res) => {
-  const { body: { eventTypes, components } } = req;
+  const { body: { eventTypes, components, systemLabels } } = req;
   const gameObjects = { eventTypes: {}, systems: {}, components: {} };
 
-  // for (const type of Object.keys(gameObjects)) {
-  //   const associations = models[type].associations;
-  //   const accessors = Object.keys(associations).map(key => associations[key].accessors);
-  //   console.log('accessors', accessors);
-  // }
+  // create systems
+  for (const systemLabel of systemLabels) {
+    const [sErr] = await Systems.findOrCreate({ label: systemLabel });
+    if (sErr) throw new Error(sErr);
+  }
 
   // create all event types & store a label => id map
   const eventTypeMap = {};
@@ -53,7 +59,7 @@ app.post('/init', async (req, res) => {
     // create the system
     const [systemLabel] = label.split('able');
     const [sErr, system] = await Systems.findOrCreate({ label: systemLabel });
-    if (sErr) throw new Error(cErr);
+    if (sErr) throw new Error(sErr);
 
     // associate the system to the component
     await system.setComponent(cResult);

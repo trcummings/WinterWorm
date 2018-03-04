@@ -32,6 +32,7 @@ app.on(READY, () => {
   else {
     initDb((gameObjects) => {
       console.log(JSON.parse(gameObjects));
+      // add entities to database on this one...
       startEditor(getEditorDims());
     });
   }

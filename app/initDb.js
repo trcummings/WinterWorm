@@ -37,8 +37,15 @@ const getAllJson = basePath => (
 const initDb = (cb) => {
   const eventTypes = Object.keys(symbols.events).map(label => ({ label }));
   const components = getAllJson(process.env.COMPONENT_SPEC_PATH);
+  const systemLabels = fs.readdirSync(process.env.SYSTEM_FN_PATH).map((fileName) => {
+    const [label] = fileName.split('.');
+    return label;
+  });
 
-  agent.post({ uri: 'init', form: { eventTypes, components } }).then(cb);
+  agent.post({
+    uri: 'init',
+    form: { eventTypes, components, systemLabels },
+  }).then(cb);
 };
 
 export default initDb;

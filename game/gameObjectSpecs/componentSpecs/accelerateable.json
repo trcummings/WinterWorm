@@ -1,0 +1,14 @@
+{
+  "label": "accelerateable",
+  "contract": {
+    "ax": {
+      "type": "number",
+      "defaultsTo": 0
+    },
+    "ay": {
+      "type": "number",
+      "defaultsTo": 0
+    }
+  },
+  "subscriptions": ["accelerationChange"]
+}

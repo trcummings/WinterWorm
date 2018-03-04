@@ -1,5 +1,5 @@
-import { ANIMATION_CHANGE, TIME_TICK, RENDER_ACTION } from '../symbols';
-import { hasEventInInbox, makeEvent } from '../events';
+import { ANIMATION_CHANGE, TIME_TICK, RENDER_ACTION } from 'Engine/symbols';
+import { hasEventInInbox, makeEvent } from 'Engine/events';
 
 const getPrevFrame = (numFrames, currentFrame) => {
   if (currentFrame === 0) return numFrames - 1;
