@@ -5,11 +5,10 @@ import {
   PAUSE,
   REFRESH,
   LOAD_SPEC,
-} from '../../app/actionTypes';
+} from 'App/actionTypes';
+import { getLoopState, setLoopState } from 'Engine/loop';
 
-import { getLoopState, setLoopState } from './loop';
-
-import type { GameState } from './types';
+import type { GameState } from 'Types';
 
 type QueueEvent =
   | PLAY

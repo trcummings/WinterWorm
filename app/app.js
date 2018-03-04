@@ -1,9 +1,13 @@
 // @flow
 import fs from 'fs';
 import { app, ipcMain } from 'electron';
+
+import { loadGameObjects } from 'Editor/modules/data';
+
 import { configureStore } from './store';
 import createRootSaga from './sagas';
 import { createGameIpcMiddleware } from './ipcMiddleware';
+
 
 import {
   SYNC,
@@ -31,8 +35,8 @@ app.on(READY, () => {
   if (isProd) startGame(getScreenDims());
   else {
     initDb((gameObjects) => {
-      console.log(JSON.parse(gameObjects));
-      // add entities to database on this one...
+      const payload = JSON.parse(gameObjects);
+      loadGameObjects(payload)(store.dispatch);
       startEditor(getEditorDims());
     });
   }

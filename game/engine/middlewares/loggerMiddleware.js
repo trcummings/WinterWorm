@@ -1,7 +1,7 @@
 // @flow
-import { getLoopState } from './loop';
+import { getLoopState } from 'Engine/loop';
 
-import type { GameState } from './types';
+import type { GameState } from 'Types';
 
 let timer = 0;
 export const loggerMiddleware = (state: GameState): GameState => {

@@ -18,8 +18,8 @@ import { gameSpecsToSpecs } from './engine/specUtil';
 import spriteLoader, { setSpriteLoaderFn } from './engine/loaders/spriteLoader';
 import { makeLoaderState } from './engine/loaders/loader';
 import { setUpFpsMeter } from './engine/utils/fpsMeterUtil';
-import { setUpQueue, queueMiddleware } from './engine/queueMiddleware';
-import { loggerMiddleware } from './engine/loggerMiddleware';
+import { setUpQueue, queueMiddleware } from './engine/middlewares/queueMiddleware';
+import { loggerMiddleware } from './engine/middlewares/loggerMiddleware';
 
 import {
   SYNC,
