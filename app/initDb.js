@@ -37,14 +37,11 @@ const getAllJson = basePath => (
 const initDb = (cb) => {
   const eventTypes = Object.keys(symbols.events).map(label => ({ label }));
   const components = getAllJson(process.env.COMPONENT_SPEC_PATH);
-  const systemLabels = fs.readdirSync(process.env.SYSTEM_FN_PATH).map((fileName) => {
-    const [label] = fileName.split('.');
-    return label;
-  });
+  const systems = getAllJson(process.env.SYSTEM_SPEC_PATH);
 
   agent.post({
     uri: 'init',
-    form: { eventTypes, components, systemLabels },
+    form: { eventTypes, components, systems },
   }).then(cb);
 };
 

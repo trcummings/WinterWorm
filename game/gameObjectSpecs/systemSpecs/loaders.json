@@ -1,3 +1,4 @@
 {
-  "label": "loaders"
+  "label": "loaders",
+  "devOnly": false
 }

@@ -1,3 +1,4 @@
 {
-  "label": "physics"
+  "label": "physics",
+  "devOnly": false
 }

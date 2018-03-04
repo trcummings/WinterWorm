@@ -1,3 +1,4 @@
 {
-  "label": "input"
+  "label": "input",
+  "devOnly": false
 }

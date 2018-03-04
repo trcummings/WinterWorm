@@ -1,3 +1,4 @@
 {
-  "label": "clearEventQueue"
+  "label": "clearEventQueue",
+  "devOnly": false
 }

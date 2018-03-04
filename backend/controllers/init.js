@@ -1,6 +1,5 @@
 const app = require('../server');
 const { clone } = require('../util');
-// const { models } = require('../models');
 
 const EventTypes = require('../services/eventTypes');
 const Components = require('../services/components');
@@ -18,21 +17,28 @@ const serviceMap = {
 //   console.log('accessors', accessors);
 // };
 
+const errorOut = (err) => {
+  console.error(err);
+  throw new Error(err);
+};
+
 app.post('/init', async (req, res) => {
-  const { body: { eventTypes, components, systemLabels } } = req;
+  const { body: { eventTypes, components, systems } } = req;
   const gameObjects = { eventTypes: {}, systems: {}, components: {} };
 
+  console.log(eventTypes, components, systems);
+
   // create systems
-  for (const systemLabel of systemLabels) {
-    const [sErr] = await Systems.findOrCreate({ label: systemLabel });
-    if (sErr) throw new Error(sErr);
+  for (const system of systems) {
+    const [sErr] = await Systems.findOrCreate(system);
+    if (sErr) errorOut(sErr);
   }
 
   // create all event types & store a label => id map
   const eventTypeMap = {};
   for (const eventType of eventTypes) {
     const [err, result] = await EventTypes.findOrCreate(eventType);
-    if (err) throw new Error(err);
+    if (err) errorOut(err);
 
     eventTypeMap[result.label] = result;
   }
@@ -48,7 +54,7 @@ app.post('/init', async (req, res) => {
 
     // create the component
     const [cErr, cResult] = await Components.findOrCreate({ label });
-    if (cErr) throw new Error(cErr);
+    if (cErr) errorOut(cErr);
 
     // add the component to the component map
     componentMap[cResult.label] = cResult;
@@ -59,7 +65,7 @@ app.post('/init', async (req, res) => {
     // create the system
     const [systemLabel] = label.split('able');
     const [sErr, system] = await Systems.findOrCreate({ label: systemLabel });
-    if (sErr) throw new Error(sErr);
+    if (sErr) errorOut(sErr);
 
     // associate the system to the component
     await system.setComponent(cResult);
@@ -85,7 +91,7 @@ app.post('/init', async (req, res) => {
 
   for (const type of Object.keys(gameObjects)) {
     const [err, result] = await serviceMap[type].findAll();
-    if (err) throw new Error(err);
+    if (err) errorOut(err);
 
     result.forEach((record) => {
       gameObjects[type][record.id] = clone(record);

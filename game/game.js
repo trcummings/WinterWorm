@@ -17,7 +17,6 @@ import { gameSpecsToSpecs } from './engine/specUtil';
 
 import spriteLoader, { setSpriteLoaderFn } from './engine/loaders/spriteLoader';
 import { makeLoaderState } from './engine/loaders/loader';
-import { animationLoaderSpec } from './spec/player';
 import { setUpFpsMeter } from './engine/utils/fpsMeterUtil';
 import { setUpQueue, queueMiddleware } from './engine/queueMiddleware';
 import { loggerMiddleware } from './engine/loggerMiddleware';
@@ -67,7 +66,7 @@ ipcRenderer.once(START_GAME, (_, { specs, config }) => {
   const { pixiLoader } = getRenderEngine(initialGameState);
 
   const assetLoader = spriteLoader(makeLoaderState({
-    assetSpecs: [animationLoaderSpec],
+    assetSpecs: [],
     pixiLoader,
     progress: 0,
   }), maximizeAfterLoad);

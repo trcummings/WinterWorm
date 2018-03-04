@@ -1,3 +1,4 @@
 {
-  "label": "ticker"
+  "label": "ticker",
+  "devOnly": false
 }

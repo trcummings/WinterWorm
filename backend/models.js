@@ -14,7 +14,7 @@ const db = new Sequelize('db', 'username', 'password', {
   storage: 'db.sqlite',
 });
 
-const Component = db.define('component', {
+const componentSchema = {
   label: {
     type: Sequelize.STRING,
     unique: true,
@@ -24,9 +24,10 @@ const Component = db.define('component', {
     type: Sequelize.TEXT,
     defaultValue: '',
   },
-});
+};
+const Component = db.define('component', componentSchema);
 
-const System = db.define('system', {
+const systemSchema = {
   label: {
     type: Sequelize.STRING,
     unique: true,
@@ -40,9 +41,10 @@ const System = db.define('system', {
     defaultValue: false,
     type: Sequelize.BOOLEAN,
   },
-});
+};
+const System = db.define('system', systemSchema);
 
-const EventType = db.define('eventType', {
+const eventTypeSchema = {
   label: {
     type: Sequelize.STRING,
     unique: true,
@@ -52,7 +54,8 @@ const EventType = db.define('eventType', {
     type: Sequelize.TEXT,
     defaultValue: '',
   },
-});
+};
+const EventType = db.define('eventType', eventTypeSchema);
 
 // components
 // cleanup fns
@@ -93,4 +96,10 @@ const models = {
   eventTypes: EventType,
 };
 
-module.exports = { db, models };
+const schemas = {
+  components: componentSchema,
+  systems: systemSchema,
+  eventTypes: eventTypeSchema,
+};
+
+module.exports = { db, models, schemas };

@@ -1,3 +1,4 @@
 {
-  "label": "meta"
+  "label": "meta",
+  "devOnly": false
 }

@@ -1,3 +1,4 @@
 {
-  "label": "render"
+  "label": "render",
+  "devOnly": false
 }

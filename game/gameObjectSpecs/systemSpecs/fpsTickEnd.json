@@ -1,3 +1,4 @@
 {
-  "label": "fpsTickEnd"
+  "label": "fpsTickEnd",
+  "devOnly": true
 }
