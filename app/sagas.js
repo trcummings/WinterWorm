@@ -12,7 +12,7 @@ const createRootSaga = () => {
   return function* rootSaga() {
     yield all([
       fork(watchGameRunning),
-      // fork(watchEditorSaving),
+      // fork(watchRequests),
       // fork(watchConfigSaving),
       // fork(watchSpecExporting),
     ]);

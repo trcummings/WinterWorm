@@ -1,4 +1,4 @@
-// 
+//
 import React, { PureComponent, Fragment } from 'react';
 import { assocPath } from 'ramda';
 import PropTypes from 'prop-types';
@@ -12,8 +12,8 @@ import FontIcon from 'material-ui/FontIcon';
 import DropDownMenu from 'material-ui/DropDownMenu';
 import MenuItem from 'material-ui/MenuItem';
 
-import { components } from 'Editor/constants';
-import { getSpecs } from 'Editor/modules/specs';
+// import { components } from 'Editor/constants';
+// import { getSpecs } from 'Editor/modules/specs';
 import { default as VerticalDivider } from 'Editor/components/VerticalDivider';
 import { setEntity, getInspectorEntity } from 'Editor/modules/inspector/entityInspector';
 import { default as MetaSpecControl } from 'Editor/aspects/MetaSpecControl';
@@ -22,7 +22,8 @@ import { ENTITIES } from 'Symbols';
 import ComponentCard, { componentLabels } from './ComponentCard';
 
 const mapStateToProps = (state, ownProps) => ({
-  entity: getSpecs(state)[ENTITIES][ownProps.id],
+  components: state.data.components,
+  entity: (state.data.entities || {})[ownProps.id],
   inspectorEntity: getInspectorEntity(state, ownProps),
 });
 
@@ -50,6 +51,7 @@ const styles = {
 
 export class EntityInspectorContainer extends PureComponent {
   static propTypes = {
+    components: PropTypes.object.isRequired,
     // id: PropTypes.string.isRequired,
     inspectorEntity: PropTypes.object.isRequired,
     entity: PropTypes.object.isRequired,
@@ -65,7 +67,7 @@ export class EntityInspectorContainer extends PureComponent {
   }
 
   getCandidateLabelSet = () => {
-    const { inspectorEntity: { components: entityComponents } } = this.props;
+    const { components, inspectorEntity: { components: entityComponents } } = this.props;
     const componentIds = entityComponents.map(({ id }) => id);
     const componentSet = new Set(...componentIds);
     return Object.keys(components).reduce((total, key) => (
@@ -80,9 +82,10 @@ export class EntityInspectorContainer extends PureComponent {
   unsetAdding = () => this.setState({ addingComponent: false })
 
   addComponent = (id) => {
-    const { updateEntity, inspectorEntity } = this.props;
+    const { components, updateEntity, inspectorEntity } = this.props;
     const componentSpec = components[componentLabels[id]];
-    const state = stateFromContract(componentSpec.contract.param);
+    const contract = componentSpec.contract || {};
+    const state = stateFromContract(contract.param);
 
     updateEntity({
       ...inspectorEntity,
@@ -107,8 +110,9 @@ export class EntityInspectorContainer extends PureComponent {
 
   render() {
     const {
+      components,
       inspectorEntity,
-      inspectorEntity: { id, label, components: componentList },
+      inspectorEntity: { id, label, components: componentList = [] },
     } = this.props;
 
     return (

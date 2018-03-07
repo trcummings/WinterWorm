@@ -1,4 +1,5 @@
-import { net } from 'electron';
+import { net, ipcMain } from 'electron';
+import { REQUEST_START, REQUEST_END } from './actionTypes';
 
 class DbAgent {
   constructor() {
@@ -38,5 +39,9 @@ class DbAgent {
 }
 
 const agent = new DbAgent();
+
+ipcMain.on(REQUEST_START, (event, { method, form, query, uri }) => {
+  agent[method]({ form, query, uri }).then(resp => event.sender.send(REQUEST_END, resp));
+});
 
 export default agent;

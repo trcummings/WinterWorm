@@ -7,6 +7,7 @@ import { loadGameObjects } from 'Editor/modules/data';
 import { configureStore } from './store';
 import createRootSaga from './sagas';
 import { createGameIpcMiddleware } from './ipcMiddleware';
+import agent from './dbAgent';
 
 
 import {
@@ -34,7 +35,7 @@ store.runSaga(rootSaga);
 app.on(READY, () => {
   if (isProd) startGame(getScreenDims());
   else {
-    initDb((gameObjects) => {
+    initDb(agent, (gameObjects) => {
       const payload = JSON.parse(gameObjects);
       loadGameObjects(payload)(store.dispatch);
       startEditor(getEditorDims());

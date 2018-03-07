@@ -4,9 +4,9 @@ import { compose } from 'ramda';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-import { symbols, makeId } from '../constants';
+import { symbols } from '../constants';
 
-import { default as MetaSpecControl } from '../aspects/MetaSpecControl';
+import { default as GameObjectInterface } from '../aspects/GameObjectInterface';
 import hofToHoc from '../aspects/HofToHoc';
 
 import {
@@ -16,15 +16,15 @@ import {
 
 const mapStateToProps = (state, ownProps) => ({
   inspector: getInspectorControl(state, ownProps),
+  entities: state.data.entities || {},
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators({
   setInInspector: selectInspector,
 }, dispatch);
 
-export const makeNewEntity = numScenes => ({
-  id: makeId(symbols.ENTITIES),
-  label: `New Entity ${numScenes + 1}`,
+export const makeNewEntity = numEntities => ({
+  label: `New Entity ${numEntities + 1}`,
   components: [],
 });
 
@@ -36,18 +36,19 @@ export class ScenesController extends PureComponent {
       id: PropTypes.string,
     }).isRequired,
     setInInspector: PropTypes.func.isRequired,
-    entities: PropTypes.shape({
-      specs: PropTypes.object,
-      setSpec: PropTypes.func.isRequired,
+    entities: PropTypes.object.isRequired,
+    gameObjects: PropTypes.shape({
+      request: PropTypes.func.isRequired,
     }).isRequired,
   }
 
   addNewEntity = () => {
-    const { entities: { specs: entities, setSpec: setEntity } } = this.props;
-    const scene = makeNewEntity(Object.keys(entities).length);
+    const { entities, gameObjects: { request } } = this.props;
+    const newEntity = makeNewEntity(Object.keys(entities).length);
 
-    setEntity(scene);
-    this.selectEntity(scene.id);
+    request({ method: 'post', service: 'entities', form: newEntity }).then((entity) => {
+      this.selectEntity(entity.id);
+    });
   }
 
   selectEntity = id => this.props.setInInspector({
@@ -58,7 +59,7 @@ export class ScenesController extends PureComponent {
   render() {
     const {
       children,
-      entities: { specs: entities },
+      entities,
       inspector: { inspectorType, id },
     } = this.props;
     const selectedEntityId = inspectorType === symbols.ENTITIES ? id : null;
@@ -74,5 +75,5 @@ export class ScenesController extends PureComponent {
 
 export default compose(
   connect(mapStateToProps, mapDispatchToProps),
-  hofToHoc(MetaSpecControl, 'entities', { specType: symbols.ENTITIES })
+  hofToHoc(GameObjectInterface, 'gameObjects')
 )(ScenesController);

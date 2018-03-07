@@ -7,6 +7,7 @@ require('./controllers/init');
 require('./controllers/components');
 require('./controllers/systems');
 require('./controllers/eventTypes');
+require('./controllers/entities');
 
 app.listen(PORT, () => {
   console.log(`express server listening on ${PORT}`);
