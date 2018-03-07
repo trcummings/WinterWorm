@@ -1,14 +1,5 @@
 const app = require('../server');
-const { db } = require('../models');
+const { makeController } = require('../util');
+const Systems = require('../services/systems');
 
-// Systems Controller
-app.get('/systems', (req, res) => {
-  db.query('SELECT * FROM systems')
-    .then(rows => res.send(JSON.stringify(rows)));
-});
-
-app.get('/systems/:id', (req, res) => {
-  const id = req.params.id;
-  db.query(`SELECT * FROM systems WHERE id = ${id}`)
-    .then(rows => res.send(JSON.stringify(rows)));
-});
+makeController(app, 'systems', Systems);

@@ -30,14 +30,14 @@ app.post('/init', async (req, res) => {
 
   // create systems
   for (const system of systems) {
-    const [sErr] = await Systems.findOrCreate(system);
+    const [sErr] = await Systems.findOrCreate({ body: system });
     if (sErr) errorOut(sErr);
   }
 
   // create all event types & store a label => id map
   const eventTypeMap = {};
   for (const eventType of eventTypes) {
-    const [err, result] = await EventTypes.findOrCreate(eventType);
+    const [err, result] = await EventTypes.findOrCreate({ body: eventType });
     if (err) errorOut(err);
 
     eventTypeMap[result.label] = result;
@@ -53,7 +53,7 @@ app.post('/init', async (req, res) => {
     if (contract) console.log(contract);
 
     // create the component
-    const [cErr, cResult] = await Components.findOrCreate({ label });
+    const [cErr, cResult] = await Components.findOrCreate({ body: { label } });
     if (cErr) errorOut(cErr);
 
     // add the component to the component map
@@ -64,7 +64,7 @@ app.post('/init', async (req, res) => {
 
     // create the system
     const [systemLabel] = label.split('able');
-    const [sErr, system] = await Systems.findOrCreate({ label: systemLabel });
+    const [sErr, system] = await Systems.findOrCreate({ body: { label: systemLabel } });
     if (sErr) errorOut(sErr);
 
     // associate the system to the component

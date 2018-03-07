@@ -57,6 +57,19 @@ const eventTypeSchema = {
 };
 const EventType = db.define('eventType', eventTypeSchema);
 
+const entitySchema = {
+  label: {
+    type: Sequelize.STRING,
+    unique: true,
+    allowNull: false,
+  },
+  description: {
+    type: Sequelize.TEXT,
+    defaultValue: '',
+  },
+};
+const Entity = db.define('entity', entitySchema);
+
 // components
 // cleanup fns
 // component state fns
@@ -91,12 +104,14 @@ Component.belongsToMany(Component, {
 });
 
 const models = {
+  entities: Entity,
   components: Component,
   systems: System,
   eventTypes: EventType,
 };
 
 const schemas = {
+  entities: entitySchema,
   components: componentSchema,
   systems: systemSchema,
   eventTypes: eventTypeSchema,

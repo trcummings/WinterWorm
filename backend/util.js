@@ -20,9 +20,14 @@ const makeContract = (schema) => {
   } = schema;
 
   return {
-    findOrCreate: entity => new Promise((resolve) => {
-      const { label } = entity;
-      const defaults = createDefaults(schemas[service], entity);
+    find: ({ query, params }) => new Promise(resolve => (
+      models[service].find({ where: Object.assign({}, query, params) })
+        .then(rows => resolve([null, rows]))
+        .catch(err => resolve([err]))
+    )),
+    findOrCreate: ({ body }) => new Promise((resolve) => {
+      const { label } = body;
+      const defaults = createDefaults(schemas[service], body);
 
       return models[service].findOrCreate({ where: { label }, defaults })
         .spread((result, created) => {
@@ -37,11 +42,44 @@ const makeContract = (schema) => {
         .then(rows => resolve([null, rows]))
         .catch(err => resolve([err]))
     )),
+    create: ({ body, query }) => new Promise(resolve => ((query.batch
+      ? models[service].bulkCreate(body)
+      : models[service].create(body)
+    )
+      .then(rows => resolve([null, rows]))
+      .catch(err => resolve([err]))
+    )),
+    upsert: ({ body, query, params }) => new Promise(resolve => (
+      models[service].upsert(body, { where: Object.assign({}, query, params) })
+        .then(rows => resolve([null, rows]))
+        .catch(err => resolve([err]))
+    )),
+    destroy: ({ query, params }) => new Promise(resolve => (
+      models[service].destroy({ where: Object.assign({}, query, params) })
+        .then(rows => resolve([null, rows]))
+        .catch(err => resolve([err]))
+    )),
+    run: action => (req, res) => this[action](req).then(([err, result]) => (
+      res.send({
+        data: JSON.stringify(result),
+        error: err,
+        statusCode: err ? 400 : 200,
+      })
+    )),
   };
+};
+
+const makeController = (app, name, service) => {
+  app.get(`/${name}`, service.run('findAll'));
+  app.get(`/${name}/:id`, service.run('find'));
+  app.post(`/${name}/:id`, service.run('create'));
+  app.put(`/${name}/:id`, service.run('upsert'));
+  app.delete(`/${name}/:id`, service.run('destroy'));
 };
 
 module.exports = {
   clone,
   createDefaults,
   makeContract,
+  makeController,
 };
