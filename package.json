@@ -8,7 +8,7 @@
     "flow-init": "./node_modules/.bin/flow init",
     "flow": "./node_modules/.bin/flow",
     "base": "./node_modules/.bin/electron ./dist/app.js",
-    "app:dev": "./node_modules/.bin/concurrently \"NODE_ENV=development node ./backend/index.js\" \"NODE_ENV=development ./node_modules/.bin/webpack --progress --config ./webpack.config.js; npm run base\"",
+    "app:dev": "NODE_ENV=development ./node_modules/.bin/webpack --progress --config ./webpack.config.js; npm run base",
     "app:prod": "NODE_ENV=production ./node_modules/.bin/webpack --config ./webpack.config.js; npm run base"
   },
   "keywords": [],

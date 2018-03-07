@@ -6,7 +6,6 @@ import {
   replayActionMain,
 } from 'electron-redux';
 import { createStore, applyMiddleware, compose } from 'redux';
-import createSagaMiddleware, { END } from 'redux-saga';
 
 import rootReducer from '../editor/reducer';
 import { thunk } from '../editor/store';
@@ -29,10 +28,6 @@ export const configureStore = (gameIpcMiddleware) => {
   // Logging Middleware
   if (isDev) middleware.push(logger);
 
-  // Saga middleware
-  const sagaMiddleware = createSagaMiddleware();
-  middleware.push(sagaMiddleware);
-
   // IPC Middleware
   if (isDev) middleware.push(gameIpcMiddleware);
 
@@ -52,9 +47,6 @@ export const configureStore = (gameIpcMiddleware) => {
   //     return store;
   //   });
   // }
-
-  store.runSaga = sagaMiddleware.run;
-  store.close = () => store.dispatch(END);
 
   replayActionMain(store);
 

@@ -48,16 +48,12 @@ module.exports = {
     app: './app/app.js',
     game: './game/game.js',
     editor: './editor/Editor.jsx',
+    config: './config/Config.jsx',
   },
   output: {
     filename: '[name].js',
     path: DIST_PATH,
   },
-  // devServer: {
-  //   contentBase: DIST_PATH,
-  //   port: 3000,
-  //   hot: true,
-  // },
   module: {
     rules: [
       {
@@ -87,6 +83,7 @@ module.exports = {
       Editor: path.resolve(__dirname, './editor'),
       Game: path.resolve(__dirname, './game'),
       App: path.resolve(__dirname, './app'),
+      Config: path.resolve(__dirname, './config'),
       Engine: path.resolve(__dirname, './game/engine'),
       Types: path.resolve(__dirname, './game/engine/types'),
       Symbols: path.resolve(__dirname, './game/engine/symbols'),
@@ -105,6 +102,7 @@ module.exports = {
       'process.env.COMPONENT_SPEC_PATH': JSON.stringify(path.resolve(__dirname, './game/gameObjectSpecs/componentSpecs')),
       'process.env.SYSTEM_SPEC_PATH': JSON.stringify(path.resolve(__dirname, './game/gameObjectSpecs/systemSpecs')),
       'process.env.CONFIG_PATH': JSON.stringify(path.resolve(__dirname, './config')),
+      'process.env.EDITOR_FILES_PATH': JSON.stringify(path.resolve(__dirname, './editorFiles')),
     }),
   // ]
   // plugins: isProd ? [

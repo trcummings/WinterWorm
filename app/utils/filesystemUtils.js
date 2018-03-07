@@ -7,11 +7,11 @@ import {
   EDITOR_SAVE_COMPLETE,
   SPEC_EXPORT_ERROR,
   SPEC_EXPORT_COMPLETE,
-} from '../../editor/modules/filesystem';
+} from 'Editor/modules/filesystem';
 import {
   CONFIG_SAVE_ERROR,
   CONFIG_SAVE_COMPLETE,
-} from '../../editor/modules/config';
+} from 'Editor/modules/config';
 
 const makeConfigFilePath = filename => path.join(process.env.CONFIG_PATH, `${filename}.json`);
 export const writeFile = (filename, data, { onError, onSuccess }) => {

@@ -9,11 +9,10 @@ const contract = {
     ],
     post: rows => clone(rows).map((row) => {
       const { contexts = [], subscriptions = [] } = row;
-      return {
-        ...row,
+      return Object.assign({}, row, {
         contexts: contexts.map(({ id }) => id),
         subscriptions: subscriptions.map(({ id }) => id),
-      };
+      });
     }),
   },
 };

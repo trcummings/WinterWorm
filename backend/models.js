@@ -1,17 +1,15 @@
 const Sequelize = require('sequelize');
+const path = require('path');
+
+const dbPath = path.resolve(__dirname, `../editorFiles/${process.argv[2]}/db.sqlite`);
 
 const db = new Sequelize('db', 'username', 'password', {
   host: 'localhost',
   port: 3002,
   dialect: 'sqlite',
   operatorsAliases: false,
-  pool: {
-    max: 5,
-    min: 0,
-    acquire: 30000,
-    idle: 10000,
-  },
-  storage: 'db.sqlite',
+  storage: dbPath,
+  pool: { max: 5, min: 0, acquire: 30000, idle: 10000 },
 });
 
 const componentSchema = {
@@ -69,14 +67,6 @@ const entitySchema = {
   },
 };
 const Entity = db.define('entity', entitySchema);
-
-// components
-// cleanup fns
-// component state fns
-
-// systems
-// system fns
-
 
 // Every component that is created by default has a system which manages it
 // however, systems may operate on many different properties of the current game state,

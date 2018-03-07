@@ -13,7 +13,10 @@ app.listen(PORT, () => {
   console.log(`express server listening on ${PORT}`);
   console.log('initializing db...');
 
-  db.sync({ force: true }).then(() => {
+  const force = JSON.parse(process.env.INIT_DB);
+
+  db.sync({ force }).then(() => {
     console.log('db initialization complete!');
+    process.send('SYNC_COMPLETE');
   });
 });

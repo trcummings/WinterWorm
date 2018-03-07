@@ -1,5 +1,7 @@
 import { screen } from 'electron';
 
+const third = num => Math.floor(num / 3);
+
 export const getScreenDims = () => {
   const display = screen.getPrimaryDisplay();
   const { size: { height, width } } = display;
@@ -8,11 +10,21 @@ export const getScreenDims = () => {
 
 export const getDevDims = () => {
   const { height, width } = getScreenDims();
-  return { height, width: Math.floor((2 * width) / 3), x: 0, y: 0 };
+  return { height, width: third(width) * 2, x: 0, y: 0 };
 };
 
 export const getEditorDims = () => {
   const { height, width } = getScreenDims();
-  const thirdWidth = Math.floor(width / 3);
-  return { height, width: thirdWidth, x: thirdWidth * 2, y: 0 };
+  return { height, width: third(width), x: third(width) * 2, y: 0 };
+};
+
+export const getConfigDims = () => {
+  const { height, width } = getScreenDims();
+
+  return {
+    height: third(height),
+    width: third(width),
+    x: third(width),
+    y: third(height),
+  };
 };

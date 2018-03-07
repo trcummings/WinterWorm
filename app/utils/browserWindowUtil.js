@@ -1,24 +1,21 @@
 import { BrowserWindow } from 'electron';
 
-import { gameUrl, editorUrl } from '../htmlTemplates/types';
+import { gameUrl, editorUrl, configUrl } from './windowPathUtil';
 
-export const startEditor = (editorWindow = {}) => {
-  const editor = new BrowserWindow({ ...editorWindow });
-  if (process.env.DEBUG_EDITOR) editor.webContents.openDevTools();
-  editor.loadURL(editorUrl);
+const windowFactory = (url, defaults = {}) => (windowDims = {}) => {
+  const vindaga = new BrowserWindow({ ...windowDims, ...defaults });
+  if (process.env.DEBUG) vindaga.webContents.openDevTools();
+  vindaga.loadURL(url);
 
-  return editor;
+  return vindaga;
 };
 
-export const startGame = (gameWindow = {}) => {
-  const game = new BrowserWindow({
-    ...gameWindow,
-    frame: false,
-    resizeable: false,
-    transparent: true,
-  });
-  if (process.env.DEBUG_GAME) game.webContents.openDevTools();
-  game.loadURL(gameUrl);
-
-  return game;
+const noFrame = {
+  frame: false,
+  resizeable: false,
+  transparent: true,
 };
+
+export const startEditor = windowFactory(editorUrl);
+export const startGame = windowFactory(gameUrl, noFrame);
+export const startConfig = windowFactory(configUrl, noFrame);
