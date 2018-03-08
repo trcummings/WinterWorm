@@ -27,28 +27,25 @@ export default class Loader extends PureComponent {
     }),
   }
 
-  componentWillMount() {
+  componentDidMount() {
     const { updateSection } = this.props;
     const filename = this.getFromState(SELECTED_FILE, '');
     const isNew = this.getFromState(FILE_FROM, '') === NEW_FILE;
 
+    ipcRenderer.on(INIT_MESSAGE, (event, message) => (
+      updateSection([LOADING, MESSAGE], message)
+        .then(() => event.sender.send(INIT_MESSAGE))
+    ));
+
+    ipcRenderer.once(INIT_END, () => (
+      updateSection([LOADING, MESSAGE], 'Complete!')
+        .then(() => updateSection([LOADING, IS_LOADING], false))
+        .then(() => setTimeout(() => openEditor(filename), 1000))
+    ));
+
     updateSection([LOADING, IS_LOADING], true)
       .then(() => updateSection([LOADING, MESSAGE], 'Initializing...'))
-      .then(() => {
-        ipcRenderer.send(INIT_START, { filename, isNew });
-        ipcRenderer.on(INIT_MESSAGE, (event, message) => (
-          updateSection([LOADING, MESSAGE], message)
-            .then(() => event.sender.send(INIT_MESSAGE))
-        ));
-        ipcRenderer.once(INIT_END, () => {
-          console.log('end!');
-          return (
-            updateSection([LOADING, MESSAGE], 'Complete!')
-              .then(() => updateSection([LOADING, IS_LOADING], false))
-              .then(() => setTimeout(() => openEditor(filename), 1000))
-          );
-        });
-      });
+      .then(() => ipcRenderer.send(INIT_START, { filename, isNew }));
   }
 
   getFromState = (prop, def) => view(lensPath([LOADING, prop]), this.props.sections) || def;

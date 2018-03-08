@@ -17,6 +17,6 @@ app.listen(PORT, () => {
 
   db.sync({ force }).then(() => {
     console.log('db initialization complete!');
-    process.send('SYNC_COMPLETE');
+    process.send(true);
   });
 });

@@ -9,8 +9,9 @@ export const mkdir = folderName => new Promise(resolve => (
 
 export const initBackend = ({ filename, isNew }) => new Promise((resolve) => {
   const backend = fork('./backend/index.js', [filename], { env: { INIT_DB: isNew } });
-  return backend.on('SYNC_COMPLETE', () => {
+
+  backend.on('message', () => {
     console.log('sync complete!');
-    resolve();
+    resolve(backend);
   });
 });

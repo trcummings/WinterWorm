@@ -60,11 +60,11 @@ app.on(READY, () => {
       const fn = tasks.shift();
       const message = await fn();
 
-      console.log('message!', message, tasks);
-
-      return tasks.length > 0
-        ? event.sender.send(INIT_MESSAGE, message)
-        : event.sender.send(INIT_END);
+      setTimeout(() => (
+        tasks.length > 0
+          ? event.sender.send(INIT_MESSAGE, message)
+          : event.sender.send(INIT_END)
+      ), 500);
     });
 
     evt.sender.send(INIT_MESSAGE, 'Birthing abberations...');
@@ -82,8 +82,7 @@ app.on(READY, () => {
   });
 
   ipcMain.on(OPEN_EDITOR, (_, filename) => {
-    console.log(filename);
-
+    initialAppState.config.hide();
     initialAppState.config = null;
 
     store.dispatch({ type: SET_FILENAME, payload: filename });
