@@ -4,11 +4,13 @@ const { clone } = require('../util');
 const EventTypes = require('../services/eventTypes');
 const Components = require('../services/components');
 const Systems = require('../services/systems');
+const Scenes = require('../services/scenes');
 
 const serviceMap = {
   components: Components,
   eventTypes: EventTypes,
   systems: Systems,
+  scenes: Scenes,
 };
 
 // const logAccessors = (type) => {
@@ -22,11 +24,26 @@ const errorOut = (err) => {
   throw new Error(err);
 };
 
+// get all game objects. Good for loading up the editor for the first time
+app.get('/init', async (req, res) => {
+  const gameObjects = {};
+
+  for (const type of Object.keys(serviceMap)) {
+    const [err, result] = await serviceMap[type].findAll();
+    if (err) errorOut(err);
+
+    result.forEach((record) => {
+      if (!gameObjects[type]) gameObjects[type] = {};
+      gameObjects[type][record.id] = clone(record);
+    });
+  }
+
+  res.send(JSON.stringify(gameObjects));
+});
+
+// create all game objects from the game's specs folder
 app.post('/init', async (req, res) => {
   const { body: { eventTypes, components, systems } } = req;
-  const gameObjects = { eventTypes: {}, systems: {}, components: {} };
-
-  console.log(eventTypes, components, systems);
 
   // create systems
   for (const system of systems) {
@@ -89,14 +106,9 @@ app.post('/init', async (req, res) => {
     await component.setContexts(contexts);
   }
 
-  for (const type of Object.keys(gameObjects)) {
-    const [err, result] = await serviceMap[type].findAll();
-    if (err) errorOut(err);
+  // Create an initial scene for the game to use
+  const [scErr] = Scenes.findOrCreate({ body: { label: 'Scene 1' } });
+  if (scErr) errorOut(scErr);
 
-    result.forEach((record) => {
-      gameObjects[type][record.id] = clone(record);
-    });
-  }
-
-  res.send(JSON.stringify(gameObjects));
+  res.send(true);
 });

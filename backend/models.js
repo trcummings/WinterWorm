@@ -68,6 +68,20 @@ const entitySchema = {
 };
 const Entity = db.define('entity', entitySchema);
 
+const sceneSchema = {
+  label: {
+    type: Sequelize.STRING,
+    unique: true,
+    allowNull: false,
+  },
+  description: {
+    type: Sequelize.TEXT,
+    defaultValue: '',
+  },
+};
+
+const Scene = db.define('scene', sceneSchema);
+
 // Every component that is created by default has a system which manages it
 // however, systems may operate on many different properties of the current game state,
 // and need not be bound to a component.
@@ -98,6 +112,7 @@ const models = {
   components: Component,
   systems: System,
   eventTypes: EventType,
+  scenes: Scene,
 };
 
 const schemas = {
@@ -105,6 +120,7 @@ const schemas = {
   components: componentSchema,
   systems: systemSchema,
   eventTypes: eventTypeSchema,
+  scenes: sceneSchema,
 };
 
 module.exports = { db, models, schemas };

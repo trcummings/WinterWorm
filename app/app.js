@@ -32,6 +32,16 @@ app.on(READY, () => {
     filename: '',
   };
 
+  const closeBackend = () => {
+    if (initialAppState.backend) {
+      console.log('closing backend...');
+      initialAppState.backend.send('SIGINT');
+      initialAppState.backend = null;
+    }
+  };
+
+  app.on('will-quit', () => closeBackend());
+
   const gameIpcMiddleware = createGameIpcMiddleware(initialAppState);
   const { store } = configureStore(gameIpcMiddleware);
   // const isProd = process.env.NODE_ENV === 'production';
@@ -78,12 +88,7 @@ app.on(READY, () => {
 
   ipcMain.on(CLOSE_CONFIG, () => {
     initialAppState.config = null;
-
-    if (initialAppState.backend) {
-      initialAppState.backend = null;
-      initialAppState.backend.send('SIGTERM');
-    }
-
+    closeBackend();
     app.quit();
   });
 
