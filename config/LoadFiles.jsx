@@ -4,11 +4,13 @@ import { view, lensPath } from 'ramda';
 
 import FlatButton from 'material-ui/FlatButton';
 import { List, ListItem } from 'material-ui/List';
+import { grey500 } from 'material-ui/styles/colors';
 
 import ConfigCard from './ConfigCard';
 import { FILE_LIST, NEW_FILE, LOADING } from './DialogControl';
 import { FILE_FROM } from './Loader';
 import { getSortedFiles, closeConfig } from './util';
+
 
 export const SELECTED_FILE = 'selectedFile';
 const FILES = 'files';
@@ -46,6 +48,7 @@ export default class LoadFiles extends PureComponent {
               <ListItem
                 key={name}
                 primaryText={name}
+                style={{ backgroundColor: name === selectedFile ? grey500 : undefined }}
                 onClick={() => updateSection([FILE_LIST, SELECTED_FILE], name)}
                 secondaryText={`last accessed ${new Date(ctime)}`}
               />

@@ -18,6 +18,7 @@ export const REQUEST_END = 'REQUEST_END';
 
 export const INIT_START = 'init/INIT_START';
 export const INIT_MESSAGE = 'init/INIT_MESSAGE';
+export const INIT_ERROR = 'init/INIT_ERROR';
 export const INIT_END = 'init/INIT_END';
 
 export const CLOSE_CONFIG = 'CLOSE_CONFIG';

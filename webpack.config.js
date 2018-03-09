@@ -41,6 +41,7 @@ class DBPlugin {
 }
 
 module.exports = {
+  mode: 'development',
   context: __dirname,
   target: 'electron-main',
   devtool: 'inline-source-maps',

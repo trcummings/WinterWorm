@@ -13,14 +13,15 @@ import {
   // MAXIMIZE,
   READY,
   // CLOSED,
-  INIT_START, INIT_MESSAGE, INIT_END,
+  INIT_START, INIT_MESSAGE, INIT_END, INIT_ERROR,
   CLOSE_CONFIG, OPEN_EDITOR, SET_FILENAME,
 } from './actionTypes';
 
 import { getScreenDims, getEditorDims, getConfigDims } from './utils/screenUtil';
 import { startEditor, startGame, startConfig } from './utils/browserWindowUtil';
-import { CONFIG_FILE_PATH, SPECS_FILE_PATH } from './utils/filesystemUtils';
+// import { CONFIG_FILE_PATH, SPECS_FILE_PATH } from './utils/filesystemUtils';
 import { mkdir, initBackend } from './utils/backendUtil';
+import { makeLoaderPhrases } from './utils/loaderUtil';
 
 app.on(READY, () => {
   const initialAppState = {
@@ -41,33 +42,38 @@ app.on(READY, () => {
       initialAppState.filename = filename;
       // if new, we want to create the folder for all this to live in
       if (isNew) await mkdir(filename);
-      return 'Spinning up Neodynium Ass Crystals...';
+      return [null, makeLoaderPhrases()];
     };
 
     const makeBackend = async () => {
-      initialAppState.backend = await initBackend({ isNew, filename });
-      return 'Mobbin Deep B...';
+      const [err, backend] = await initBackend({ isNew, filename });
+      if (err) return [err];
+      initialAppState.backend = backend;
+      return [null, makeLoaderPhrases()];
     };
 
     const makeDb = async () => {
       if (isNew) await initDb();
-      return null;
+      return [null, makeLoaderPhrases()];
     };
 
     const tasks = [makeFile, makeBackend, makeDb];
 
     ipcMain.on(INIT_MESSAGE, async (event) => {
       const fn = tasks.shift();
-      const message = await fn();
+      const [err, message] = await fn();
 
-      setTimeout(() => (
-        tasks.length > 0
-          ? event.sender.send(INIT_MESSAGE, message)
-          : event.sender.send(INIT_END)
-      ), 500);
+      if (err) event.sender.send(INIT_ERROR, err);
+      else {
+        setTimeout(() => (
+          tasks.length > 0
+            ? event.sender.send(INIT_MESSAGE, message)
+            : event.sender.send(INIT_END)
+        ), 500);
+      }
     });
 
-    evt.sender.send(INIT_MESSAGE, 'Birthing abberations...');
+    evt.sender.send(INIT_MESSAGE, makeLoaderPhrases());
   });
 
   ipcMain.on(CLOSE_CONFIG, () => {

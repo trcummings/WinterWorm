@@ -1,17 +1,18 @@
-import React, { PureComponent } from 'react';
+import React, { PureComponent, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { ipcRenderer } from 'electron';
 import { view, lensPath } from 'ramda';
 
 import FlatButton from 'material-ui/FlatButton';
 import CircularProgress from 'material-ui/CircularProgress';
+import { red500 } from 'material-ui/styles/colors';
 
-import { INIT_START, INIT_MESSAGE, INIT_END } from 'App/actionTypes';
+import { INIT_START, INIT_MESSAGE, INIT_ERROR, INIT_END } from 'App/actionTypes';
 
 import ConfigCard from './ConfigCard';
 import { FILE_LIST, NEW_FILE, LOADING } from './DialogControl';
 import { SELECTED_FILE } from './LoadFiles';
-import { openEditor } from './util';
+import { openEditor, closeConfig } from './util';
 
 export const FILE_FROM = 'fileFrom';
 const IS_LOADING = 'isLoading';
@@ -25,6 +26,10 @@ export default class Loader extends PureComponent {
       [NEW_FILE]: PropTypes.object.isRequired,
       [LOADING]: PropTypes.object.isRequired,
     }),
+  }
+
+  state = {
+    error: null,
   }
 
   componentDidMount() {
@@ -43,6 +48,8 @@ export default class Loader extends PureComponent {
         .then(() => setTimeout(() => openEditor(filename), 1000))
     ));
 
+    ipcRenderer.on(INIT_ERROR, (_, error) => this.setState({ error }));
+
     updateSection([LOADING, IS_LOADING], true)
       .then(() => updateSection([LOADING, MESSAGE], 'Initializing...'))
       .then(() => ipcRenderer.send(INIT_START, { filename, isNew }));
@@ -53,6 +60,7 @@ export default class Loader extends PureComponent {
   render() {
     const isLoading = this.getFromState(IS_LOADING, false);
     const loadingMessage = this.getFromState(MESSAGE, '');
+    const { error } = this.state;
 
     return (
       <ConfigCard
@@ -69,12 +77,27 @@ export default class Loader extends PureComponent {
               alignItems: 'center',
             }}
           >
-            { isLoading && <CircularProgress size={60} thickness={7} /> }
-            <div style={{ padding: '4px' }}>{ loadingMessage }</div>
+            {error ? (
+              <div style={{ padding: '8px', color: red500 }}>
+                { JSON.stringify(error, null, 2) }
+              </div>
+            ) : (
+              <Fragment>
+                { isLoading && <CircularProgress size={60} thickness={7} /> }
+                <div style={{ padding: '8px' }}>{ loadingMessage }</div>
+              </Fragment>
+            )}
           </div>
         }
         actions={[
-          <FlatButton style={{ float: 'left' }} key="close" label="Close" primary disabled />,
+          <FlatButton
+            primary
+            key="close"
+            label="Close"
+            disabled={!error}
+            style={{ float: 'left' }}
+            onClick={() => closeConfig()}
+          />,
           <FlatButton style={{ float: 'right' }} key="create" label="Create" primary disabled />,
           <FlatButton style={{ float: 'right' }} key="back" label="Back" primary disabled />,
         ]}

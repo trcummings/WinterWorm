@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { PureComponent, Fragment } from 'react';
 
 import DialogControl, { FILE_LIST, NEW_FILE, LOADING } from './DialogControl';
 import NewFile from './NewFile';
@@ -10,11 +10,11 @@ export default class Main extends PureComponent { // eslint-disable-line
     return (
       <DialogControl>
         {({ selectedDialog, ...rest }) => (
-          <div style={{ height: '100%', width: '100%' }}>
+          <Fragment>
             { selectedDialog === FILE_LIST && <LoadFiles {...rest} /> }
             { selectedDialog === NEW_FILE && <NewFile {...rest} />  }
             { selectedDialog === LOADING && <Loader {...rest} />  }
-          </div>
+          </Fragment>
         )}
       </DialogControl>
     );
