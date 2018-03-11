@@ -3,8 +3,7 @@ export const START_GAME = 'start_game';
 export const MAXIMIZE = 'maximize';
 
 export const READY = 'ready';
-// const ALL_WINDOWS_CLOSED = 'window-all-closed';
-// const ACTIVATE = 'activate';
+export const WILL_QUIT = 'will-quit';
 
 export const CLOSED = 'closed';
 
@@ -13,14 +12,22 @@ export const PAUSE = 'pause';
 export const REFRESH = 'refresh';
 export const LOAD_SPEC = 'loadSpec';
 
+// MAIN
+export const END = 'end';
+
+export const BACKEND = 'backend';
 export const REQUEST_START = 'REQUEST_START';
 export const REQUEST_END = 'REQUEST_END';
 
-export const INIT_START = 'init/INIT_START';
-export const INIT_MESSAGE = 'init/INIT_MESSAGE';
-export const INIT_ERROR = 'init/INIT_ERROR';
-export const INIT_END = 'init/INIT_END';
+// CONFIG
+export const CONFIG = 'config';
+export const CLOSE_CONFIG = 'config/CLOSE_CONFIG';
+export const INIT_START = 'config/INIT_START';
+export const INIT_MESSAGE = 'config/INIT_MESSAGE';
+export const INIT_ERROR = 'config/INIT_ERROR';
+export const INIT_END = 'config/INIT_END';
 
-export const CLOSE_CONFIG = 'CLOSE_CONFIG';
-export const OPEN_EDITOR = 'OPEN_EDITOR';
-export const SET_FILENAME = 'SET_FILENAME';
+// EDITOR
+export const EDITOR = 'editor';
+export const OPEN_EDITOR = 'editor/OPEN_EDITOR';
+export const SET_FILENAME = 'editor/SET_FILENAME';

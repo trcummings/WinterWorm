@@ -3,7 +3,7 @@ import { BrowserWindow } from 'electron';
 import { gameUrl, editorUrl, configUrl } from './windowPathUtil';
 
 const windowFactory = (url, defaults = {}) => (windowDims = {}) => {
-  const vindaga = new BrowserWindow({ ...windowDims, ...defaults });
+  const vindaga = new BrowserWindow({ ...defaults, ...windowDims });
   if (process.env.DEBUG) vindaga.webContents.openDevTools();
   vindaga.loadURL(url);
 

@@ -45,7 +45,8 @@ export default class Loader extends PureComponent {
     ipcRenderer.once(INIT_END, () => (
       updateSection([LOADING, MESSAGE], 'Complete!')
         .then(() => updateSection([LOADING, IS_LOADING], false))
-        .then(() => setTimeout(() => openEditor(filename), 1000))
+        .then(() => ipcRenderer.send(INIT_END))
+        .then(() => setTimeout(openEditor, 1000))
     ));
 
     ipcRenderer.on(INIT_ERROR, (_, error) => this.setState({ error }));

@@ -33,4 +33,4 @@ export const getFileSet = path => (
 
 export const closeConfig = () => ipcRenderer.send(CLOSE_CONFIG);
 
-export const openEditor = fileName => ipcRenderer.send(OPEN_EDITOR, fileName);
+export const openEditor = () => ipcRenderer.send(OPEN_EDITOR);
