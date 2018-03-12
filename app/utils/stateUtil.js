@@ -40,8 +40,6 @@ export const closeProcess = (name, state, effect = () => {}) => {
   console.log(`attempting to close process ${name}...`);
   const prc = getProcess(name, state);
 
-  console.log(prc);
-
   if (prc) effect(prc);
   else console.log(`process ${name} already closed!`);
 

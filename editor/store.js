@@ -1,9 +1,3 @@
-import 'regenerator-runtime/runtime';
-import {
-  forwardToMain,
-  replayActionRenderer,
-  getInitialStateRenderer,
-} from 'electron-redux';
 import { createStore, applyMiddleware, compose } from 'redux';
 import { createLogger } from 'redux-logger';
 
@@ -20,7 +14,7 @@ export const configureStore = () => {
   // Redux Configuration
   const middleware = [];
   const enhancers = [];
-  const initialState = getInitialStateRenderer();
+  const initialState = {};
 
   // Thunk Middleware
   middleware.push(thunk);
@@ -32,7 +26,7 @@ export const configureStore = () => {
   }
 
   // Apply Middleware & Compose Enhancers
-  enhancers.push(applyMiddleware(forwardToMain, ...middleware));
+  enhancers.push(applyMiddleware(...middleware));
   const enhancer = compose(...enhancers);
 
   // Create Store
@@ -47,8 +41,6 @@ export const configureStore = () => {
   //     return store;
   //   });
   // }
-
-  replayActionRenderer(store);
 
   return { store };
 };
