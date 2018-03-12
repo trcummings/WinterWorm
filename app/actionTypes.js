@@ -12,7 +12,10 @@ export const PAUSE = 'pause';
 export const REFRESH = 'refresh';
 export const LOAD_SPEC = 'loadSpec';
 
+
 // MAIN
+export const PROCESS = 'process';
+export const MAIN = 'main';
 export const END = 'end';
 
 export const BACKEND = 'backend';

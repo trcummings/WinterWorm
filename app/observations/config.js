@@ -1,5 +1,4 @@
 // @flow
-import { assoc } from 'ramda';
 import {
   CONFIG, EDITOR, BACKEND,
   INIT_MESSAGE, INIT_ERROR, INIT_END,
@@ -7,24 +6,20 @@ import {
 import initDb from 'App/initDb';
 import {
   // signalEnd,
-  initialProcessState,
+  // initialProcessState,
   setProcess,
-  getProcess,
+  // getProcess,
   getState,
   setState,
+  closeProcess,
 } from 'App/utils/stateUtil';
-import { mkdir, initBackend } from 'App/utils/backendUtil';
+import { mkdir } from 'App/utils/backendUtil';
 import { makeLoaderPhrases } from 'App/utils/loaderUtil';
 
-import { closeBackend } from './backend';
+import { initBackend } from './backend';
+import { onOpenEditor } from './editor';
 
-export const onCloseConfig = (state) => {
-  const config = getProcess('config', state);
-  config.close();
-  closeBackend(state);
-
-  return null;
-};
+export const onCloseConfig = state => closeProcess(CONFIG, state, config => config.close());
 
 // 3 init functions
 const makeFile = async (state, { isNew, filename }) => {
@@ -34,8 +29,8 @@ const makeFile = async (state, { isNew, filename }) => {
 };
 
 const makeBackend = async (state, { isNew, filename }) => {
-  const [err, backend] = await initBackend({ isNew, filename });
-  if (err) return [err];
+  const [err, backend] = await initBackend(state, { isNew, filename });
+  if (err) return [err, state];
 
   return [null, setProcess(BACKEND, backend, state)];
 };
@@ -79,13 +74,11 @@ export const onConfigInitStart = (state, event, { filename, isNew }) => {
 
 // clean up the extra event listeners?
 export const onConfigInitEnd = async (state) => {
-  const { filename, isNew  } = getState(CONFIG, state);
+  const { filename, isNew } = getState(CONFIG, state);
 
   // give the 'editor' module the filename so it can load properly
   const next = setState(EDITOR, { filename, isNew }, state);
-  const config = getProcess('config', state);
-  config.close();
 
   // clear out the config window's state
-  return assoc(CONFIG, initialProcessState, next);
+  return onCloseConfig(onOpenEditor(next));
 };

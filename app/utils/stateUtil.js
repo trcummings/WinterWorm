@@ -1,18 +1,19 @@
-import { view, lensPath, assocPath } from 'ramda';
+import { view, lensPath, assocPath, lensProp, assoc } from 'ramda';
 
 export const initialProcessState = {
   process: null,
   state: {},
 };
 
-export const initialAppState = {
+export const makeInitialState = (app, observe) => ({
+  observe,
   effects: {},
-  main: initialProcessState,
+  main: Object.assign({}, initialProcessState, { process: app }),
   backend: initialProcessState,
   editor: initialProcessState,
   config: initialProcessState,
   game: initialProcessState,
-};
+});
 
 const getProp = prop => (name, state) => (
   view(lensPath([name, prop]), state)
@@ -35,4 +36,16 @@ export const getEffect = (eventType, state) => (
   view(lensPath(['effects', eventType]), state)
 );
 
-export const signalEnd = () => null;
+export const closeProcess = (name, state, effect = () => {}) => {
+  console.log(`attempting to close process ${name}...`);
+  const prc = getProcess(name, state);
+
+  console.log(prc);
+
+  if (prc) effect(prc);
+  else console.log(`process ${name} already closed!`);
+
+  return assoc(name, initialProcessState, state);
+};
+
+export const getObserve = state => view(lensProp('observe'), state);

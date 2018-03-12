@@ -6,9 +6,9 @@ process.on('SIGINT', () => {
   process.exit(0);
 });
 
-process.on('exit', (code) => {
-  console.log('Exiting backend/index.js via "exit" event...');
-  process.exit(code);
+process.on('SIGTERM', () => {
+  console.log('Exiting backend/index.js via SIGTERM event...');
+  process.exit(0);
 });
 
 process.on('uncaughtException', (err) => {

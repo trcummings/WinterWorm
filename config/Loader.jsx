@@ -12,7 +12,7 @@ import { INIT_START, INIT_MESSAGE, INIT_ERROR, INIT_END } from 'App/actionTypes'
 import ConfigCard from './ConfigCard';
 import { FILE_LIST, NEW_FILE, LOADING } from './DialogControl';
 import { SELECTED_FILE } from './LoadFiles';
-import { openEditor, closeConfig } from './util';
+import { closeConfig } from './util';
 
 export const FILE_FROM = 'fileFrom';
 const IS_LOADING = 'isLoading';
@@ -46,7 +46,6 @@ export default class Loader extends PureComponent {
       updateSection([LOADING, MESSAGE], 'Complete!')
         .then(() => updateSection([LOADING, IS_LOADING], false))
         .then(() => ipcRenderer.send(INIT_END))
-        .then(() => setTimeout(openEditor, 1000))
     ));
 
     ipcRenderer.on(INIT_ERROR, (_, error) => this.setState({ error }));
