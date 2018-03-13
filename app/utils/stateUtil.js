@@ -1,18 +1,24 @@
-import { view, lensPath, assocPath, lensProp, assoc } from 'ramda';
+// @flow
+import { view, lensPath, assocPath, assoc } from 'ramda';
+import {
+  PROCESS,
+  STATE,
+  EFFECTS,
+  processes,
+} from 'App/actionTypes';
 
 export const initialProcessState = {
-  process: null,
-  state: {},
+  [PROCESS]: null,
+  [STATE]: {},
 };
 
-export const makeInitialState = (app, observe) => ({
-  observe,
-  effects: {},
-  main: Object.assign({}, initialProcessState, { process: app }),
-  backend: initialProcessState,
-  editor: initialProcessState,
-  config: initialProcessState,
-  game: initialProcessState,
+export const makeInitialState = app => ({
+  [EFFECTS]: {},
+  [processes.MAIN]: Object.assign({}, initialProcessState, { [PROCESS]: app }),
+  [processes.BACKEND]: initialProcessState,
+  [processes.EDITOR]: initialProcessState,
+  [processes.CONFIG]: initialProcessState,
+  [processes.GAME]: initialProcessState,
 });
 
 const getProp = prop => (name, state) => (
@@ -23,17 +29,17 @@ const setProp = prop => (name, value, state) => (
   assocPath([name, prop], value, state)
 );
 
-export const getProcess = getProp('process');
-export const setProcess = setProp('process');
-export const getState = getProp('state');
-export const setState = setProp('state');
+export const getProcess = getProp(PROCESS);
+export const setProcess = setProp(PROCESS);
+export const getState = getProp(STATE);
+export const setState = setProp(STATE);
 
 export const setEffect = (eventType, fn, state) => (
-  assocPath(['effects', eventType], fn, state)
+  assocPath([EFFECTS, eventType], fn, state)
 );
 
 export const getEffect = (eventType, state) => (
-  view(lensPath(['effects', eventType]), state)
+  view(lensPath([EFFECTS, eventType]), state)
 );
 
 export const closeProcess = (name, state, effect = () => {}) => {
@@ -45,5 +51,3 @@ export const closeProcess = (name, state, effect = () => {}) => {
 
   return assoc(name, initialProcessState, state);
 };
-
-export const getObserve = state => view(lensProp('observe'), state);

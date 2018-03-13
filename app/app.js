@@ -9,7 +9,7 @@ import {
   CLOSE_CONFIG, INIT_START, INIT_MESSAGE, INIT_END,
   REQUEST_START,
   GET_EDITOR_CONFIG,
-  GAME, OPEN_GAME_START,
+  OPEN_GAME_START,
 } from 'App/actionTypes';
 
 import './installDevTools';
@@ -53,7 +53,7 @@ const runJobQueue = async (state, { type, args }) => {
 };
 
 class Observer {
-  observers = [];
+  observers: Array<() => mixed> = [];
 
   subscribe = (fn) => {
     this.observers.push(fn);
@@ -91,7 +91,7 @@ const initialState = compose(
   // for the editor
   observe(EDITOR, ipcMain, GET_EDITOR_CONFIG, onGetEditorConfig),
   observe(EDITOR, ipcMain, OPEN_GAME_START, onOpenGame),
-)(makeInitialState(app, observer));
+)(makeInitialState(app));
 
 let state = initialState;
 const runQueue = async (data) => {
