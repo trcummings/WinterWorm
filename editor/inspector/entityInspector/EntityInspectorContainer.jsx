@@ -1,6 +1,7 @@
 //
 import React, { PureComponent, Fragment } from 'react';
 import { assocPath } from 'ramda';
+import { createSelector } from 'reselect';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -17,13 +18,19 @@ import MenuItem from 'material-ui/MenuItem';
 import { default as VerticalDivider } from 'Editor/components/VerticalDivider';
 import { setEntity, getInspectorEntity } from 'Editor/modules/inspector/entityInspector';
 import { default as MetaSpecControl } from 'Editor/aspects/MetaSpecControl';
+import { getGameObjects } from 'Editor/modules/data';
 import { ENTITIES } from 'Symbols';
 
 import ComponentCard, { componentLabels } from './ComponentCard';
 
+const getComponents = getGameObjects('components');
+const getEntities = getGameObjects('entities');
+const getId = (_, ownProps) => ownProps.id;
+const getEntity = createSelector([getEntities, getId], (entities, id) => entities[id]);
+
 const mapStateToProps = (state, ownProps) => ({
-  components: state.data.components,
-  entity: (state.data.entities || {})[ownProps.id],
+  components: getComponents(state, ownProps),
+  entity: getEntity(state, ownProps),
   inspectorEntity: getInspectorEntity(state, ownProps),
 });
 
@@ -64,6 +71,12 @@ export class EntityInspectorContainer extends PureComponent {
 
   componentWillMount() {
     this.revertEntity();
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const { entity: { id: pastId } = {} } = this.props;
+    const { updateEntity, entity } = nextProps;
+    if (pastId !== entity.id) updateEntity(entity);
   }
 
   getCandidateLabelSet = () => {

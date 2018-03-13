@@ -7,13 +7,16 @@ export const REMOVE_ENTITY = 'data/REMOVE_ENTITY';
 export const ADD_ENTITIES = 'data/ADD_ENTITIES';
 export const REMOVE_ENTITIES = 'data/REMOVE_ENTITIES';
 
+const INITIAL_STATE = {};
+
+// Selectors
+export const getGameObjects = type => state => state.data[type] || INITIAL_STATE;
+
 // Action Creators
 export const loadGameObjects = payload => dispatch => dispatch({
   type: RECEIVE_OBJECTS,
   payload,
 });
-
-const INITIAL_STATE = {};
 
 export default function data(state = INITIAL_STATE, action = {}) {
   const { type, meta, payload } = action;

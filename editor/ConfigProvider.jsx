@@ -34,7 +34,6 @@ export class ConfigProvider extends PureComponent {
 
   receiveEditorConfig = (_, resp) => {
     const { isNew, filename } = JSON.parse(resp);
-    console.log({ isNew, filename });
     this.props.setConfig({ isNew, filename });
     this.fetchGameObjects()
       .then(() => this.setState(() => ({ entitiesLoaded: true })));

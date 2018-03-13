@@ -1,4 +1,4 @@
-// 
+//
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -9,10 +9,13 @@ import Subheader from 'material-ui/Subheader';
 import { grey300 } from 'material-ui/styles/colors';
 
 import { setCurrentScene, getSpecs } from '../modules/specs';
+import { getGameObjects } from '../modules/data';
 import { symbols } from '../constants';
 
+const getScenes = getGameObjects('scenes');
+
 const mapStateToProps = (state, ownProps) => ({
-  scenes: getSpecs(state, ownProps)[symbols.SCENES],
+  scenes: getScenes(state, ownProps),
   currentScene: getSpecs(state, ownProps)[symbols.CURRENT_SCENE],
 });
 

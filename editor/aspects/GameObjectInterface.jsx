@@ -14,6 +14,10 @@ export default class GameObjectInterface extends PureComponent {
     children: PropTypes.func.isRequired,
   };
 
+  state = { error: null };
+
+  handleError = error => this.setState({ error });
+
   request = ({ method, service, form, query, multiple = false }) => {
     const dispatch = this.context.store.dispatch;
     let action;
@@ -37,7 +41,7 @@ export default class GameObjectInterface extends PureComponent {
     return new Promise((resolve) => {
       ipcRenderer.once(REQUEST_END, (_, response) => {
         const { error, data } = JSON.parse(response);
-        if (error) throw new Error(error);
+        if (error) this.handleError(error);
 
         dispatch({ type: action, payload: data, meta: { service, multiple } });
 
@@ -49,6 +53,8 @@ export default class GameObjectInterface extends PureComponent {
   }
 
   render() {
-    return this.props.children({ request: this.request });
+    const { error } = this.state;
+    if (error) console.error(error);
+    return this.props.children({ request: this.request, error });
   }
 }

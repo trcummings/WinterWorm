@@ -4,18 +4,22 @@ import { compose } from 'ramda';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-import { symbols, makeId } from '../constants';
+import { symbols } from '../constants';
 
-import { default as MetaSpecControl } from '../aspects/MetaSpecControl';
+import { default as GameObjectInterface } from '../aspects/GameObjectInterface';
 import hofToHoc from '../aspects/HofToHoc';
 
 import {
   selectInspector,
   getInspectorControl,
 } from '../modules/inspector';
+import { getGameObjects } from '../modules/data';
+
+const getScenes = getGameObjects('scenes');
 
 const mapStateToProps = (state, ownProps) => ({
   inspector: getInspectorControl(state, ownProps),
+  scenes: getScenes(state, ownProps),
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators({
@@ -23,10 +27,7 @@ const mapDispatchToProps = dispatch => bindActionCreators({
 }, dispatch);
 
 export const makeNewScene = numScenes => ({
-  id: makeId(symbols.SCENES),
   label: `New Scene ${numScenes + 1}`,
-  systems: [],
-  entities: [],
 });
 
 export class ScenesController extends PureComponent {
@@ -37,18 +38,19 @@ export class ScenesController extends PureComponent {
       id: PropTypes.string,
     }).isRequired,
     setInInspector: PropTypes.func.isRequired,
-    scenes: PropTypes.shape({
-      specs: PropTypes.object,
-      setSpec: PropTypes.func.isRequired,
+    scenes: PropTypes.object.isRequired,
+    gameObjects: PropTypes.shape({
+      request: PropTypes.func.isRequired,
     }).isRequired,
   }
 
   addNewScene = () => {
-    const { scenes: { specs: scenes, setSpec: setScene } } = this.props;
-    const scene = makeNewScene(Object.keys(scenes).length);
+    const { scenes, gameObjects: { request } } = this.props;
+    const newScene = makeNewScene(Object.keys(scenes).length);
 
-    setScene(scene);
-    this.selectScene(scene.id);
+    request({ method: 'post', service: 'entities', form: newScene }).then((scene) => {
+      this.selectedScene(scene.id);
+    });
   }
 
   selectScene = id => this.props.setInInspector({
@@ -57,11 +59,7 @@ export class ScenesController extends PureComponent {
   });
 
   render() {
-    const {
-      children,
-      scenes: { specs: scenes },
-      inspector: { inspectorType, id },
-    } = this.props;
+    const { children, scenes, inspector: { inspectorType, id } } = this.props;
     const selectedSceneId = inspectorType === symbols.SCENES ? id : null;
 
     return children({
@@ -75,5 +73,5 @@ export class ScenesController extends PureComponent {
 
 export default compose(
   connect(mapStateToProps, mapDispatchToProps),
-  hofToHoc(MetaSpecControl, 'scenes', { specType: symbols.SCENES })
+  hofToHoc(GameObjectInterface, 'gameObjects')
 )(ScenesController);

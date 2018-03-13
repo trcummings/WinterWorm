@@ -5,8 +5,10 @@ const EventTypes = require('../services/eventTypes');
 const Components = require('../services/components');
 const Systems = require('../services/systems');
 const Scenes = require('../services/scenes');
+const Entities = require('../services/entities');
 
 const serviceMap = {
+  entities: Entities,
   components: Components,
   eventTypes: EventTypes,
   systems: Systems,

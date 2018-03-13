@@ -13,10 +13,13 @@ import {
   selectInspector,
   getInspectorControl,
 } from '../modules/inspector';
+import { getGameObjects } from '../modules/data';
+
+const getEntities = getGameObjects('entities');
 
 const mapStateToProps = (state, ownProps) => ({
   inspector: getInspectorControl(state, ownProps),
-  entities: state.data.entities || {},
+  entities: getEntities(state, ownProps),
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators({
@@ -25,10 +28,9 @@ const mapDispatchToProps = dispatch => bindActionCreators({
 
 export const makeNewEntity = numEntities => ({
   label: `New Entity ${numEntities + 1}`,
-  components: [],
 });
 
-export class ScenesController extends PureComponent {
+export class EntitiesController extends PureComponent {
   static propTypes = {
     children: PropTypes.func.isRequired,
     inspector: PropTypes.shape({
@@ -57,11 +59,7 @@ export class ScenesController extends PureComponent {
   });
 
   render() {
-    const {
-      children,
-      entities,
-      inspector: { inspectorType, id },
-    } = this.props;
+    const { children, entities, inspector: { inspectorType, id } } = this.props;
     const selectedEntityId = inspectorType === symbols.ENTITIES ? id : null;
 
     return children({
@@ -76,4 +74,4 @@ export class ScenesController extends PureComponent {
 export default compose(
   connect(mapStateToProps, mapDispatchToProps),
   hofToHoc(GameObjectInterface, 'gameObjects')
-)(ScenesController);
+)(EntitiesController);
