@@ -4,7 +4,7 @@ import CircularProgress from 'material-ui/CircularProgress';
 
 import { default as WindowFrame } from './containers/WindowFrame';
 
-// import { default as Control } from './control/Control';
+import { default as Control } from './control/Control';
 import { default as InspectorSwitch } from './inspector/InspectorSwitch';
 import { default as Library } from './library/Library';
 import { default as ConfigProvider } from './ConfigProvider';
@@ -20,8 +20,7 @@ export default class Main extends PureComponent { // eslint-disable-line
             loaded ? (
               <div>
                 <WindowFrame windowType={CONTROL}>
-                  { /* <Control /> */ }
-                  <div>control</div>
+                  <Control />
                 </WindowFrame>
                 <WindowFrame windowType={LIBRARY}>
                   <Library />

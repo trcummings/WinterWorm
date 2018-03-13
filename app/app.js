@@ -1,6 +1,6 @@
 // @flow
 import 'babel-polyfill';
-import { pipe } from 'ramda';
+import { compose } from 'ramda';
 import { app, ipcMain } from 'electron';
 
 import {
@@ -9,6 +9,7 @@ import {
   CLOSE_CONFIG, INIT_START, INIT_MESSAGE, INIT_END,
   REQUEST_START,
   GET_EDITOR_CONFIG,
+  GAME, OPEN_GAME_START,
 } from 'App/actionTypes';
 
 import './installDevTools';
@@ -22,10 +23,12 @@ import {
 import { onRunMain, onRequestCloseMain } from './observations/main';
 import { onGetEditorConfig } from './observations/editor';
 import { onRequest } from './observations/backend';
+import { onOpenGame } from './observations/game';
 
 import { getProcess, setEffect, getEffect, makeInitialState } from './utils/stateUtil';
 
 const setObservation = observer => (process, emitter, eventType, onEvent) => (state) => {
+  console.log(`Setting effect "${eventType}"...`);
   emitter.on(eventType, (...args) => observer.dispatch({
     type: eventType,
     args: [...args],
@@ -41,11 +44,11 @@ const runJobQueue = async (state, { type, args }) => {
   const process = getProcess(name, state);
 
   if (!process) {
-    console.log(`event ${type} has no corresponding process ${name}! skipping...`);
+    console.log(`Event "${type}" has no corresponding process "${name}"! skipping...`);
     return state;
   }
 
-  console.log('emitting event', type);
+  console.log('Emitting event', type);
   return await onEvent(state, ...args);
 };
 
@@ -71,7 +74,7 @@ const observer = new Observer();
 export const observe = setObservation(observer);
 
 // set listeners on the initial state
-const initialState = pipe(
+const initialState = compose(
   // for the main process
   observe(MAIN, app, READY, onRunMain),
   observe(MAIN, app, WILL_QUIT, onRequestCloseMain),
@@ -86,7 +89,8 @@ const initialState = pipe(
   observe(CONFIG, ipcMain, INIT_END, onConfigInitEnd),
 
   // for the editor
-  observe(EDITOR, ipcMain, GET_EDITOR_CONFIG, onGetEditorConfig)
+  observe(EDITOR, ipcMain, GET_EDITOR_CONFIG, onGetEditorConfig),
+  observe(EDITOR, ipcMain, OPEN_GAME_START, onOpenGame),
 )(makeInitialState(app, observer));
 
 let state = initialState;

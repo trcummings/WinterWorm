@@ -36,3 +36,8 @@ export const OPEN_EDITOR = 'editor/OPEN_EDITOR';
 export const GET_EDITOR_CONFIG = 'editor/GET_EDITOR_CONFIG';
 export const RECEIVE_EDITOR_CONFIG = 'editor/RECEIVE_EDITOR_CONFIG';
 export const SET_FILENAME = 'editor/SET_FILENAME';
+
+// GAME
+export const GAME = 'game';
+export const OPEN_GAME_START = 'game/OPEN_GAME_START';
+export const OPEN_GAME_FINISH = 'game/OPEN_GAME_FINISH';
