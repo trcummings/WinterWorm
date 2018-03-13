@@ -19,18 +19,19 @@ const serviceMap = {
 //   console.log('accessors', accessors);
 // };
 
-const errorOut = (err) => {
-  console.error(err);
-  throw new Error(err);
+const makeErrorOut = send => (error) => {
+  console.error(error);
+  return send({ error });
 };
 
 // get all game objects. Good for loading up the editor for the first time
 app.get('/init', async (req, res) => {
   const gameObjects = {};
+  const errorOut = makeErrorOut(res.send);
 
   for (const type of Object.keys(serviceMap)) {
     const [err, result] = await serviceMap[type].findAll();
-    if (err) errorOut(err);
+    if (err) return errorOut(err);
 
     result.forEach((record) => {
       if (!gameObjects[type]) gameObjects[type] = {};
@@ -38,12 +39,13 @@ app.get('/init', async (req, res) => {
     });
   }
 
-  res.send(JSON.stringify(gameObjects));
+  return res.send(JSON.stringify({ data: gameObjects }));
 });
 
 // create all game objects from the game's specs folder
 app.post('/init', async (req, res) => {
   const { body: { eventTypes, components, systems } } = req;
+  const errorOut = makeErrorOut(res.send);
 
   // create systems
   for (const system of systems) {
@@ -55,7 +57,7 @@ app.post('/init', async (req, res) => {
   const eventTypeMap = {};
   for (const eventType of eventTypes) {
     const [err, result] = await EventTypes.findOrCreate({ body: eventType });
-    if (err) errorOut(err);
+    if (err) return errorOut(err);
 
     eventTypeMap[result.label] = result;
   }
@@ -66,12 +68,9 @@ app.post('/init', async (req, res) => {
   for (const component of components) {
     const { label, context = [], subscriptions = [], contract } = component;
 
-    // just log the contract for now
-    if (contract) console.log(contract);
-
     // create the component
-    const [cErr, cResult] = await Components.findOrCreate({ body: { label } });
-    if (cErr) errorOut(cErr);
+    const [cErr, cResult] = await Components.findOrCreate({ body: { label, contract } });
+    if (cErr) return errorOut(cErr);
 
     // add the component to the component map
     componentMap[cResult.label] = cResult;
@@ -82,7 +81,7 @@ app.post('/init', async (req, res) => {
     // create the system
     const [systemLabel] = label.split('able');
     const [sErr, system] = await Systems.findOrCreate({ body: { label: systemLabel } });
-    if (sErr) errorOut(sErr);
+    if (sErr) return errorOut(sErr);
 
     // associate the system to the component
     await system.setComponent(cResult);
@@ -107,8 +106,8 @@ app.post('/init', async (req, res) => {
   }
 
   // Create an initial scene for the game to use
-  const [scErr] = Scenes.findOrCreate({ body: { label: 'Scene 1' } });
-  if (scErr) errorOut(scErr);
+  const [scErr] = await Scenes.findOrCreate({ body: { label: 'Scene 1' } });
+  if (scErr) return errorOut(scErr);
 
-  res.send(true);
+  return res.send({});
 });

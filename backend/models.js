@@ -22,6 +22,11 @@ const componentSchema = {
     type: Sequelize.TEXT,
     defaultValue: '',
   },
+  contract: {
+    type: Sequelize.JSON,
+    unique: true,
+    allowNull: true,
+  },
 };
 const Component = db.define('component', componentSchema);
 

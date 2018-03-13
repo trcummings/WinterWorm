@@ -1,10 +1,9 @@
 import { net } from 'electron';
-import { REQUEST_END } from './actionTypes';
 
 class DbAgent {
   constructor() {
     ['get', 'post', 'put', 'delete'].forEach((method) => {
-      this[method] = ({ uri, form, query = {} }) => new Promise((resolve, reject) => {
+      this[method] = ({ uri, form = {}, query = {} }) => new Promise((resolve, reject) => {
         const qs = Object.keys(query).reduce((total, key, index) => (
           index === 0
             ? `?${key}=${query[key]}`
@@ -40,10 +39,4 @@ class DbAgent {
 
 const agent = new DbAgent();
 
-export const onRequest = async (state, event, { method, form, query, uri }) => {
-  const resp = await agent[method]({ form, query, uri });
-
-  event.sender.send(REQUEST_END, resp);
-
-  return state;
-};
+export default agent;

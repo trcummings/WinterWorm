@@ -1,10 +1,23 @@
 import fs from 'fs';
 import { fork } from 'child_process';
 
-const makeFolderPath = name => `${process.env.EDITOR_FILES_PATH}/${name}`;
+const editorFilesPath = process.env.EDITOR_FILES_PATH;
+const makeFolderPath = name => `${editorFilesPath}/${name}`;
+
+const makeEditorFilesFolder = () => new Promise((resolve) => {
+  try {
+    fs.lstatSync(editorFilesPath);
+  }
+  catch (err) {
+    return fs.mkdir(editorFilesPath, e => resolve([e]));
+  }
+  return resolve([]);
+});
 
 export const mkdir = folderName => new Promise(resolve => (
-  fs.mkdir(makeFolderPath(folderName), resolve)
+  makeEditorFilesFolder().then(() => (
+    fs.mkdir(makeFolderPath(folderName), resolve)
+  ))
 ));
 
 export const initBackend = ({ filename, isNew }) => new Promise((resolve) => {

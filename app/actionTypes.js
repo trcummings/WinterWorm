@@ -33,4 +33,6 @@ export const INIT_END = 'config/INIT_END';
 // EDITOR
 export const EDITOR = 'editor';
 export const OPEN_EDITOR = 'editor/OPEN_EDITOR';
+export const GET_EDITOR_CONFIG = 'editor/GET_EDITOR_CONFIG';
+export const RECEIVE_EDITOR_CONFIG = 'editor/RECEIVE_EDITOR_CONFIG';
 export const SET_FILENAME = 'editor/SET_FILENAME';

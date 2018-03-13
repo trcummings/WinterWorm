@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { ipcRenderer } from 'electron';
 
 import { REQUEST_START, REQUEST_END } from 'App/actionTypes';
-import { ADD_ENTITY, REMOVE_ENTITY } from 'Editor/modules/data';
+import { ADD_ENTITY, REMOVE_ENTITY, ADD_ENTITIES, REMOVE_ENTITIES } from 'Editor/modules/data';
 
 export default class GameObjectInterface extends PureComponent {
   static contextTypes = {
@@ -14,7 +14,7 @@ export default class GameObjectInterface extends PureComponent {
     children: PropTypes.func.isRequired,
   };
 
-  request = ({ method, service, form, query }) => {
+  request = ({ method, service, form, query, multiple = false }) => {
     const dispatch = this.context.store.dispatch;
     let action;
 
@@ -22,11 +22,11 @@ export default class GameObjectInterface extends PureComponent {
       case 'get':
       case 'post':
       case 'put': {
-        action = ADD_ENTITY;
+        action = multiple ? ADD_ENTITIES : ADD_ENTITY;
         break;
       }
       case 'delete': {
-        action = REMOVE_ENTITY;
+        action = multiple ? REMOVE_ENTITIES : REMOVE_ENTITY;
         break;
       }
       default: {
@@ -39,7 +39,7 @@ export default class GameObjectInterface extends PureComponent {
         const { error, data } = JSON.parse(response);
         if (error) throw new Error(error);
 
-        dispatch({ type: action, payload: data, meta: { service } });
+        dispatch({ type: action, payload: data, meta: { service, multiple } });
 
         resolve(data);
       });

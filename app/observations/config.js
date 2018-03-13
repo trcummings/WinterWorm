@@ -3,7 +3,6 @@ import {
   CONFIG, EDITOR, BACKEND,
   INIT_MESSAGE, INIT_ERROR, INIT_END,
 } from 'App/actionTypes';
-import initDb from 'App/initDb';
 import {
   // signalEnd,
   // initialProcessState,
@@ -16,7 +15,7 @@ import {
 import { mkdir } from 'App/utils/backendUtil';
 import { makeLoaderPhrases } from 'App/utils/loaderUtil';
 
-import { initBackend } from './backend';
+import { initBackend, initDb } from './backend';
 import { onOpenEditor } from './editor';
 
 export const onCloseConfig = state => closeProcess(CONFIG, state, config => config.close());
@@ -36,7 +35,10 @@ const makeBackend = async (state, { isNew, filename }) => {
 };
 
 const makeDb = async (state, { isNew }) => {
-  if (isNew) await initDb();
+  if (isNew) {
+    const resp = await initDb();
+    if (resp.error) return [resp.error, state];
+  }
   return [null, state];
 };
 

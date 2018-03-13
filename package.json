@@ -35,6 +35,7 @@
     "concurrently": "^3.5.1",
     "electron": "1.8.2",
     "electron-debug": "^1.5.0",
+    "electron-devtools-installer": "^2.2.3",
     "eslint": "^4.16.0",
     "eslint-config-airbnb-base": "^12.1.0",
     "eslint-config-airbnb-flow": "^1.0.2",

@@ -4,14 +4,15 @@ import { pipe } from 'ramda';
 import { app, ipcMain } from 'electron';
 
 import {
-  END, MAIN, CONFIG, BACKEND,
+  END, MAIN, CONFIG, BACKEND, EDITOR,
   READY, WILL_QUIT,
   CLOSE_CONFIG, INIT_START, INIT_MESSAGE, INIT_END,
   REQUEST_START,
-  // OPEN_EDITOR,
+  GET_EDITOR_CONFIG,
 } from 'App/actionTypes';
 
-import { onRequest } from './dbAgent';
+import './installDevTools';
+
 import {
   onConfigMessage,
   onConfigInitStart,
@@ -19,6 +20,8 @@ import {
   onCloseConfig,
 } from './observations/config';
 import { onRunMain, onRequestCloseMain } from './observations/main';
+import { onGetEditorConfig } from './observations/editor';
+import { onRequest } from './observations/backend';
 
 import { getProcess, setEffect, getEffect, makeInitialState } from './utils/stateUtil';
 
@@ -83,6 +86,7 @@ const initialState = pipe(
   observe(CONFIG, ipcMain, INIT_END, onConfigInitEnd),
 
   // for the editor
+  observe(EDITOR, ipcMain, GET_EDITOR_CONFIG, onGetEditorConfig)
 )(makeInitialState(app, observer));
 
 let state = initialState;
