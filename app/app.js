@@ -4,12 +4,13 @@ import { compose } from 'ramda';
 import { app, ipcMain } from 'electron';
 
 import {
-  END, MAIN, CONFIG, BACKEND, EDITOR,
+  END, MAIN, CONFIG, BACKEND, EDITOR, GAME,
   READY, WILL_QUIT,
   CLOSE_CONFIG, INIT_START, INIT_MESSAGE, INIT_END,
   REQUEST_START,
   GET_EDITOR_CONFIG,
   OPEN_GAME_START,
+  SYNC,
 } from 'App/actionTypes';
 
 import './installDevTools';
@@ -23,7 +24,7 @@ import {
 import { onRunMain, onRequestCloseMain } from './observations/main';
 import { onGetEditorConfig } from './observations/editor';
 import { onRequest } from './observations/backend';
-import { onOpenGame } from './observations/game';
+import { onOpenGame, onGameSync } from './observations/game';
 
 import { getProcess, setEffect, getEffect, makeInitialState } from './utils/stateUtil';
 
@@ -53,21 +54,17 @@ const runJobQueue = async (state, { type, args }) => {
 };
 
 class Observer {
-  observers: Array<() => mixed> = [];
+  subscriber = () => {}
 
   subscribe = (fn) => {
-    this.observers.push(fn);
+    this.subscriber = fn;
   }
 
-  unsubscribe = (fn) => {
-    this.observers = this.observers.filter(subscriber => subscriber !== fn);
+  unsubscribe = () => {
+    this.subscriber = () => {};
   }
 
-  dispatch = async (data) => {
-    for (const subscriber of this.observers) {
-      await subscriber(data);
-    }
-  }
+  dispatch = async data => await this.subscriber(data)
 }
 
 const observer = new Observer();
@@ -91,6 +88,9 @@ const initialState = compose(
   // for the editor
   observe(EDITOR, ipcMain, GET_EDITOR_CONFIG, onGetEditorConfig),
   observe(EDITOR, ipcMain, OPEN_GAME_START, onOpenGame),
+
+  // for the game
+  observe(GAME, ipcMain, SYNC, onGameSync)
 )(makeInitialState(app));
 
 let state = initialState;

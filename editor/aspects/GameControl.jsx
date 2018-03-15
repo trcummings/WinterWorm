@@ -10,6 +10,7 @@ import { isGameRunning, startGame, stopGame } from '../modules/preview';
 
 const mapStateToProps = state => ({
   isRunning: isGameRunning(state),
+  data: state.data,
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators({
@@ -20,7 +21,7 @@ const mapDispatchToProps = dispatch => bindActionCreators({
 export class GameControl extends PureComponent {
   componentDidMount() {
     ipcRenderer.on(OPEN_GAME_FINISH, this.startGame);
-    ipcRenderer.send(OPEN_GAME_START);
+    ipcRenderer.send(OPEN_GAME_START, this.props.data);
   }
 
   startGame = () => {

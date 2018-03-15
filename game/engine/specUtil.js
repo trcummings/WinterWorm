@@ -39,6 +39,7 @@ const systemsByComponentIds = systemList.reduce((total, { id, component }) => {
 }, {});
 
 export function gameSpecsToSpecs(specs) {
+  console.log(specs);
   const currentSceneId = specs.currentScene;
   const currentScene = specs.scenes[currentSceneId];
 

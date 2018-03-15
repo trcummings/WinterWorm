@@ -59,10 +59,10 @@ const maximizeAfterLoad = (state) => {
   return state;
 };
 
-ipcRenderer.once(START_GAME, (_, { specs, config }) => {
+ipcRenderer.once(START_GAME, (_, data) => {
   const startTime = performance.now();
-  const initialGameState = makeInitialState(config);
-  const initialSpecs = gameSpecsToSpecs(specs);
+  const initialGameState = makeInitialState({});
+  const initialSpecs = gameSpecsToSpecs(data);
   const { pixiLoader } = getRenderEngine(initialGameState);
 
   const assetLoader = spriteLoader(makeLoaderState({
