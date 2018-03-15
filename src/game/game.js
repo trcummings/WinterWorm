@@ -2,6 +2,12 @@ import { ipcRenderer } from 'electron';
 import { __ } from 'ramda';
 import 'babel-polyfill';
 
+import {
+  SYNC,
+  START_GAME,
+  MAXIMIZE,
+} from 'App/actionTypes';
+
 import { getNextState, applyMiddlewares } from './engine/ecs';
 import { setGameState, applySpecs } from './engine/core';
 import { gameLoop } from './engine/loop';
@@ -21,12 +27,6 @@ import { makeLoaderState } from './engine/loaders/loader';
 import { setUpFpsMeter } from './engine/utils/fpsMeterUtil';
 import { setUpQueue, queueMiddleware } from './engine/middlewares/queueMiddleware';
 import { loggerMiddleware } from './engine/middlewares/loggerMiddleware';
-
-import {
-  SYNC,
-  START_GAME,
-  MAXIMIZE,
-} from '../app/actionTypes';
 
 const swapLoaderWithCanvas = () => {
   const loader = document.getElementById('loader');

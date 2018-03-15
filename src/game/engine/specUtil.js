@@ -3,73 +3,22 @@ import {
   SCENES,
   CURRENT_SCENE,
   ENTITIES,
-} from './symbols';
+} from 'Symbols';
 
-// import preCoreDevOnlySystems from './systems/preCoreDevOnlySystems';
-// import coreSystems from './systems/coreSystems';
-// import renderSystems from './systems/renderSystems';
-// import postRenderDevOnlySystems from './systems/postRenderDevOnlySystems';
-// import gameEditorSystems from './systems/gameEditorSystems';
-//
-// const systemList = [
-//   ...preCoreDevOnlySystems,
-//   ...coreSystems,
-//   ...gameEditorSystems,
-//   ...renderSystems,
-//   ...postRenderDevOnlySystems,
-// ];
-//
-// const makeSystemIdList = (...userDefinedSystemIds) => ([
-//   ...preCoreDevOnlySystems.map(({ id }) => id),
-//   ...coreSystems.map(({ id }) => id),
-//   ...userDefinedSystemIds,
-//   ...renderSystems.map(({ id }) => id),
-//   ...postRenderDevOnlySystems.map(({ id }) => id),
-// ]);
+import componentFns from 'Game/gameObjectSpecs/componentFns';
+import systemFns from 'Game/gameObjectSpecs/systemFns';
 
-// const systemIds = systemList.map(({ id }) => id);
-
-// const systemMap = systemList.reduce((total, system) => (
-//   Object.assign(total, { [system.id]: system })
+// const mapObjectsToLabel = gameObjs => Object.keys(gameObjs).reduce((total, id) => (
+//   Object.assign(total, { [gameObjs[id].label]: gameObjs[id] })
 // ), {});
-//
-// const systemsByComponentIds = systemList.reduce((total, { id, component }) => {
-//   if (!component) return total;
-//   return Object.assign(total, { [component.id]: id });
-// }, {});
-
-const getFnFromExportTable = specType => async (name) => {
-  const path = `${process.env.GAME_OBJECT_SPECS}/${name}.js`;
-  const fn = await import(path);
-  console.log(fn);
-  return fn;
-};
-
-const mapObjectsToLabel = gameObjs => Object.keys(gameObjs).reduce((total, id) => (
-  Object.assign(total, { [gameObjs[id].label]: gameObjs[id] })
-), {});
 
 export async function gameSpecsToSpecs(specs) {
   console.log(specs);
   const currentSceneId = Object.keys(specs.scenes)[0];
   const currentScene = specs.scenes[currentSceneId];
 
-  const componentLabelMap = mapObjectsToLabel(specs.components);
-  const systemLabelMap = mapObjectsToLabel(specs.systems);
-  const importComponentFn = getFnFromExportTable('componentFns');
-  const importSystemFn = getFnFromExportTable('componentFns');
-
-  const componentLabelFnMap = {};
-  for (const label of Object.keys(componentLabelMap)) {
-    const fn = await importComponentFn(label);
-    componentLabelFnMap[label] = fn;
-  }
-
-  const systemLabelFnMap = {};
-  for (const label of Object.keys(systemLabelMap)) {
-    const fn = await importSystemFn(label);
-    systemLabelFnMap[label] = fn;
-  }
+  console.log(componentFns);
+  console.log(systemFns);
 
   // debugger; // eslint-disable-line
 

@@ -1,6 +1,6 @@
 import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
 
-if (process.env.IS_DEV) {
+if (process.env.NODE_ENV === 'development') {
   installExtension(REACT_DEVELOPER_TOOLS)
     .then((name) => {
       console.log(`Added Extension:  ${name}`);
