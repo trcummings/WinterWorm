@@ -1,5 +1,6 @@
 import { ipcRenderer } from 'electron';
 import { __ } from 'ramda';
+import 'babel-polyfill';
 
 import { getNextState, applyMiddlewares } from './engine/ecs';
 import { setGameState, applySpecs } from './engine/core';

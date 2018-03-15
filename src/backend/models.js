@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize');
 const path = require('path');
 
-const dbPath = path.resolve(__dirname, `../editorFiles/${process.argv[2]}/db.sqlite`);
+const dbPath = path.resolve(__dirname, `../../editorFiles/${process.argv[2]}/db.sqlite`);
 
 const db = new Sequelize('db', 'username', 'password', {
   host: 'localhost',

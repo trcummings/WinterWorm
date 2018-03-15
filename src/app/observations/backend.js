@@ -8,7 +8,7 @@ import { closeProcess } from 'App/utils/stateUtil';
 import { BACKEND, REQUEST_END, REQUEST_ERROR } from 'App/actionTypes';
 
 export const initBackend = (state, { isNew, filename }) => new Promise((resolve) => {
-  const backend = fork('./backend/index.js', [filename], { env: { INIT_DB: isNew } });
+  const backend = fork(process.env.BACKEND_INDEX_PATH, [filename], { env: { INIT_DB: isNew } });
 
   backend.on('message', ({ type, payload }) => {
     switch (type) {
