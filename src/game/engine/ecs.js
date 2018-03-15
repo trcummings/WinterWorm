@@ -266,9 +266,7 @@ export const setEntity = (state: GameState, entity) => {
   const { next, id } = makeNewEntityId(state);
   const componentStateFn = componentStateFromSpec(id);
 
-  return components.reduce((nextState, component) => (
-    componentStateFn(nextState, component)
-  ), next);
+  return components.reduce(componentStateFn, next);
 };
 
 const removeEntityFromComponentIndex = (

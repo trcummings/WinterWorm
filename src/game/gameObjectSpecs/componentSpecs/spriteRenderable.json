@@ -1,4 +1,4 @@
 {
-  "label": "renderable",
+  "label": "spriteRenderable",
   "context": ["positionable", "animateable"]
 }
