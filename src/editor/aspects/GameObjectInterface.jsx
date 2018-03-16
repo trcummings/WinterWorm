@@ -1,24 +1,49 @@
-import { PureComponent } from 'react';
+// @flow
+import { PureComponent, type Node } from 'react';
 import PropTypes from 'prop-types';
 import { ipcRenderer } from 'electron';
 
 import { REQUEST_START, REQUEST_END } from 'App/actionTypes';
 import { ADD_ENTITY, REMOVE_ENTITY, ADD_ENTITIES, REMOVE_ENTITIES } from 'Editor/modules/data';
 
-export default class GameObjectInterface extends PureComponent {
+type ReqOptions = {
+  method: 'get' | 'post' | 'put' | 'delete',
+  service: 'init' | 'entities' | 'components' | 'componentStates' | 'systems' | 'scenes',
+  form?: mixed,
+  query?: mixed,
+  multiple?: boolean,
+};
+
+export type ReqFn = ReqOptions => Promise<mixed>;
+
+type MaybeError = Error | null;
+
+type GameObjectAspect = {
+  request: ReqOptions => mixed,
+  error: MaybeError,
+};
+
+type Props = {
+  children: GameObjectAspect => mixed
+};
+
+type State = {
+  error: MaybeError
+};
+
+export default class GameObjectInterface extends PureComponent<Props, State> {
+  props: Props
+
   static contextTypes = {
     store: PropTypes.object.isRequired,
   };
 
-  static propTypes = {
-    children: PropTypes.func.isRequired,
-  };
-
   state = { error: null };
 
-  handleError = error => this.setState({ error });
+  handleError = (error: MaybeError) => this.setState({ error });
 
-  request = ({ method, service, form, query, multiple = false }) => {
+  request: ReqFn = (options) => {
+    const { method, service, form, query, multiple = false } = options;
     const dispatch = this.context.store.dispatch;
     let action;
 
@@ -52,7 +77,7 @@ export default class GameObjectInterface extends PureComponent {
     });
   }
 
-  render() {
+  render(): Node {
     const { error } = this.state;
     if (error) console.error(error);
     return this.props.children({ request: this.request, error });

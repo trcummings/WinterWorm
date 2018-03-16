@@ -1,14 +1,13 @@
 // @flow
-import { PureComponent } from 'react';
+import { PureComponent, type Element } from 'react';
 import { ipcRenderer } from 'electron';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { compose } from 'ramda';
 
 import { GET_EDITOR_CONFIG, RECEIVE_EDITOR_CONFIG } from 'App/actionTypes';
 
-import hofToHoc from './aspects/HofToHoc';
-import GameObjectInterface from './aspects/GameObjectInterface';
+import type { ReqFn } from 'Editor/aspects/GameObjectInterface';
+
 import { setEditorConfig } from './modules/editorConfig';
 
 const mapDispatchToProps = dispatch => bindActionCreators({
@@ -16,9 +15,9 @@ const mapDispatchToProps = dispatch => bindActionCreators({
 }, dispatch);
 
 type Props = {
-   setConfig: () => mixed,
-   request: () => mixed,
-   children: () => boolean,
+  setConfig: () => mixed,
+  request: ReqFn,
+  children: boolean => mixed,
 };
 
 type State = {
@@ -52,13 +51,10 @@ export class ConfigProvider extends PureComponent<Props, State> {
     })
   )
 
-  render(): boolean {
+  render(): Element<*> {
     const { entitiesLoaded } = this.state;
     return this.props.children(entitiesLoaded);
   }
 }
 
-export default compose(
-  connect(null, mapDispatchToProps),
-  hofToHoc(GameObjectInterface, 'gameObjects')
-)(ConfigProvider);
+export default connect(null, mapDispatchToProps)(ConfigProvider);

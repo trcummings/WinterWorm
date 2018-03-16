@@ -32,17 +32,13 @@ declare module 'material-ui' {
   declare module.exports: any;
 }
 
-declare module 'electron-redux' {
-  declare module.exports: any;
-}
-
 [lints]
 
 [options]
-module.name_mapper='^Editor' ->'<PROJECT_ROOT>/editor'
-module.name_mapper='^Game' ->'<PROJECT_ROOT>/game'
-module.name_mapper='^App' ->'<PROJECT_ROOT>/app'
-module.name_mapper='^Types' ->'<PROJECT_ROOT>/game/engine/types'
-module.name_mapper='^Symbols' ->'<PROJECT_ROOT>/game/engine/symbols'
+module.name_mapper='^Editor' ->'<PROJECT_ROOT>/src/editor'
+module.name_mapper='^Game' ->'<PROJECT_ROOT>/src/game'
+module.name_mapper='^App' ->'<PROJECT_ROOT>/src/app'
+module.name_mapper='^Types' ->'<PROJECT_ROOT>/src/game/engine/types'
+module.name_mapper='^Symbols' ->'<PROJECT_ROOT>/src/game/engine/symbols'
 
 [strict]
