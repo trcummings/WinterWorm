@@ -97,7 +97,7 @@ let state = initialState;
 const runQueue = async (data) => {
   const next = await runJobQueue(state, data);
   state = next;
-  if (!state) observer.unsubscribe(runQueue);
+  if (!state) observer.unsubscribe();
 };
 
 observer.subscribe(runQueue);
