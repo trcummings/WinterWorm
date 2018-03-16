@@ -1,23 +1,16 @@
-//
 import React, { PureComponent, Fragment } from 'react';
-import { assocPath } from 'ramda';
 import { createSelector } from 'reselect';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
+
 import Subheader from 'material-ui/Subheader';
 import Divider from 'material-ui/Divider';
 import FlatButton from 'material-ui/FlatButton';
-import RaisedButton from 'material-ui/RaisedButton';
 import FontIcon from 'material-ui/FontIcon';
 import DropDownMenu from 'material-ui/DropDownMenu';
 import MenuItem from 'material-ui/MenuItem';
 
-// import { components } from 'Editor/constants';
-// import { getSpecs } from 'Editor/modules/specs';
 import { default as VerticalDivider } from 'Editor/components/VerticalDivider';
-import { setEntity, getInspectorEntity } from 'Editor/modules/inspector/entityInspector';
-import { default as GameObjectInterface } from 'Editor/aspects/GameObjectInterface';
 import { getGameObjects } from 'Editor/modules/data';
 
 import ComponentCard from './ComponentCard';
@@ -32,12 +25,7 @@ const mapStateToProps = (state, ownProps) => ({
   componentStates: getComponentStates(state, ownProps),
   components: getComponents(state, ownProps),
   entity: getEntity(state, ownProps),
-  inspectorEntity: getInspectorEntity(state, ownProps),
 });
-
-const mapDispatchToProps = dispatch => bindActionCreators({
-  updateEntity: setEntity,
-}, dispatch);
 
 export const stateFromContract = (param = {}) => (
   Object.keys(param).reduce((total, key) => {
@@ -50,41 +38,25 @@ export const stateFromContract = (param = {}) => (
   }, {})
 );
 
-const styles = {
-  button: {
-    margin: 12,
-  },
-};
-
-
 export class EntityInspectorContainer extends PureComponent {
   static propTypes = {
+    id: PropTypes.string.isRequired,
     componentStates: PropTypes.object.isRequired,
     components: PropTypes.object.isRequired,
-    // id: PropTypes.string.isRequired,
-    inspectorEntity: PropTypes.object.isRequired,
     entity: PropTypes.object.isRequired,
-    updateEntity: PropTypes.func.isRequired,
+    request: PropTypes.func.isRequired,
   };
 
   state = {
     addingComponent: false,
   }
 
-  componentWillMount() {
-    this.revertEntity();
-  }
-
-  componentWillReceiveProps(nextProps) {
-    const { entity: { id: pastId } = {} } = this.props;
-    const { updateEntity, entity } = nextProps;
-    if (pastId !== entity.id) updateEntity(entity);
-  }
-
   getCandidateLabelSet = () => {
-    const { components = [], inspectorEntity: { components: entityComponents = [] } } = this.props;
+    const { components = [], entity } = this.props;
+    const entityComponents = this.getComponentStates(entity.id);
     const componentIds = entityComponents.map(({ id }) => id);
     const componentSet = new Set(...componentIds);
+
     return Object.keys(components).reduce((total, key) => (
       componentSet.has(components[key].id)
         ? total
@@ -92,50 +64,41 @@ export class EntityInspectorContainer extends PureComponent {
     ), []);
   }
 
+  getComponentStates = (id) => {
+    const { componentStates } = this.props;
+    return Object.keys(this.props.componentStates)
+      .filter(csId => componentStates[csId].entityId === id)
+      .map((csId) => {
+        const { [csId]: { state, componentId } } = componentStates;
+        return { id: componentId, state };
+      });
+  }
+
   setAdding = () => this.setState({ addingComponent: true })
 
   unsetAdding = () => this.setState({ addingComponent: false })
 
-  addComponent = (id) => {
-    const { components, updateEntity, inspectorEntity } = this.props;
-    const componentSpec = components[id];
+  addComponent = (componentId) => {
+    const { components } = this.props;
+    const componentSpec = components[componentId];
     const contract = componentSpec.contract || {};
     const state = stateFromContract(contract);
+    return this.updateComponentState(0, componentId, state)
+      .then(this.unsetAdding);
+  }
 
-    updateEntity({
-      ...inspectorEntity,
-      components: [
-        ...inspectorEntity.components,
-        { id, state },
-      ],
+  updateComponentState = (index, componentId, state) => {
+    const { request, id: entityId } = this.props;
+    return request({
+      method: 'put',
+      service: 'componentStates',
+      form: { entityId, state, componentId },
     });
-    this.unsetAdding();
-  }
-
-  updateComponentState = (index, state) => {
-    const { updateEntity, inspectorEntity } = this.props;
-
-    updateEntity(assocPath(['components', index, 'state'], state, inspectorEntity));
-  }
-
-  revertEntity = () => {
-    const { updateEntity, entity, componentStates } = this.props;
-    const components = Object.keys(componentStates)
-      .filter(csId => componentStates[csId].entityId === entity.id)
-      .map((csId) => {
-        const { [csId]: { state, componentId: id } } = componentStates;
-        return { id, state };
-      });
-
-    updateEntity({ ...entity, components });
   }
 
   render() {
-    const {
-      components,
-      inspectorEntity,
-      inspectorEntity: { id, label, components: componentList = [] },
-    } = this.props;
+    const { entity: { id, label }, components } = this.props;
+    const componentList = this.getComponentStates(id);
 
     return (
       <div>
@@ -180,34 +143,9 @@ export class EntityInspectorContainer extends PureComponent {
             Add Component
           </FlatButton>
         ) }
-        <Divider />
-        <div>
-          <RaisedButton
-            styles={styles.button}
-            onClick={this.revertEntity}
-          >
-            <FontIcon className="material-icons">
-              restore page
-            </FontIcon>
-            Cancel
-          </RaisedButton>
-          <GameObjectInterface>
-            { ({ setSpec }) => (
-              <RaisedButton
-                styles={styles.button}
-                onClick={() => setSpec(inspectorEntity)}
-              >
-                <FontIcon className="material-icons">
-                  done
-                </FontIcon>
-                Save
-              </RaisedButton>
-            ) }
-          </GameObjectInterface>
-        </div>
       </div>
     );
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(EntityInspectorContainer);
+export default connect(mapStateToProps)(EntityInspectorContainer);

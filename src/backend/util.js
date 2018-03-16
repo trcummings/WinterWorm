@@ -49,8 +49,9 @@ const makeContract = (schema) => {
       .then(rows => resolve([null, rows]))
       .catch(err => resolve([err]))
     )),
-    upsert: ({ body, query, params }) => new Promise(resolve => (
-      models[service].upsert(body, { where: Object.assign({}, query, params) })
+    update: ({ body, query, params }) => new Promise(resolve => (
+      models[service].update(body, { where: Object.assign({}, query, params) })
+        .then(resp => models[service].findById(resp[0]))
         .then(rows => resolve([null, rows]))
         .catch(err => resolve([err]))
     )),
@@ -76,7 +77,7 @@ const makeController = (app, name, service) => {
   app.get(`/${name}`, service.run('findAll'));
   app.get(`/${name}/:id`, service.run('find'));
   app.post(`/${name}`, service.run('create'));
-  app.put(`/${name}`, service.run('upsert'));
+  app.put(`/${name}`, service.run('update'));
   app.delete(`/${name}`, service.run('destroy'));
 };
 

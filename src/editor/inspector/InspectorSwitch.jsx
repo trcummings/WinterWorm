@@ -2,7 +2,8 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
-import { getInspectorControl } from '../modules/inspector';
+import { default as GameObjectInterface } from 'Editor/aspects/GameObjectInterface';
+import { getInspectorControl } from 'Editor/modules/inspector';
 
 import { default as EntityInspectorContainer } from './entityInspector/EntityInspectorContainer';
 
@@ -16,7 +17,9 @@ const mapStateToProps = (state, ownProps) => ({
   ...getInspectorControl(state, ownProps),
 });
 
-export class InspectorSwitch extends PureComponent {
+const Dummy = ({ id }) => <div>{ id }</div>;
+
+export class InspectorSwitch extends PureComponent { // eslint-disable-line
   static propTypes = {
     id: PropTypes.string,
     inspectorType: PropTypes.oneOf([
@@ -29,13 +32,23 @@ export class InspectorSwitch extends PureComponent {
 
   render() {
     const { inspectorType, id } = this.props;
+    let InspectorComponent = Dummy;
 
     switch (inspectorType) {
-      case CURRENT_SCENE: return <div>{ id }</div>;
-      case SCENES: return <div>{ id }</div>;
-      case ENTITIES: return <EntityInspectorContainer id={id} />;
-      default: return null;
+      case ENTITIES: {
+        InspectorComponent = EntityInspectorContainer;
+        break;
+      }
+      case SCENES:
+      case CURRENT_SCENE:
+      default: { break; }
     }
+
+    return (
+      <GameObjectInterface>
+        { ({ request }) => <InspectorComponent id={id} request={request} />}
+      </GameObjectInterface>
+    );
   }
 }
 

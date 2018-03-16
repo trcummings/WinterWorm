@@ -14,8 +14,8 @@ export default class ComponentCard extends PureComponent {
   };
 
   updateComponentState = (newComponentState) => {
-    const { updateComponentState, index } = this.props;
-    return updateComponentState(index, newComponentState);
+    const { updateComponentState, index, component: { id } } = this.props;
+    return updateComponentState(index, id, newComponentState);
   }
 
   render() {
