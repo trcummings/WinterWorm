@@ -17,9 +17,8 @@ import MenuItem from 'material-ui/MenuItem';
 // import { getSpecs } from 'Editor/modules/specs';
 import { default as VerticalDivider } from 'Editor/components/VerticalDivider';
 import { setEntity, getInspectorEntity } from 'Editor/modules/inspector/entityInspector';
-import { default as MetaSpecControl } from 'Editor/aspects/MetaSpecControl';
+import { default as GameObjectInterface } from 'Editor/aspects/GameObjectInterface';
 import { getGameObjects } from 'Editor/modules/data';
-import { ENTITIES } from 'Symbols';
 
 import ComponentCard from './ComponentCard';
 
@@ -192,7 +191,7 @@ export class EntityInspectorContainer extends PureComponent {
             </FontIcon>
             Cancel
           </RaisedButton>
-          <MetaSpecControl specType={ENTITIES}>
+          <GameObjectInterface>
             { ({ setSpec }) => (
               <RaisedButton
                 styles={styles.button}
@@ -204,7 +203,7 @@ export class EntityInspectorContainer extends PureComponent {
                 Save
               </RaisedButton>
             ) }
-          </MetaSpecControl>
+          </GameObjectInterface>
         </div>
       </div>
     );

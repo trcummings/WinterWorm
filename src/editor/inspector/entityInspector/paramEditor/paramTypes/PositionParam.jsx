@@ -17,7 +17,7 @@ export default class PositionParam extends PureComponent {
   }
 
   render() {
-    const { componentState: { x, y, z }, param } = this.props;
+    const { componentState: { x, y }, param } = this.props;
 
     return (
       <div>

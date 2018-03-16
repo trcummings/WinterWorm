@@ -121,6 +121,10 @@ const componentStateSchema = {
     autoIncrement: true,
   },
   state: Sequelize.JSON,
+  active: {
+    defaultValue: true,
+    type: Sequelize.BOOLEAN,
+  },
 };
 const ComponentState = db.define('componentState', componentStateSchema);
 
