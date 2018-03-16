@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 // import PropTypes from 'prop-types';
 import CircularProgress from 'material-ui/CircularProgress';
 
+import { default as GameObjectInterface } from './aspects/GameObjectInterface';
 import { default as WindowFrame } from './containers/WindowFrame';
 
 import { default as Control } from './control/Control';
@@ -15,23 +16,27 @@ export default class Main extends PureComponent { // eslint-disable-line
   render() {
     return (
       <div>
-        <ConfigProvider>
-          { loaded => (
-            loaded ? (
-              <div>
-                <WindowFrame windowType={CONTROL}>
-                  <Control />
-                </WindowFrame>
-                <WindowFrame windowType={LIBRARY}>
-                  <Library />
-                </WindowFrame>
-                <WindowFrame windowType={INSPECTOR}>
-                  <InspectorSwitch />
-                </WindowFrame>
-              </div>
-            ) : <CircularProgress size={60} thickness={7} />
-          )}
-        </ConfigProvider>
+        <GameObjectInterface>
+          { ({ request }) => (
+            <ConfigProvider request={request}>
+              { loaded => (
+                loaded ? (
+                  <div>
+                    <WindowFrame windowType={CONTROL}>
+                      <Control />
+                    </WindowFrame>
+                    <WindowFrame windowType={LIBRARY}>
+                      <Library />
+                    </WindowFrame>
+                    <WindowFrame windowType={INSPECTOR}>
+                      <InspectorSwitch />
+                    </WindowFrame>
+                  </div>
+                ) : <CircularProgress size={60} thickness={7} />
+              )}
+            </ConfigProvider>
+          ) }
+        </GameObjectInterface>
       </div>
     );
   }

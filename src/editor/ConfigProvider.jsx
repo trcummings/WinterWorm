@@ -1,5 +1,5 @@
+// @flow
 import { PureComponent } from 'react';
-import PropTypes from 'prop-types';
 import { ipcRenderer } from 'electron';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -15,13 +15,18 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   setConfig: setEditorConfig,
 }, dispatch);
 
-export class ConfigProvider extends PureComponent {
-  static propTypes = {
-    setConfig: PropTypes.func.isRequired,
-    gameObjects: PropTypes.shape({
-      request: PropTypes.func.isRequired,
-    }).isRequired,
-  };
+type Props = {
+   setConfig: () => mixed,
+   request: () => mixed,
+   children: () => boolean,
+};
+
+type State = {
+  entitiesLoaded: boolean,
+};
+
+export class ConfigProvider extends PureComponent<Props, State> {
+  props: Props
 
   state = {
     entitiesLoaded: false,
@@ -39,13 +44,15 @@ export class ConfigProvider extends PureComponent {
       .then(() => this.setState(() => ({ entitiesLoaded: true })));
   }
 
-  fetchGameObjects = () => {
-    const { gameObjects: { request } } = this.props;
+  fetchGameObjects = () => (
+    this.props.request({
+      method: 'get',
+      service: 'init',
+      multiple: true,
+    })
+  )
 
-    return request({ method: 'get', service: 'init', multiple: true });
-  }
-
-  render() {
+  render(): boolean {
     const { entitiesLoaded } = this.state;
     return this.props.children(entitiesLoaded);
   }
