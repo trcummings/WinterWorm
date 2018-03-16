@@ -24,6 +24,7 @@ require('./controllers/components');
 require('./controllers/systems');
 require('./controllers/eventTypes');
 require('./controllers/entities');
+require('./controllers/componentStates');
 
 
 app.listen(PORT, (err) => {

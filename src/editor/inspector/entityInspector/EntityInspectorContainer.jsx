@@ -21,14 +21,16 @@ import { default as MetaSpecControl } from 'Editor/aspects/MetaSpecControl';
 import { getGameObjects } from 'Editor/modules/data';
 import { ENTITIES } from 'Symbols';
 
-import ComponentCard, { componentLabels } from './ComponentCard';
+import ComponentCard from './ComponentCard';
 
 const getComponents = getGameObjects('components');
 const getEntities = getGameObjects('entities');
+const getComponentStates = getGameObjects('componentStates');
 const getId = (_, ownProps) => ownProps.id;
 const getEntity = createSelector([getEntities, getId], (entities, id) => entities[id]);
 
 const mapStateToProps = (state, ownProps) => ({
+  componentStates: getComponentStates(state, ownProps),
   components: getComponents(state, ownProps),
   entity: getEntity(state, ownProps),
   inspectorEntity: getInspectorEntity(state, ownProps),
@@ -58,6 +60,7 @@ const styles = {
 
 export class EntityInspectorContainer extends PureComponent {
   static propTypes = {
+    componentStates: PropTypes.object.isRequired,
     components: PropTypes.object.isRequired,
     // id: PropTypes.string.isRequired,
     inspectorEntity: PropTypes.object.isRequired,
@@ -80,7 +83,7 @@ export class EntityInspectorContainer extends PureComponent {
   }
 
   getCandidateLabelSet = () => {
-    const { components, inspectorEntity: { components: entityComponents } } = this.props;
+    const { components = [], inspectorEntity: { components: entityComponents = [] } } = this.props;
     const componentIds = entityComponents.map(({ id }) => id);
     const componentSet = new Set(...componentIds);
     return Object.keys(components).reduce((total, key) => (
@@ -96,9 +99,9 @@ export class EntityInspectorContainer extends PureComponent {
 
   addComponent = (id) => {
     const { components, updateEntity, inspectorEntity } = this.props;
-    const componentSpec = components[componentLabels[id]];
+    const componentSpec = components[id];
     const contract = componentSpec.contract || {};
-    const state = stateFromContract(contract.param);
+    const state = stateFromContract(contract);
 
     updateEntity({
       ...inspectorEntity,
@@ -117,8 +120,15 @@ export class EntityInspectorContainer extends PureComponent {
   }
 
   revertEntity = () => {
-    const { updateEntity, entity } = this.props;
-    updateEntity(entity);
+    const { updateEntity, entity, componentStates } = this.props;
+    const components = Object.keys(componentStates)
+      .filter(csId => componentStates[csId].entityId === entity.id)
+      .map((csId) => {
+        const { [csId]: { state, componentId: id } } = componentStates;
+        return { id, state };
+      });
+
+    updateEntity({ ...entity, components });
   }
 
   render() {
@@ -141,7 +151,7 @@ export class EntityInspectorContainer extends PureComponent {
             <ComponentCard
               index={index}
               componentState={state}
-              component={components[componentLabels[cId]]}
+              component={components[cId]}
               updateComponentState={this.updateComponentState}
             />
           </div>

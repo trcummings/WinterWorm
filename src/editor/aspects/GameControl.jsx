@@ -1,10 +1,9 @@
-//
 import { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { ipcRenderer } from 'electron';
 
-import { OPEN_GAME_START, OPEN_GAME_FINISH } from 'App/actionTypes';
+import { OPEN_GAME_START, OPEN_GAME_FINISH, PLAY, PAUSE } from 'App/actionTypes';
 
 import { isGameRunning, startGame, stopGame } from '../modules/preview';
 

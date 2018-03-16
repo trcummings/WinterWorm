@@ -1,36 +1,43 @@
-// 
 import React from 'react';
 import { Card } from 'material-ui/Card';
 
-import Param from './Param';
+import PositionParam from './paramTypes/PositionParam';
+import { default as AnimateableParams } from './paramTypes/AnimateableParams';
 
 const ParamEditor = ({
-  contract: { id, param, type, label, children },
+  component,
+  contract,
   componentState,
-  parameters,
   updateParam,
-}) => (
-  <Card>
-    { label }
-    <div>
-      <Param
-        type={type}
-        param={param}
-        updateParam={updateParam}
-        componentState={componentState}
-      />
-    </div>
-    <div>
-      { children.map(pId => (
-        <ParamEditor
-          key={pId}
+}) => {
+  let ParamComponent;
+  switch (component.label) {
+    case 'positionable': {
+      ParamComponent = PositionParam;
+      break;
+    }
+    case 'animateable': {
+      ParamComponent = AnimateableParams;
+      break;
+    }
+    default: {
+      ParamComponent = () => <div>type not currently supported</div>;
+      break;
+    }
+  }
+
+  return (
+    <Card>
+      { component.label }
+      <div>
+        <ParamComponent
+          param={contract}
           updateParam={updateParam}
-          contract{...parameters[id]}
           componentState={componentState}
         />
-      )) }
-    </div>
-  </Card>
-);
+      </div>
+    </Card>
+  );
+};
 
 export default ParamEditor;

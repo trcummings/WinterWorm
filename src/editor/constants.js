@@ -1,12 +1,4 @@
-import * as components from '../game/engine/components';
-import * as symbols from '../game/engine/symbols';
-import { default as systems } from '../game/engine/systems/gameEditorSystems';
+import * as symbols from 'Game/engine/symbols';
+import { makeId } from 'Game/engine/util';
 
-import { makeId } from '../game/engine/util';
-
-export {
-  components,
-  makeId,
-  symbols,
-  systems,
-};
+export { makeId, symbols };

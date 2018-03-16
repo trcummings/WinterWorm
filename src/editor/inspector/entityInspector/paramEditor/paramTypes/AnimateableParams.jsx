@@ -1,4 +1,3 @@
-// 
 import React, { PureComponent, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import DropDownMenu from 'material-ui/DropDownMenu';
@@ -8,8 +7,7 @@ import { assocPath } from 'ramda';
 
 import hofToHoc from 'Editor/aspects/HofToHoc';
 import AssetAtlases from 'Editor/aspects/AssetAtlases';
-
-import { stateFromContract } from '../../EntityInspectorContainer';
+import { stateFromContract } from 'Editor/inspector/entityInspector/EntityInspectorContainer';
 
 const FrameSpecs = ({ specs, updateFps }) => (
   <Fragment>

@@ -6,6 +6,7 @@ const Components = require('../services/components');
 const Systems = require('../services/systems');
 const Scenes = require('../services/scenes');
 const Entities = require('../services/entities');
+const ComponentStates = require('../services/componentStates');
 
 const serviceMap = {
   entities: Entities,
@@ -13,6 +14,7 @@ const serviceMap = {
   eventTypes: EventTypes,
   systems: Systems,
   scenes: Scenes,
+  componentStates: ComponentStates,
 };
 
 // const logAccessors = (type) => {

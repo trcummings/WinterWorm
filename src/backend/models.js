@@ -84,7 +84,6 @@ const sceneSchema = {
     defaultValue: '',
   },
 };
-
 const Scene = db.define('scene', sceneSchema);
 
 // Every component that is created by default has a system which manages it
@@ -112,12 +111,30 @@ Component.belongsToMany(Component, {
   otherKey: 'componentContextId',
 });
 
+// Component State
+// Entities can be created with initial component state. the shape of this
+// state is determined by the component's contracts
+const componentStateSchema = {
+  id: {
+    type: Sequelize.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
+  },
+  state: Sequelize.JSON,
+};
+const ComponentState = db.define('componentState', componentStateSchema);
+
+Entity.belongsToMany(Component, { through: ComponentState });
+Component.belongsToMany(Entity, { through: ComponentState });
+
+
 const models = {
   entities: Entity,
   components: Component,
   systems: System,
   eventTypes: EventType,
   scenes: Scene,
+  componentStates: ComponentState,
 };
 
 const schemas = {
@@ -126,6 +143,7 @@ const schemas = {
   systems: systemSchema,
   eventTypes: eventTypeSchema,
   scenes: sceneSchema,
+  componentStates: componentStateSchema,
 };
 
 module.exports = { db, models, schemas };

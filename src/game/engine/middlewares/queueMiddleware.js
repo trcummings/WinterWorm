@@ -50,9 +50,7 @@ export const queueMiddleware = (
       case PLAY: break;
       case PAUSE: break;
       case REFRESH: {
-        const loopState = getLoopState();
-        nextState = makeGameState();
-        nextState = setLoopState(nextState, loopState);
+        nextState = setLoopState(makeGameState(), getLoopState());
         break;
       }
       case LOAD_SPEC: break;

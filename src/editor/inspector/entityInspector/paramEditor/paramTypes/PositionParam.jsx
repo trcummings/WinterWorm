@@ -1,4 +1,4 @@
-// 
+//
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import TextField from 'material-ui/TextField';
@@ -18,6 +18,7 @@ export default class PositionParam extends PureComponent {
 
   render() {
     const { componentState: { x, y, z }, param } = this.props;
+
     return (
       <div>
         <TextField
@@ -31,12 +32,6 @@ export default class PositionParam extends PureComponent {
           onChange={this.updateParam('y')}
           floatingLabelText="Y Position (in px)"
           type={param.y.type}
-        />
-        <TextField
-          value={z}
-          onChange={this.updateParam('z')}
-          floatingLabelText="Z Index"
-          type={param.z.type}
         />
       </div>
     );
