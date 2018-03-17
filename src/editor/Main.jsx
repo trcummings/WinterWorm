@@ -3,14 +3,18 @@ import React, { PureComponent } from 'react';
 import CircularProgress from 'material-ui/CircularProgress';
 
 import { default as GameObjectInterface } from './aspects/GameObjectInterface';
-import { default as WindowFrame } from './containers/WindowFrame';
+import { default as Collapse } from './containers/Collapse';
 
 import { default as Control } from './control/Control';
 import { default as InspectorSwitch } from './inspector/InspectorSwitch';
 import { default as Library } from './library/Library';
 import { default as ConfigProvider } from './ConfigProvider';
 
-import { CONTROL, LIBRARY, INSPECTOR } from './modules/windows';
+
+const CONTROL = 'Control';
+const LIBRARY = 'Library';
+const INSPECTOR = 'Inspector';
+
 
 export default class Main extends PureComponent { // eslint-disable-line
   render() {
@@ -22,15 +26,18 @@ export default class Main extends PureComponent { // eslint-disable-line
               { loaded => (
                 loaded ? (
                   <div>
-                    <WindowFrame windowType={CONTROL}>
+                    <Collapse name={CONTROL}>
+                      <h3 style={{ padding: 0, margin: 0 }}>{INSPECTOR}</h3>
                       <Control />
-                    </WindowFrame>
-                    <WindowFrame windowType={LIBRARY}>
+                    </Collapse>
+                    <Collapse name={LIBRARY}>
+                      <h3 style={{ padding: 0, margin: 0 }}>{LIBRARY}</h3>
                       <Library />
-                    </WindowFrame>
-                    <WindowFrame windowType={INSPECTOR}>
+                    </Collapse>
+                    <Collapse name={INSPECTOR}>
+                      <h3 style={{ padding: 0, margin: 0 }}>{INSPECTOR}</h3>
                       <InspectorSwitch />
-                    </WindowFrame>
+                    </Collapse>
                   </div>
                 ) : <CircularProgress size={60} thickness={7} />
               )}

@@ -1,5 +1,4 @@
 import React from 'react';
-import { Card } from 'material-ui/Card';
 
 import PositionParam from './paramTypes/PositionParam';
 import { default as AnimateableParams } from './paramTypes/AnimateableParams';
@@ -27,16 +26,11 @@ const ParamEditor = ({
   }
 
   return (
-    <Card>
-      { component.label }
-      <div>
-        <ParamComponent
-          param={contract}
-          updateParam={updateParam}
-          componentState={componentState}
-        />
-      </div>
-    </Card>
+    <ParamComponent
+      param={contract}
+      updateParam={updateParam}
+      componentState={componentState}
+    />
   );
 };
 

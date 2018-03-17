@@ -10,7 +10,6 @@ import FontIcon from 'material-ui/FontIcon';
 import DropDownMenu from 'material-ui/DropDownMenu';
 import MenuItem from 'material-ui/MenuItem';
 
-import { default as VerticalDivider } from 'Editor/components/VerticalDivider';
 import { getGameObjects } from 'Editor/modules/data';
 
 import ComponentCard from './ComponentCard';
@@ -69,8 +68,8 @@ export class EntityInspectorContainer extends PureComponent {
     return Object.keys(this.props.componentStates)
       .filter(csId => componentStates[csId].entityId === id)
       .map((csId) => {
-        const { [csId]: { state, componentId } } = componentStates;
-        return { id: componentId, state };
+        const { [csId]: { state, componentId, active } } = componentStates;
+        return { id: componentId, state, active };
       });
   }
 
@@ -83,16 +82,25 @@ export class EntityInspectorContainer extends PureComponent {
     const componentSpec = components[componentId];
     const contract = componentSpec.contract || {};
     const state = stateFromContract(contract);
-    return this.updateComponentState(0, componentId, state)
+    return this.updateComponentState({ componentId, state, active: true })
       .then(this.unsetAdding);
   }
 
-  updateComponentState = (index, componentId, state) => {
-    const { request, id: entityId } = this.props;
+  updateComponentState = ({ componentId, state, active }) => {
+    const {
+      request,
+      id: entityId,
+      components: { [componentId]: { contract = {} } },
+    } = this.props;
+
+    const validState = Object.keys(contract).reduce((total, key) => (
+      Object.assign(total, { [key]: state[key] })
+    ), {});
+
     return request({
       method: 'put',
       service: 'componentStates',
-      form: { entityId, state, componentId },
+      form: { entityId, state: validState, componentId, active },
     });
   }
 
@@ -102,21 +110,17 @@ export class EntityInspectorContainer extends PureComponent {
 
     return (
       <div>
-        <VerticalDivider>
-          <Subheader>{ label }</Subheader>
-          <Subheader>{ id }</Subheader>
-        </VerticalDivider>
+        <h3 style={{ margin: 0 }}>{ label }</h3>
         <Divider />
-        <Subheader>components</Subheader>
-        { componentList.map(({ id: cId, state }, index) => (
-          <div key={cId}>
-            <ComponentCard
-              index={index}
-              componentState={state}
-              component={components[cId]}
-              updateComponentState={this.updateComponentState}
-            />
-          </div>
+        { componentList.map(({ id: cId, state, active }, index) => (
+          <ComponentCard
+            key={cId}
+            index={index}
+            active={active}
+            state={state}
+            component={components[cId]}
+            updateComponentState={this.updateComponentState}
+          />
         )) }
         { this.state.addingComponent ? (
           <Fragment>

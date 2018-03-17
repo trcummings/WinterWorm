@@ -20,7 +20,7 @@ export default class PositionParam extends PureComponent {
     const { componentState: { x, y }, param } = this.props;
 
     return (
-      <div>
+      <div style={{ display: 'flex' }}>
         <TextField
           value={x}
           onChange={this.updateParam('x')}

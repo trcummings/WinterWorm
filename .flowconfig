@@ -16,6 +16,10 @@ declare module 'react' {
   declare module.exports: any;
 }
 
+declare module 'prop-types' {
+  declare module.exports: any;
+}
+
 declare module 'redux' {
   declare module.exports: any;
 }
@@ -25,6 +29,10 @@ declare module 'react-redux' {
 }
 
 declare module 'material-ui' {
+  declare module.exports: any;
+}
+
+declare module 'immutable' {
   declare module.exports: any;
 }
 

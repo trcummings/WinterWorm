@@ -1,49 +1,66 @@
-import { createSelector } from 'reselect';
+// @flow
+import { Map } from 'immutable';
 
-// Constants
-const MINIMIZED = 'MINIMIZED';
-const OPEN = 'OPEN';
-export const CONTROL = 'CONTROL';
-export const LIBRARY = 'LIBRARY';
-export const INSPECTOR = 'INSPECTOR';
+import type { State, Dispatch } from 'Editor/types';
+import { type Name } from '../containers/Collapse';
+
+type MapOrExistence = Map<Name, MapOrExistence>;
+type WindowState = Map<Name, MapOrExistence>;
 
 // Action Types
 const TOGGLE_WINDOW = 'windows/TOGGLE_WINDOW';
+const ADD_WINDOW = 'windows/ADD_WINDOW';
+const REMOVE_WINDOW = 'windows/REMOVE_WINDOW';
 
-// Action Creators
-export const toggleWindow = type => dispatch => dispatch({
-  type: TOGGLE_WINDOW,
-  payload: type,
-});
+type ActionType =
+  | typeof TOGGLE_WINDOW
+  | typeof ADD_WINDOW
+  | typeof REMOVE_WINDOW;
 
-// Selectors
-const getWindowType = (_, ownProps) => ownProps.windowType;
-const getWindows = state => state.windows;
-export const isMinimized = createSelector(
-  [getWindows, getWindowType],
-  (allWindows, windowType) => allWindows[windowType] === MINIMIZED
-);
-
-// Reducer
-const INITIAL_STATE = {
-  control: OPEN,
-  library: OPEN,
-  inspector: OPEN,
+type Action<AT> = {
+  +type: AT,
+  +payload: Array<Name>,
 };
 
-export default function windows(state = INITIAL_STATE, action = {}) {
-  const { type, payload } = action;
+// Action Creators
+const windowAction =
+  (type: ActionType) =>
+    (names: Array<Name>) =>
+      (dispatch: Dispatch<Action<ActionType>>) =>
+        dispatch({ type, payload: names });
+
+export const addWindow = windowAction(ADD_WINDOW);
+export const removeWindow = windowAction(REMOVE_WINDOW);
+export const toggleWindow = windowAction(TOGGLE_WINDOW);
+
+// Selectors
+export const getAllWindows = (state: State) => state.windows;
+
+// Reducer
+export const IS_COLLAPSED = 'isCollapsed';
+const INITIAL_STATE = Map();
+
+const windows = (
+  state: WindowState = INITIAL_STATE,
+  action: Action<ActionType>
+): WindowState => {
+  const { type, payload: names = [] } = action;
+  const collapsePath = [...names, IS_COLLAPSED];
 
   switch (type) {
-    case TOGGLE_WINDOW: {
-      const isOpen = state[payload] === OPEN;
-      return {
-        ...state,
-        [payload]: isOpen
-          ? MINIMIZED
-          : OPEN,
-      };
-    }
+    case ADD_WINDOW:
+      return state.hasIn(collapsePath)
+        ? state
+        : state.setIn(collapsePath, false);
+
+    case REMOVE_WINDOW:
+      return state.deleteIn(names);
+
+    case TOGGLE_WINDOW:
+      return state.setIn(collapsePath, !state.getIn(collapsePath));
+
     default: return state;
   }
-}
+};
+
+export default windows;

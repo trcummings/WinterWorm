@@ -1,9 +1,34 @@
+// @flow
 import { net } from 'electron';
 
-class DbAgent {
-  constructor() {
-    ['get', 'post', 'put', 'delete'].forEach((method) => {
-      this[method] = ({ uri, form = {}, query = {} }) => new Promise((resolve, reject) => {
+export const GET = 'get';
+export const POST = 'post';
+export const PUT = 'put';
+export const DELETE = 'delete';
+
+type HttpMethod =
+  | typeof GET
+  | typeof POST
+  | typeof PUT
+  | typeof DELETE;
+
+type AgentOptions = {
+  uri: string,
+  form?: mixed,
+  query?: {}
+};
+
+type AgentRequest = AgentOptions => Promise<*>;
+
+type Agent = {
+  [HttpMethod]: AgentRequest
+};
+
+const agentRequest =
+  (method: HttpMethod) =>
+    (options: AgentOptions) =>
+      new Promise((resolve, reject) => {
+        const { uri, form = {}, query = {} } = options;
         const qs = Object.keys(query).reduce((total, key, index) => (
           index === 0
             ? `?${key}=${query[key]}`
@@ -33,10 +58,12 @@ class DbAgent {
         request.write(JSON.stringify(form), 'utf-8');
         request.end();
       });
-    });
-  }
-}
 
-const agent = new DbAgent();
+const agent: Agent = {
+  [GET]: agentRequest(GET),
+  [POST]: agentRequest(POST),
+  [PUT]: agentRequest(PUT),
+  [DELETE]: agentRequest(DELETE),
+};
 
 export default agent;
