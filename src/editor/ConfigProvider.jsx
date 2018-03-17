@@ -1,12 +1,17 @@
 // @flow
 import { PureComponent, type Element } from 'react';
-import { ipcRenderer } from 'electron';
+import { ipcRenderer, type Event } from 'electron';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
 import { GET_EDITOR_CONFIG, RECEIVE_EDITOR_CONFIG } from 'App/actionTypes';
 
 import type { ReqFn } from 'Editor/aspects/GameObjectInterface';
+import {
+  fromEditorConfigPayload,
+  type EditorConfigPayload,
+  type EditorState,
+} from 'App/observations/editor';
 
 import { setEditorConfig } from './modules/editorConfig';
 
@@ -15,7 +20,7 @@ const mapDispatchToProps = dispatch => bindActionCreators({
 }, dispatch);
 
 type Props = {
-  setConfig: () => mixed,
+  setConfig: EditorState => mixed,
   request: ReqFn,
   children: boolean => mixed,
 };
@@ -36,8 +41,8 @@ export class ConfigProvider extends PureComponent<Props, State> {
     ipcRenderer.send(GET_EDITOR_CONFIG);
   }
 
-  receiveEditorConfig = (_, resp) => {
-    const { isNew, filename } = JSON.parse(resp);
+  receiveEditorConfig = (_: Event, resp: EditorConfigPayload) => {
+    const { isNew, filename } = fromEditorConfigPayload(resp);
     this.props.setConfig({ isNew, filename });
     this.fetchGameObjects()
       .then(() => this.setState(() => ({ entitiesLoaded: true })));

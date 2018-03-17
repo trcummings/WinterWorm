@@ -17,7 +17,7 @@ export const processes = {
   GAME,
 };
 
-export type Process =
+export type ProcessType =
   | typeof MAIN
   | typeof BACKEND
   | typeof CONFIG
@@ -29,9 +29,19 @@ export const END = 'end';
 export const READY = 'ready';
 export const WILL_QUIT = 'will-quit';
 
+type MainEventTypes =
+  | typeof END
+  | typeof READY
+  | typeof WILL_QUIT;
+
+
 // BACKEND
 export const REQUEST_START = 'REQUEST_START';
 export const REQUEST_END = 'REQUEST_END';
+
+type BackendEventTypes =
+  | typeof REQUEST_START
+  | typeof REQUEST_END;
 
 // CONFIG
 export const CLOSE_CONFIG = 'config/CLOSE_CONFIG';
@@ -40,11 +50,24 @@ export const INIT_MESSAGE = 'config/INIT_MESSAGE';
 export const INIT_ERROR = 'config/INIT_ERROR';
 export const INIT_END = 'config/INIT_END';
 
+type ConfigEventTypes =
+  | typeof CLOSE_CONFIG
+  | typeof INIT_START
+  | typeof INIT_MESSAGE
+  | typeof INIT_ERROR
+  | typeof INIT_END;
+
 // EDITOR
 export const OPEN_EDITOR = 'editor/OPEN_EDITOR';
 export const GET_EDITOR_CONFIG = 'editor/GET_EDITOR_CONFIG';
 export const RECEIVE_EDITOR_CONFIG = 'editor/RECEIVE_EDITOR_CONFIG';
 export const SET_FILENAME = 'editor/SET_FILENAME';
+
+type EditorEventTypes =
+  | typeof OPEN_EDITOR
+  | typeof GET_EDITOR_CONFIG
+  | typeof RECEIVE_EDITOR_CONFIG
+  | typeof SET_FILENAME;
 
 // GAME
 export const OPEN_GAME_START = 'game/OPEN_GAME_START';
@@ -60,3 +83,27 @@ export const PLAY = 'play';
 export const PAUSE = 'pause';
 export const REFRESH = 'refresh';
 export const LOAD_SPEC = 'loadSpec';
+
+type GameEventTypes =
+  | typeof OPEN_EDITOR
+  | typeof GET_EDITOR_CONFIG
+  | typeof RECEIVE_EDITOR_CONFIG
+  | typeof SET_FILENAME
+  | typeof OPEN_GAME_START
+  | typeof OPEN_GAME_FINISH
+  | typeof SYNC
+  | typeof START_GAME
+  | typeof MAXIMIZE
+  | typeof CLOSED
+  | typeof PLAY
+  | typeof PAUSE
+  | typeof REFRESH
+  | typeof LOAD_SPEC;
+
+
+export type EventTypes =
+  | MainEventTypes
+  | BackendEventTypes
+  | ConfigEventTypes
+  | EditorEventTypes
+  | GameEventTypes;

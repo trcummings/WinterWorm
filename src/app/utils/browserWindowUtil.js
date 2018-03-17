@@ -10,12 +10,12 @@ const windowFactory = (url, defaults = {}) => (windowDims = {}) => {
   return vindaga;
 };
 
-const noFrame = {
+export const startEditor = windowFactory(editorUrl);
+export const startConfig = windowFactory(configUrl, {
+  resizeable: false,
+});
+export const startGame = windowFactory(gameUrl, {
   frame: false,
   resizeable: false,
   transparent: true,
-};
-
-export const startEditor = windowFactory(editorUrl);
-export const startGame = windowFactory(gameUrl, noFrame);
-export const startConfig = windowFactory(configUrl, noFrame);
+});
