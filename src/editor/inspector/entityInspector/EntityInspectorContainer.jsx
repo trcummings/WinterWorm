@@ -3,12 +3,9 @@ import { createSelector } from 'reselect';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
-import Subheader from 'material-ui/Subheader';
 import Divider from 'material-ui/Divider';
-import FlatButton from 'material-ui/FlatButton';
-import FontIcon from 'material-ui/FontIcon';
-import DropDownMenu from 'material-ui/DropDownMenu';
-import MenuItem from 'material-ui/MenuItem';
+import Button from 'material-ui/Button';
+import Icon from 'material-ui/Icon';
 
 import { getGameObjects } from 'Editor/modules/data';
 
@@ -124,28 +121,24 @@ export class EntityInspectorContainer extends PureComponent {
         )) }
         { this.state.addingComponent ? (
           <Fragment>
-            <DropDownMenu value={1}>
-              <MenuItem value={1} primaryText="Select Component" />
+            <select>
+              <option value="">Select Component</option>
               { this.getCandidateLabelSet().map(key => (
-                <MenuItem
+                <option
                   key={key}
-                  value={key}
-                  onClick={() => this.addComponent(components[key].id)}
-                  primaryText={components[key].label}
-                />
+                  onSelect={() => this.addComponent(components[key].id)}
+                >{components[key].label}</option>
               ))}
-            </DropDownMenu>
-            <FlatButton onClick={this.unsetAdding}>
+            </select>
+            <Button color="primary" title="Cancel" onClick={this.unsetAdding}>
               Cancel
-            </FlatButton>
+            </Button>
           </Fragment>
         ) : (
-          <FlatButton onClick={this.setAdding}>
-            <FontIcon className="material-icons">
-              add box
-            </FontIcon>
+          <Button color="primary" title="Add Component" onClick={this.setAdding}>
+            <Icon>add box</Icon>
             Add Component
-          </FlatButton>
+          </Button>
         ) }
       </div>
     );

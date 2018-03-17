@@ -4,8 +4,13 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-import { Card, CardHeader, CardText } from 'material-ui/Card';
-import { grey500 } from 'material-ui/styles/colors';
+import ExpansionPanel, {
+  ExpansionPanelSummary,
+  ExpansionPanelDetails,
+} from 'material-ui/ExpansionPanel';
+import ExpandMoreIcon from 'material-ui-icons/ExpandMore';
+
+import grey from 'material-ui/colors/grey';
 
 import { type Map } from 'immutable';
 
@@ -48,7 +53,7 @@ class Collapse extends PureComponent<Props> {
   props: Props
 
   static defaultProps = {
-    style: { padding: '8px', backgroundColor: grey500 },
+    style: { padding: '8px', backgroundColor: grey['500'] },
   }
 
   static contextTypes = {
@@ -99,17 +104,17 @@ class Collapse extends PureComponent<Props> {
     const [child1, child2] = Children.toArray(children);
 
     return (
-      <Card expanded={!this.isCollapsed()} expandable>
-        <CardHeader
+      <ExpansionPanel expanded={!this.isCollapsed()} onChange={this.toggleWindow}>
+        <ExpansionPanelSummary
           style={style}
-          title={child1}
-          onClick={this.toggleWindow}
-          showExpandableButton
-        />
-        <CardText expandable style={{ padding: 0, margin: 0 }}>
+          expandIcon={<ExpandMoreIcon />}
+        >
+          { child1 }
+        </ExpansionPanelSummary>
+        <ExpansionPanelDetails style={{ padding: 0, margin: 0 }}>
           { child2 }
-        </CardText>
-      </Card>
+        </ExpansionPanelDetails>
+      </ExpansionPanel>
     );
   }
 }

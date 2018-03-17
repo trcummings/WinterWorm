@@ -13,11 +13,11 @@ export const getDevDims = () => {
   return { height, width: third(width) * 2, x: 0, y: 0 };
 };
 
-export const getEditorDims = () =>
-  // const { height, width } = getScreenDims();
+export const getEditorDims = () => {
+  const { height, width } = getScreenDims();
   // return { height, width: third(width), x: third(width) * 2, y: 0 };
-  ({ fullscreen: true })
-;
+  return { height, width, x: 0, y: 0 };
+};
 
 export const getConfigDims = () => {
   const { height, width } = getScreenDims();

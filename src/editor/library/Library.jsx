@@ -1,8 +1,6 @@
-// 
+//
 import React, { PureComponent } from 'react';
-import { List, ListItem } from 'material-ui/List';
-import Subheader from 'material-ui/Subheader';
-import Divider from 'material-ui/Divider';
+import List, { ListItem, ListItemText } from 'material-ui/List';
 
 import VerticalDivider from '../components/VerticalDivider';
 
@@ -30,23 +28,24 @@ export default class Library extends PureComponent {
       <div style={{ maxHeight: '200px' }}>
         <VerticalDivider>
           <List>
-            <Subheader>Object Types</Subheader>
-            <Divider />
             <ListItem
               key={CURRENT_SCENE}
-              primaryText="Current Scene"
               onClick={this.selectType(CURRENT_SCENE)}
-            />
+            >
+              <ListItemText primary="Current Scene" />
+            </ListItem>
             <ListItem
               key={SCENES}
-              primaryText="Scenes"
               onClick={this.selectType(SCENES)}
-            />
+            >
+              <ListItemText primary="Scenes" />
+            </ListItem>
             <ListItem
               key={ENTITIES}
-              primaryText="Entities"
               onClick={this.selectType(ENTITIES)}
-            />
+            >
+              <ListItemText primary="Entities" />
+            </ListItem>
           </List>
           <div style={{ height: '100%', width: '100%' }}>
             { selected === CURRENT_SCENE && <CurrentScene /> }

@@ -1,12 +1,11 @@
-// 
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
+
 import Divider from 'material-ui/Divider';
-import { List, ListItem } from 'material-ui/List';
-import FlatButton from 'material-ui/FlatButton';
-import FontIcon from 'material-ui/FontIcon';
-import Subheader from 'material-ui/Subheader';
-import { grey300 } from 'material-ui/styles/colors';
+import List, { ListItem, ListItemText, ListSubheader } from 'material-ui/List';
+import Button from 'material-ui/Button';
+import Icon from 'material-ui/Icon';
+import grey from 'material-ui/colors/grey';
 
 const flex = {
   width: '100%',
@@ -32,21 +31,20 @@ export default class GameObjectList extends PureComponent { // eslint-disable-li
     return (
       <List style={{ padding: 0, overflowY: 'scroll', height: '200px' }}>
         <div style={flex}>
-          <Subheader>{ title }</Subheader>
-          <FlatButton onClick={addNew}>
-            <FontIcon className="material-icons">
-              add box
-            </FontIcon>
-          </FlatButton>
+          <ListSubheader>{ title }</ListSubheader>
+          <Button onClick={addNew}>
+            <Icon>add box</Icon>
+          </Button>
         </div>
         <Divider />
         { gameObjects.map(({ label, id }) => (
           <ListItem
             key={id}
-            primaryText={label}
-            style={{ backgroundColor: id === selectedObjectId ? grey300 : undefined }}
+            style={{ backgroundColor: id === selectedObjectId ? grey['300'] : undefined }}
             onClick={() => openInInspector(id)}
-          />
+          >
+            <ListItemText primary={label} />
+          </ListItem>
         )) }
       </List>
     );

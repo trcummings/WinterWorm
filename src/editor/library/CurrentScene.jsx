@@ -3,10 +3,10 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+
 import Divider from 'material-ui/Divider';
-import { List, ListItem } from 'material-ui/List';
-import Subheader from 'material-ui/Subheader';
-import { grey300 } from 'material-ui/styles/colors';
+import List, { ListItem, ListItemText, ListSubheader } from 'material-ui/List';
+import grey from 'material-ui/colors/grey';
 
 import { setCurrentScene, getSpecs } from '../modules/specs';
 import { getGameObjects } from '../modules/data';
@@ -34,15 +34,16 @@ class CurrentScene extends PureComponent { // eslint-disable-line
     const { scenes, currentScene, setAsCurrentScene } = this.props;
     return (
       <List style={{ padding: 0, overflowY: 'scroll', height: '200px' }}>
-        <Subheader>Current Scene</Subheader>
+        <ListSubheader>Current Scene</ListSubheader>
         <Divider />
         { Object.keys(scenes).map(id => (
           <ListItem
             key={id}
-            style={{ backgroundColor: id === currentScene ? grey300 : undefined }}
-            primaryText={scenes[id].label}
+            style={{ backgroundColor: id === currentScene ? grey['300'] : undefined }}
             onClick={() => setAsCurrentScene(id)}
-          />
+          >
+            <ListItemText primary={scenes[id].label} />
+          </ListItem>
         )) }
       </List>
     );

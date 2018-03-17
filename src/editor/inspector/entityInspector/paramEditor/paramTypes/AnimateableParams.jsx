@@ -1,9 +1,8 @@
 import React, { PureComponent, Fragment } from 'react';
 import PropTypes from 'prop-types';
-import DropDownMenu from 'material-ui/DropDownMenu';
-import MenuItem from 'material-ui/MenuItem';
-import TextField from 'material-ui/TextField';
 import { assocPath } from 'ramda';
+
+import TextField from 'material-ui/TextField';
 
 import hofToHoc from 'Editor/aspects/HofToHoc';
 import AssetAtlases from 'Editor/aspects/AssetAtlases';
@@ -75,17 +74,16 @@ export class AnimateableParams extends PureComponent {
 
     return (
       <div>
-        <DropDownMenu value={value}>
-          <MenuItem value={1} primaryText="Select Asset Atlas" />
+        <select value={value}>
+          <option value="">Select Asset Atlas</option>
           { Object.keys(atlases).map(key => (
-            <MenuItem
+            <option
               key={key}
               value={key}
-              primaryText={key}
-              onClick={this.pickAtlas(key)}
-            />
+              onSelect={this.pickAtlas(key)}
+            >{key}</option>
           ))}
-        </DropDownMenu>
+        </select>
         { value !== 1 && (
           <FrameSpecs
             updateFps={this.updateFps}
