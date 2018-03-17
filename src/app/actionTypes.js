@@ -1,3 +1,4 @@
+// @flow
 export const PROCESS = 'process';
 export const STATE = 'state';
 export const EFFECTS = 'effects';
@@ -7,6 +8,7 @@ export const BACKEND = 'backend';
 export const CONFIG = 'config';
 export const EDITOR = 'editor';
 export const GAME = 'game';
+
 export const processes = {
   MAIN,
   BACKEND,
@@ -14,6 +16,13 @@ export const processes = {
   EDITOR,
   GAME,
 };
+
+export type Process =
+  | typeof MAIN
+  | typeof BACKEND
+  | typeof CONFIG
+  | typeof EDITOR
+  | typeof GAME;
 
 // MAIN
 export const END = 'end';

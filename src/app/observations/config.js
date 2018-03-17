@@ -1,4 +1,3 @@
-// @flow
 import {
   CONFIG, EDITOR, BACKEND,
   INIT_MESSAGE, INIT_ERROR, INIT_END,

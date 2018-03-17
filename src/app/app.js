@@ -1,4 +1,3 @@
-// @flow
 import 'babel-polyfill';
 import { compose } from 'ramda';
 import { app, ipcMain } from 'electron';

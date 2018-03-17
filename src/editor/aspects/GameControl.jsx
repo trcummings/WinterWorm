@@ -19,8 +19,8 @@ const mapDispatchToProps = dispatch => bindActionCreators({
 
 export class GameControl extends PureComponent {
   componentDidMount() {
-    ipcRenderer.on(OPEN_GAME_FINISH, this.startGame);
-    ipcRenderer.send(OPEN_GAME_START, this.props.data);
+    // ipcRenderer.on(OPEN_GAME_FINISH, this.startGame);
+    // ipcRenderer.send(OPEN_GAME_START, this.props.data);
   }
 
   startGame = () => {

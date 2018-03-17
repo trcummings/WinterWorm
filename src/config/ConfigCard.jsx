@@ -1,8 +1,9 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
-import { Card, CardActions, CardHeader, CardText } from 'material-ui/Card';
-import { grey500 } from 'material-ui/styles/colors';
+import Card, { CardActions, CardContent } from 'material-ui/Card';
+import Typography from 'material-ui/Typography';
+import grey from 'material-ui/colors/grey';
 
 const cardStyle = {
   content: '',
@@ -13,7 +14,7 @@ const cardStyle = {
 };
 
 const titleStyle = {
-  backgroundColor: grey500,
+  backgroundColor: grey['500'],
   padding: '8px',
 };
 
@@ -36,8 +37,10 @@ export default class ConfigCard extends PureComponent { // eslint-disable-line
 
     return (
       <Card style={cardStyle}>
-        <CardHeader title={title} style={titleStyle} />
-        <CardText style={textStyle}>{ body }</CardText>
+        <CardContent>
+          <Typography style={titleStyle}>{title}</Typography>
+          <Typography style={textStyle}>{ body }</Typography>
+        </CardContent>
         <CardActions>{ actions }</CardActions>
       </Card>
     );

@@ -2,9 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { view, lensPath } from 'ramda';
 
-import FlatButton from 'material-ui/FlatButton';
-import { List, ListItem } from 'material-ui/List';
-import { grey500 } from 'material-ui/styles/colors';
+import Button from 'material-ui/Button';
 
 import ConfigCard from './ConfigCard';
 import { FILE_LIST, NEW_FILE, LOADING } from './DialogControl';
@@ -34,6 +32,10 @@ export default class LoadFiles extends PureComponent {
 
   getFromState = (prop, def) => view(lensPath([FILE_LIST, prop]), this.props.sections) || def;
 
+  handleSelectChange = event => (
+    this.props.updateSection([FILE_LIST, SELECTED_FILE], event.target.value)
+  );
+
   render() {
     const { updateSection, changeSection } = this.props;
     const files = this.getFromState(FILES, []);
@@ -43,30 +45,27 @@ export default class LoadFiles extends PureComponent {
       <ConfigCard
         title="Editor - Load File"
         body={
-          <List value={selectedFile}>
-            { files.map(({ name, stats: { ctime } }) => (
-              <ListItem
-                key={name}
-                primaryText={name}
-                style={{ backgroundColor: name === selectedFile ? grey500 : undefined }}
-                onClick={() => updateSection([FILE_LIST, SELECTED_FILE], name)}
-                secondaryText={`last accessed ${new Date(ctime)}`}
-              />
+          <select value={selectedFile} onChange={this.handleSelectChange}>
+            <option value="" />
+            {files.map(({ name, stats: { ctime } }) => (
+              <option key={name} value={name}>
+                { `${name}: last accessed ${new Date(ctime)}` }
+              </option>
             ))}
-          </List>
+          </select>
         }
         actions={[
-          <FlatButton
+          <Button
             key="close"
-            label="Close"
-            primary
+            title="Close"
+            color="primary"
             style={{ float: 'left' }}
             onClick={() => closeConfig()}
-          />,
-          <FlatButton
+          >Close</Button>,
+          <Button
             key="load"
-            label="Load"
-            primary
+            title="Load"
+            color="primary"
             style={{ float: 'right' }}
             disabled={files.length === 0 || !selectedFile}
             onClick={() => (
@@ -74,14 +73,14 @@ export default class LoadFiles extends PureComponent {
                 .then(() => updateSection([LOADING, FILE_FROM], FILE_LIST))
                 .then(() => changeSection(LOADING))
             )}
-          />,
-          <FlatButton
+          >Load</Button>,
+          <Button
             key="new"
-            label="New"
-            primary
+            title="New"
+            color="primary"
             style={{ float: 'right' }}
             onClick={() => changeSection(NEW_FILE)}
-          />,
+          >New</Button>,
         ]}
       />
     );

@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { view, lensPath } from 'ramda';
 
-import FlatButton from 'material-ui/FlatButton';
+import Button from 'material-ui/Button';
 import TextField from 'material-ui/TextField';
 
 import ConfigCard from './ConfigCard';
@@ -63,17 +63,17 @@ export default class NewFile extends PureComponent {
           />
         }
         actions={[
-          <FlatButton
-            style={{ float: 'left' }}
+          <Button
             key="close"
-            label="Close"
-            primary
+            title="Close"
+            color="primary"
+            style={{ float: 'left' }}
             onClick={() => closeConfig()}
-          />,
-          <FlatButton
+          >Close</Button>,
+          <Button
             key="create"
-            label="Create"
-            primary
+            title="Create"
+            color="primary"
             style={{ float: 'right' }}
             onClick={() => (
               updateSection([LOADING, SELECTED_FILE], filename)
@@ -81,17 +81,17 @@ export default class NewFile extends PureComponent {
                 .then(() => changeSection(LOADING))
             )}
             disabled={isInvalidFilename}
-          />,
-          <FlatButton
+          >Create</Button>,
+          <Button
             key="back"
-            label="Back"
-            primary
+            title="Back"
+            color="primary"
             style={{ float: 'right' }}
             onClick={() => (
               updateSection([NEW_FILE, FILENAME], '')
                 .then(() => changeSection(FILE_LIST))
             )}
-          />,
+          >Back</Button>,
         ]}
       />
     );

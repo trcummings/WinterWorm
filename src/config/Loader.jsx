@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 import { ipcRenderer } from 'electron';
 import { view, lensPath } from 'ramda';
 
-import FlatButton from 'material-ui/FlatButton';
-import CircularProgress from 'material-ui/CircularProgress';
-import { red500 } from 'material-ui/styles/colors';
+import Button from 'material-ui/Button';
+import { CircularProgress } from 'material-ui/Progress';
+import red from 'material-ui/colors/red';
 
 import { INIT_START, INIT_MESSAGE, INIT_ERROR, INIT_END } from 'App/actionTypes';
 
@@ -78,7 +78,7 @@ export default class Loader extends PureComponent {
             }}
           >
             {error ? (
-              <div style={{ padding: '8px', color: red500 }}>
+              <div style={{ padding: '8px', color: red['500'] }}>
                 { JSON.stringify(error, null, 2) }
               </div>
             ) : (
@@ -90,16 +90,28 @@ export default class Loader extends PureComponent {
           </div>
         }
         actions={[
-          <FlatButton
-            primary
+          <Button
             key="close"
-            label="Close"
+            title="Close"
+            color="primary"
             disabled={!error}
             style={{ float: 'left' }}
             onClick={() => closeConfig()}
-          />,
-          <FlatButton style={{ float: 'right' }} key="create" label="Create" primary disabled />,
-          <FlatButton style={{ float: 'right' }} key="back" label="Back" primary disabled />,
+          >Close</Button>,
+          <Button
+            disabled
+            key="create"
+            title="Create"
+            color="primary"
+            style={{ float: 'right' }}
+          >Create</Button>,
+          <Button
+            disabled
+            key="back"
+            title="Back"
+            color="primary"
+            style={{ float: 'right' }}
+          >Back</Button>,
         ]}
       />
     );
