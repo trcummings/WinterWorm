@@ -11,34 +11,34 @@ const path = require('path');
 
 const DIST_PATH = path.join(__dirname, './dist');
 
-class DBPlugin {
-  constructor() {
-    this.startTime = Date.now();
-    this.prevTimestamps = {};
-
-    this.onEmit = this.onEmit.bind(this);
-  }
-
-  apply(compiler) {
-    compiler.plugin('emit', this.onEmit);
-  }
-
-  onEmit(compilation, cb) {
-    const changedFiles = [];
-    const timestamps = compilation.fileTimestamps;
-
-    for (const entry of timestamps) {
-      const [watchFile, currentTimeTouched] = entry;
-      const lastTimeTouched = this.prevTimestamps[watchFile] || this.startTime;
-
-      if (lastTimeTouched < currentTimeTouched) changedFiles.push(watchFile);
-    }
-
-    this.prevTimestamps = timestamps;
-
-    cb();
-  }
-}
+// class DBPlugin {
+//   constructor() {
+//     this.startTime = Date.now();
+//     this.prevTimestamps = {};
+//
+//     this.onEmit = this.onEmit.bind(this);
+//   }
+//
+//   apply(compiler) {
+//     compiler.plugin('emit', this.onEmit);
+//   }
+//
+//   onEmit(compilation, cb) {
+//     const changedFiles = [];
+//     const timestamps = compilation.fileTimestamps;
+//
+//     for (const entry of timestamps) {
+//       const [watchFile, currentTimeTouched] = entry;
+//       const lastTimeTouched = this.prevTimestamps[watchFile] || this.startTime;
+//
+//       if (lastTimeTouched < currentTimeTouched) changedFiles.push(watchFile);
+//     }
+//
+//     this.prevTimestamps = timestamps;
+//
+//     cb();
+//   }
+// }
 
 module.exports = {
   mode: 'development',
@@ -54,6 +54,13 @@ module.exports = {
   output: {
     filename: '[name].js',
     path: DIST_PATH,
+  },
+  devServer: {
+    contentBase: DIST_PATH,
+    hot: true,
+    watchOptions: {
+      watch: true,
+    },
   },
   module: {
     rules: [
@@ -93,7 +100,7 @@ module.exports = {
     extensions: ['.js', '.jsx', '.css', '.json'],
   },
   plugins: [
-    new DBPlugin(),
+    // new DBPlugin(),
     new webpack.NamedModulesPlugin(),
     new webpack.HotModuleReplacementPlugin(),
     new webpack.DefinePlugin({
