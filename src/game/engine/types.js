@@ -45,7 +45,7 @@ export type EventType =
   | typeof symbols.ANIMATION_CHANGE
   | typeof symbols.RENDER_ACTION
   | typeof symbols.PHYSICS_EVENT
-  | typeof symbols.TIME_TICK
+  | typeof symbols.TIME_TICK;
 
 export type SceneId = Id;
 export type Scene = {|
@@ -99,33 +99,18 @@ export type SpecType =
   | typeof symbols.SCENES
   | typeof symbols.SYSTEMS
   | typeof symbols.CURRENT_SCENE
-  | typeof symbols.ENTITIES
+  | typeof symbols.ENTITIES;
 
 export type SpecOption =
   | Scene
   | System
   | CurrentScene
   | Component
-  | Entity
+  | Entity;
 
 export type Spec = {
   +type: SpecType,
   +options: SpecOption,
 };
-
-export type ParamType =
-  | typeof symbols.POSITION_PARAM
-
-export type ParamId = Id;
-export type Param<ParamValue> = {
-  +id: ParamId,
-  +label: string,
-  linkFrom: Set<ParamId>,
-  linkTo: Set<ParamId>,
-  parentId?: ParamId,
-  children: Array<ParamId>,
-  +type: ParamType,
-  param: ParamValue,
-}
 
 /* eslint-disable no-use-before-define */

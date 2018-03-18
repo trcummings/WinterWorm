@@ -9,7 +9,7 @@ import { default as Collapse } from './containers/Collapse';
 
 // import { default as Control } from './control/Control';
 import { default as InspectorSwitch } from './inspector/InspectorSwitch';
-import { default as Library } from './library/Library';
+import { default as Library } from './library/Entities';
 import { default as ConfigProvider } from './ConfigProvider';
 import { default as Game } from './scenePreview/Game';
 
@@ -18,6 +18,8 @@ const GAME_CONFIG = 'Game Config';
 const INSPECTOR = 'Inspector';
 const SCENE_EDITOR = 'Scene Editor';
 const GAME_PREVIEW = 'Game Preview';
+
+const HEADER_HEIGHT = '40px';
 
 export default class Main extends PureComponent { // eslint-disable-line
   render() {
@@ -29,12 +31,11 @@ export default class Main extends PureComponent { // eslint-disable-line
               <Grid container spacing={0}>
                 {loaded ? (
                   <Fragment>
-                    <Grid key="header" item xs={12}>
-                      {/* <Control /> */}
-                      control
+                    <Grid key="header" item xs={12} style={{ height: HEADER_HEIGHT }}>
+                      <div style={{ height: '100%', width: '100%' }} />
                     </Grid>
                     <Grid key="game" item xs={7}>
-                      <div style={{ height: 'calc(100vh - 20px)' }}>
+                      <div style={{ height: `calc(100vh - ${HEADER_HEIGHT})` }}>
                         <div style={{ height: '50%' }}>
                           <Typography component="h3" style={{ padding: 0, margin: 0 }}>
                             {SCENE_EDITOR}

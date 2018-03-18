@@ -62,10 +62,7 @@ export const getNextState = (state: GameState): GameState => {
 export const applyMiddlewares = (
   updateFn: GameState => GameState,
   ...middlewares: Array<(GameState) => GameState>
-) => compose(
-  updateFn,
-  ...middlewares.reverse()
-);
+) => compose(updateFn, ...middlewares.reverse());
 
 // Return array of system functions with a uId incl. in the systemIds
 export const getSystemFns = (state: GameState, systemIds: Array<Id>) => (
@@ -253,20 +250,21 @@ const componentStateFromSpec = (entityId: Id) => (
 
 const ID_RECORD = 'idRecord';
 const makeNewEntityId = (state: GameState): { id: number, } => {
-  const path = [ID_RECORD, ENTITIES];
-  const incr = (view(lensPath(path), state) || 0) + 1;
-  return { id: `entities-${incr}`, next: assocPath(path, incr, state) };
+  const ids = view(lensPath([ID_RECORD]), state);
+  const id = ids.shift();
+  return id;
 };
 
 export const setEntity = (state: GameState, entity) => {
-  const { components } = entity;
+  const { components, id: entityId } = entity;
+  let id = entityId;
   // we don't want to use the entity id that comes from the spec because
   // that was defined statically, and we can't be sure that the spec's id
   // won't have conflicts.
-  const { next, id } = makeNewEntityId(state);
+  if (!id) id = makeNewEntityId(state);
   const componentStateFn = componentStateFromSpec(id);
 
-  return components.reduce(componentStateFn, next);
+  return components.reduce(componentStateFn, state);
 };
 
 const removeEntityFromComponentIndex = (

@@ -39,6 +39,10 @@ export const stateFromContract = (param = {}) => (
   }, {})
 );
 
+const makeValidState = (state, contract) => Object.keys(contract).reduce((total, key) => (
+  Object.assign(total, { [key]: state[key] })
+), {});
+
 type Props = {
   id: Id,
   componentStates: {
@@ -108,14 +112,15 @@ export class EntityInspectorContainer extends PureComponent<Props, State> {
       components: { [componentId]: { contract = {} } },
     } = this.props;
 
-    const validState = Object.keys(contract).reduce((total, key) => (
-      Object.assign(total, { [key]: state[key] })
-    ), {});
-
     return request({
       method,
       service: 'componentStates',
-      form: { entityId, state: validState, componentId, active },
+      form: {
+        entityId,
+        state: makeValidState(state, contract),
+        componentId,
+        active,
+      },
     });
   }
 
