@@ -23,6 +23,7 @@ type State = {
 
 export class Game extends PureComponent<Props, State> {
   wrapper: null | HTMLDivElement;
+  canvas: HTMLCanvasElement;
   props: Props;
 
   state = {
@@ -34,14 +35,18 @@ export class Game extends PureComponent<Props, State> {
   }
 
   componentDidMount() {
-    if (!this.wrapper) throw new Error('what gives no divs?');
+    window.addEventListener('resize', this.setCanvasSize);
 
     const { data } = this.props;
     // get inner height of div & inner width
+    // set height listeners
+    if (!this.wrapper) return;
     const { height, width } = this.wrapper.getBoundingClientRect();
 
     // initialize game state with current data
     const { canvas, ...rest } = createRenderingEngine({ height, width });
+    this.canvas = canvas;
+
     const initialState = makeInitialState({
       height,
       width,
@@ -52,6 +57,18 @@ export class Game extends PureComponent<Props, State> {
     if (this.wrapper) this.wrapper.appendChild(canvas);
     if (isDev()) setUpFpsMeter();
     startGame(initialState, data);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.setCanvasSize);
+  }
+
+  setCanvasSize = () => {
+    if (!this.wrapper) return;
+
+    const { height, width } = this.wrapper.getBoundingClientRect();
+    this.canvas.height = height;
+    this.canvas.width = width;
   }
 
   render() {
