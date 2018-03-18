@@ -32,6 +32,9 @@ export type System = {
   +label: Label,
   +componentId: null | ComponentId,
   +devOnly: boolean,
+  +active: boolean,
+  +partition: 'pre' | 'main' | 'post',
+  +orderIndex: number,
 };
 
 export type EventType = {

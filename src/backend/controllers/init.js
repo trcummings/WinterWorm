@@ -9,6 +9,24 @@ const Scenes = require('../services/scenes');
 const Entities = require('../services/entities');
 const ComponentStates = require('../services/componentStates');
 
+const systemPartitions = {
+  fpsTickStart: { partition: 'pre', orderIndex: 0 },
+  ticker: { partition: 'pre', orderIndex: 1 },
+  meta: { partition: 'pre', orderIndex: 2 },
+  loader: { partition: 'pre', orderIndex: 3 },
+  input: { partition: 'pre', orderIndex: 4 },
+  inputControl: { partition: 'main', orderIndex: 0 },
+  animate: { partition: 'main', orderIndex: 1 },
+  move: { partition: 'main', orderIndex: 2 },
+  accelerate: { partition: 'main', orderIndex: 3 },
+  physics: { partition: 'main', orderIndex: 4 },
+  position: { partition: 'main', orderIndex: 5 },
+  spriteRender: { partition: 'main', orderIndex: 6 },
+  render: { partition: 'main', orderIndex: 7 },
+  clearEventQueue: { partition: 'post', orderIndex: 0 },
+  fpsTickEnd: { partition: 'post', orderIndex: 1 },
+};
+
 const serviceMap = {
   entities: Entities,
   components: Components,
@@ -54,7 +72,9 @@ app.post('/init', async (req, res) => {
 
   // create systems
   for (const system of systems) {
-    const [sErr] = await Systems.findOrCreate({ body: system });
+    const body = Object.assign({}, system, systemPartitions[system.label]);
+    console.log(body);
+    const [sErr] = await Systems.findOrCreate({ body });
     if (sErr) errorOut(sErr);
   }
 
@@ -85,7 +105,9 @@ app.post('/init', async (req, res) => {
 
     // create the system
     const [systemLabel] = label.split('able');
-    const [sErr, system] = await Systems.findOrCreate({ body: { label: systemLabel } });
+    const body = Object.assign({}, { label: systemLabel }, systemPartitions[systemLabel]);
+    console.log(body);
+    const [sErr, system] = await Systems.findOrCreate({ body });
     if (sErr) return errorOut(sErr);
 
     // associate the system to the component

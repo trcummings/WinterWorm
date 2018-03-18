@@ -30,6 +30,11 @@ const description = {
   defaultValue: '',
 };
 
+const active = {
+  defaultValue: true,
+  type: Sequelize.BOOLEAN,
+};
+
 const componentSchema = {
   id,
   label,
@@ -50,6 +55,15 @@ const systemSchema = {
   id,
   label,
   description,
+  active,
+  orderIndex: {
+    type: Sequelize.INTEGER,
+    allowNull: false,
+  },
+  partition: {
+    type: Sequelize.ENUM('pre', 'main', 'post'),
+    defaultValue: 'main',
+  },
   devOnly: {
     defaultValue: false,
     type: Sequelize.BOOLEAN,
@@ -66,6 +80,8 @@ const Entity = db.define('entity', entitySchema);
 const sceneSchema = { id, label, description };
 const Scene = db.define('scene', sceneSchema);
 
+// Simple relations_____________________________________________________
+
 // Every entity belongs to a scene
 Entity.belongsToMany(Scene, { through: 'sceneEntity' });
 Scene.belongsToMany(Entity, { through: 'sceneEntity' });
@@ -75,6 +91,8 @@ Scene.belongsToMany(Entity, { through: 'sceneEntity' });
 // and need not be bound to a component.
 System.belongsTo(Component);
 
+// Complex relations____________________________________________________
+
 // Subscriptions:
 // Components can subscribe to events dispatched through the event queue
 // A component can have multiple subscriptions to different event types
@@ -82,7 +100,6 @@ Component.belongsToMany(EventType, {
   as: { singular: 'subscription', plural: 'subscriptions' },
   through: 'componentSubscription',
 });
-
 EventType.belongsToMany(Component, { through: 'componentSubscription' });
 
 // Context
@@ -98,19 +115,25 @@ Component.belongsToMany(Component, {
 // Component State
 // Entities can be created with initial component state. the shape of this
 // state is determined by the component's contracts
-const componentStateSchema = {
-  id,
-  state: Sequelize.JSON,
-  active: {
-    defaultValue: true,
-    type: Sequelize.BOOLEAN,
-  },
-};
+const componentStateSchema = { id, state: Sequelize.JSON, active };
 const ComponentState = db.define('componentState', componentStateSchema);
 
 Entity.belongsToMany(Component, { through: ComponentState });
 Component.belongsToMany(Entity, { through: ComponentState });
 
+// // Partition
+// // A partition represents a grouping of systems under a single label.
+// // It goes through a mediating table SystemPartition to give ordering to
+// // the System, as well as determining if its active within the partition.
+//
+// const partitionSchema = {
+//   id,
+//   label,
+//   active,
+// };
+// const Partition = db.define('partition', partitionSchema);
+// System.belongsTo(Partition);
+// Partition.belongsToMany(System, { through: 'systemPartitions' });
 
 const models = {
   entities: Entity,
@@ -119,6 +142,7 @@ const models = {
   eventTypes: EventType,
   scenes: Scene,
   componentStates: ComponentState,
+  // partitions: Partition,
 };
 
 const schemas = {
@@ -128,6 +152,7 @@ const schemas = {
   eventTypes: eventTypeSchema,
   scenes: sceneSchema,
   componentStates: componentStateSchema,
+  // partitions: partitionSchema,
 };
 
 module.exports = { db, models, schemas };

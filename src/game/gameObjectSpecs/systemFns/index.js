@@ -2,7 +2,7 @@ import clearEventQueue from './clearEventQueue';
 import fpsTickEnd from './fpsTickEnd';
 import fpsTickStart from './fpsTickStart';
 import input from './input';
-import loaders from './loaders';
+import loader from './loader';
 import meta from './meta';
 import physics from './physics';
 import render from './render';
@@ -13,7 +13,7 @@ const systemFns = {
   fpsTickEnd,
   fpsTickStart,
   input,
-  loaders,
+  loader,
   meta,
   physics,
   render,

@@ -1,6 +1,6 @@
 // @flow
 // system for updating loaders
-import { getLoaderTypes, getLoaderFn } from 'Engine/loaders/loader';
+import { getLoaderTypes, getLoaderFn } from 'Game/engine/loaders/loader';
 
 import type { GameState } from 'Types';
 
