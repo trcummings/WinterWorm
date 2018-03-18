@@ -1,8 +1,9 @@
+// @flow
 import React, { PureComponent } from 'react';
-import PropTypes from 'prop-types';
 import Checkbox from 'material-ui/Checkbox';
 
 import { default as Collapse } from 'Editor/containers/Collapse';
+import type { Id, ComponentState, Component } from 'Editor/types';
 
 import ParamEditor from './paramEditor/ParamEditor';
 
@@ -10,13 +11,23 @@ const collapseStyle = {
   padding: 0,
 };
 
-export default class ComponentCard extends PureComponent {
-  static propTypes = {
-    state: PropTypes.object.isRequired,
-    component: PropTypes.object.isRequired,
-    updateComponentState: PropTypes.func.isRequired,
-    active: PropTypes.bool.isRequired,
-  };
+type CSState = $PropertyType<ComponentState, 'state'>;
+type CSActive = $PropertyType<ComponentState, 'active'>;
+type UCSArgs = {
+  componentId: Id,
+  active: CSActive,
+  state: CSState,
+};
+
+type Props = {
+  state: CSState,
+  active: CSActive,
+  component: Component,
+  updateComponentState: UCSArgs => void,
+};
+
+export default class ComponentCard extends PureComponent<Props> {
+  props: Props;
 
   toggleComponentActive = () => {
     const { updateComponentState, state, active, component: { id } } = this.props;
@@ -27,7 +38,7 @@ export default class ComponentCard extends PureComponent {
     });
   }
 
-  updateComponentState = (newState) => {
+  updateComponentState = (newState: CSState) => {
     const { updateComponentState, active, component: { id } } = this.props;
 
     return updateComponentState({

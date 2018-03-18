@@ -1,6 +1,7 @@
+// @flow
 import React, { PureComponent, Fragment } from 'react';
 import { createSelector } from 'reselect';
-import PropTypes from 'prop-types';
+// import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
 import Divider from 'material-ui/Divider';
@@ -8,6 +9,9 @@ import Button from 'material-ui/Button';
 import Icon from 'material-ui/Icon';
 
 import { getGameObjects } from 'Editor/modules/data';
+
+import type { ReqFn } from 'Editor/aspects/GameObjectInterface';
+import type { Id, ComponentState, Component, Entity } from 'Editor/types';
 
 import ComponentCard from './ComponentCard';
 
@@ -34,14 +38,25 @@ export const stateFromContract = (param = {}) => (
   }, {})
 );
 
-export class EntityInspectorContainer extends PureComponent {
-  static propTypes = {
-    id: PropTypes.string.isRequired,
-    componentStates: PropTypes.object.isRequired,
-    components: PropTypes.object.isRequired,
-    entity: PropTypes.object.isRequired,
-    request: PropTypes.func.isRequired,
-  };
+type Props = {
+  id: Id,
+  componentStates: {
+    [Id]: ComponentState
+  },
+  components: {
+    [Id]: Component
+  },
+  entity: Entity,
+  request: ReqFn,
+};
+
+type State = {
+  addingComponent: boolean,
+};
+
+export class EntityInspectorContainer extends PureComponent<Props, State> {
+  props: Props;
+  state: State;
 
   state = {
     addingComponent: false,
@@ -51,7 +66,7 @@ export class EntityInspectorContainer extends PureComponent {
     const { components = [], entity } = this.props;
     const entityComponents = this.getComponentStates(entity.id);
     const componentIds = entityComponents.map(({ id }) => id);
-    const componentSet = new Set(...componentIds);
+    const componentSet = new Set(componentIds);
 
     return Object.keys(components).reduce((total, key) => (
       componentSet.has(components[key].id)
@@ -60,7 +75,7 @@ export class EntityInspectorContainer extends PureComponent {
     ), []);
   }
 
-  getComponentStates = (id) => {
+  getComponentStates = (id: Id) => {
     const { componentStates } = this.props;
     return Object.keys(this.props.componentStates)
       .filter(csId => componentStates[csId].entityId === id)
@@ -74,16 +89,17 @@ export class EntityInspectorContainer extends PureComponent {
 
   unsetAdding = () => this.setState({ addingComponent: false })
 
-  addComponent = (componentId) => {
+  addComponent = (componentId: Id) => {
     const { components } = this.props;
     const componentSpec = components[componentId];
     const contract = componentSpec.contract || {};
     const state = stateFromContract(contract);
-    return this.updateComponentState({ componentId, state, active: true })
+
+    return this.updateComponentState({ componentId, state, active: true }, 'post')
       .then(this.unsetAdding);
   }
 
-  updateComponentState = ({ componentId, state, active }) => {
+  updateComponentState = ({ componentId, state, active }, method = 'put') => {
     const {
       request,
       id: entityId,
@@ -95,7 +111,7 @@ export class EntityInspectorContainer extends PureComponent {
     ), {});
 
     return request({
-      method: 'put',
+      method,
       service: 'componentStates',
       form: { entityId, state: validState, componentId, active },
     });
@@ -121,13 +137,16 @@ export class EntityInspectorContainer extends PureComponent {
         )) }
         { this.state.addingComponent ? (
           <Fragment>
-            <select>
+            <select
+              onChange={event => (
+                this.addComponent(event.target.value)
+              )}
+            >
               <option value="">Select Component</option>
               { this.getCandidateLabelSet().map(key => (
-                <option
-                  key={key}
-                  onSelect={() => this.addComponent(components[key].id)}
-                >{components[key].label}</option>
+                <option key={key} value={components[key].id}>
+                  {components[key].label}
+                </option>
               ))}
             </select>
             <Button color="primary" title="Cancel" onClick={this.unsetAdding}>

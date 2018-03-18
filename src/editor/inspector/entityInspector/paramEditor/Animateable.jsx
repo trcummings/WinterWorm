@@ -31,9 +31,9 @@ const FrameSpecs = ({ specs, updateFps }) => (
   </Fragment>
 );
 
-export class AnimateableParams extends PureComponent {
+export class Animateable extends PureComponent {
   static propTypes = {
-    param: PropTypes.object.isRequired,
+    contract: PropTypes.object.isRequired,
     componentState: PropTypes.object,
     updateParam: PropTypes.func.isRequired,
   }
@@ -48,10 +48,10 @@ export class AnimateableParams extends PureComponent {
     const {
       atlases: { [key]: atlas },
       updateParam,
-      param,
+      contract,
     } = this.props;
     const frameSpecs = atlas.frameSpecs;
-    const { animationSpecs: fn } = stateFromContract(param);
+    const { animationSpecs: fn } = stateFromContract(contract);
 
     const newComponentState = {
       resourceName: key,
@@ -95,4 +95,4 @@ export class AnimateableParams extends PureComponent {
   }
 }
 
-export default hofToHoc(AssetAtlases)(AnimateableParams);
+export default hofToHoc(AssetAtlases)(Animateable);

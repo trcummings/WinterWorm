@@ -4,13 +4,12 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
+import Divider from 'material-ui/Divider';
 import ExpansionPanel, {
   ExpansionPanelSummary,
   ExpansionPanelDetails,
 } from 'material-ui/ExpansionPanel';
 import ExpandMoreIcon from 'material-ui-icons/ExpandMore';
-
-import grey from 'material-ui/colors/grey';
 
 import { type Map } from 'immutable';
 
@@ -53,7 +52,7 @@ class Collapse extends PureComponent<Props> {
   props: Props
 
   static defaultProps = {
-    style: { padding: '8px', backgroundColor: grey['500'] },
+    style: { padding: 0, margin: 0, height: '24px' },
   }
 
   static contextTypes = {
@@ -104,13 +103,18 @@ class Collapse extends PureComponent<Props> {
     const [child1, child2] = Children.toArray(children);
 
     return (
-      <ExpansionPanel expanded={!this.isCollapsed()} onChange={this.toggleWindow}>
+      <ExpansionPanel
+        style={{ padding: 0, margin: 0 }}
+        expanded={!this.isCollapsed()}
+        onChange={this.toggleWindow}
+      >
         <ExpansionPanelSummary
           style={style}
-          expandIcon={<ExpandMoreIcon />}
+          expandIcon={<ExpandMoreIcon style={{ height: '20px', width: '20px' }} />}
         >
           { child1 }
         </ExpansionPanelSummary>
+        <Divider />
         <ExpansionPanelDetails style={{ padding: 0, margin: 0 }}>
           { child2 }
         </ExpansionPanelDetails>

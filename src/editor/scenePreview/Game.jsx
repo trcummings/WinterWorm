@@ -73,7 +73,6 @@ export class Game extends PureComponent<Props, State> {
 
   setCanvasDims = ({ height, width }: { height?: string, width?: string }) => {
     if (!this.canvas || !height || !width) return;
-    console.log(height, width);
     this.canvas.height = parseInt(height, 10) - 32;
     this.canvas.width = parseInt(width, 10) - 32;
     this.canvas.style.position = 'absolute';

@@ -1,4 +1,3 @@
-// @flow
 import { KEYBOARD_INPUT } from 'Engine/symbols';
 import { hasEventInInbox, makeEvent } from 'Engine/events';
 

@@ -12,16 +12,28 @@ const db = new Sequelize('db', 'username', 'password', {
   pool: { max: 5, min: 0, acquire: 30000, idle: 10000 },
 });
 
+const id = {
+  unique: true,
+  type: Sequelize.UUID,
+  primaryKey: true,
+  defaultValue: Sequelize.UUIDV4,
+};
+
+const label = {
+  type: Sequelize.STRING,
+  unique: true,
+  allowNull: false,
+};
+
+const description = {
+  type: Sequelize.TEXT,
+  defaultValue: '',
+};
+
 const componentSchema = {
-  label: {
-    type: Sequelize.STRING,
-    unique: true,
-    allowNull: false,
-  },
-  description: {
-    type: Sequelize.TEXT,
-    defaultValue: '',
-  },
+  id,
+  label,
+  description,
   contract: {
     type: Sequelize.JSON,
     unique: true,
@@ -31,15 +43,9 @@ const componentSchema = {
 const Component = db.define('component', componentSchema);
 
 const systemSchema = {
-  label: {
-    type: Sequelize.STRING,
-    unique: true,
-    allowNull: false,
-  },
-  description: {
-    type: Sequelize.TEXT,
-    defaultValue: '',
-  },
+  id,
+  label,
+  description,
   devOnly: {
     defaultValue: false,
     type: Sequelize.BOOLEAN,
@@ -47,43 +53,13 @@ const systemSchema = {
 };
 const System = db.define('system', systemSchema);
 
-const eventTypeSchema = {
-  label: {
-    type: Sequelize.STRING,
-    unique: true,
-    allowNull: false,
-  },
-  description: {
-    type: Sequelize.TEXT,
-    defaultValue: '',
-  },
-};
+const eventTypeSchema = { id, label, description };
 const EventType = db.define('eventType', eventTypeSchema);
 
-const entitySchema = {
-  label: {
-    type: Sequelize.STRING,
-    unique: true,
-    allowNull: false,
-  },
-  description: {
-    type: Sequelize.TEXT,
-    defaultValue: '',
-  },
-};
+const entitySchema = { id, label, description };
 const Entity = db.define('entity', entitySchema);
 
-const sceneSchema = {
-  label: {
-    type: Sequelize.STRING,
-    unique: true,
-    allowNull: false,
-  },
-  description: {
-    type: Sequelize.TEXT,
-    defaultValue: '',
-  },
-};
+const sceneSchema = { id, label, description };
 const Scene = db.define('scene', sceneSchema);
 
 // Every component that is created by default has a system which manages it
@@ -115,11 +91,7 @@ Component.belongsToMany(Component, {
 // Entities can be created with initial component state. the shape of this
 // state is determined by the component's contracts
 const componentStateSchema = {
-  id: {
-    type: Sequelize.INTEGER,
-    primaryKey: true,
-    autoIncrement: true,
-  },
+  id,
   state: Sequelize.JSON,
   active: {
     defaultValue: true,

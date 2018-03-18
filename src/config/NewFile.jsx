@@ -4,6 +4,8 @@ import { view, lensPath } from 'ramda';
 
 import Button from 'material-ui/Button';
 import TextField from 'material-ui/TextField';
+import Input, { InputLabel } from 'material-ui/Input';
+import { FormControl, FormHelperText } from 'material-ui/Form';
 
 import ConfigCard from './ConfigCard';
 import { FILE_LIST, NEW_FILE, LOADING } from './DialogControl';
@@ -40,8 +42,8 @@ export default class NewFile extends PureComponent {
     return !filename || fileset.has(filename);
   }
 
-  updateValue = (_, value) => (
-    this.props.updateSection([NEW_FILE, FILENAME], value)
+  updateValue = event => (
+    this.props.updateSection([NEW_FILE, FILENAME], event.target.value)
   )
 
   render() {
@@ -54,13 +56,11 @@ export default class NewFile extends PureComponent {
       <ConfigCard
         title="Editor - New File"
         body={
-          <TextField
-            hintText="Filename"
-            errorText={errorText}
-            onChange={this.updateValue}
-            floatingLabelText="Enter filename here"
-            value={filename}
-          />
+          <FormControl error={!!errorText} aria-describedby="name-error-text">
+            <InputLabel htmlFor="name-error">Enter Filename</InputLabel>
+            <Input id="name-error" value={filename} onChange={this.updateValue} />
+            <FormHelperText id="name-error-text">{ errorText }</FormHelperText>
+          </FormControl>
         }
         actions={[
           <Button

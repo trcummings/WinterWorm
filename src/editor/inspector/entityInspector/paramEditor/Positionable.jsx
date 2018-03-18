@@ -1,23 +1,40 @@
-//
+// @flow
 import React, { PureComponent } from 'react';
-import PropTypes from 'prop-types';
 import TextField from 'material-ui/TextField';
 
-export default class PositionParam extends PureComponent {
-  static propTypes = {
-    param: PropTypes.object.isRequired,
-    componentState: PropTypes.object,
-    updateParam: PropTypes.func.isRequired,
-  }
+type PositionableContract = {
+  x: {
+    type: number,
+    defaultsTo: number,
+  },
+  y: {
+    type: number,
+    defaultsTo: number,
+  },
+};
 
-  updateParam = key => (_, newValue) => {
+type PositionableState = {
+  x: number,
+  y: number,
+};
+
+type Props = {
+  contract: PositionableContract,
+  componentState: PositionableState,
+  updateParam: PositionableState => void,
+};
+
+export default class Positionable extends PureComponent<Props> {
+  props: Props;
+
+  updateParam = (key: $Keys<PositionableState>) => (_: Event, newValue?: string) => {
     const { updateParam, componentState } = this.props;
     const val = newValue !== undefined ? parseInt(newValue, 10) : undefined;
     return updateParam(Object.assign({}, componentState, { [key]: val }));
   }
 
   render() {
-    const { componentState: { x, y }, param } = this.props;
+    const { componentState: { x, y }, contract } = this.props;
 
     return (
       <div style={{ display: 'flex' }}>
@@ -25,13 +42,13 @@ export default class PositionParam extends PureComponent {
           value={x}
           onChange={this.updateParam('x')}
           floatingLabelText="X Position (in px)"
-          type={param.x.type}
+          type={contract.x.type}
         />
         <TextField
           value={y}
           onChange={this.updateParam('y')}
           floatingLabelText="Y Position (in px)"
-          type={param.y.type}
+          type={contract.y.type}
         />
       </div>
     );

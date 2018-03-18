@@ -51,7 +51,10 @@ const makeContract = (schema) => {
     )),
     update: ({ body, query, params }) => new Promise(resolve => (
       models[service].update(body, { where: Object.assign({}, query, params) })
-        .then(resp => models[service].findById(resp[0]))
+        .then((resp) => {
+          console.log(resp);
+          return models[service].findById(resp[0]);
+        })
         .then(rows => resolve([null, rows]))
         .catch(err => resolve([err]))
     )),

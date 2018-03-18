@@ -10,7 +10,9 @@ const windowFactory = (url, defaults = {}) => (windowDims = {}) => {
   return vindaga;
 };
 
-export const startEditor = windowFactory(editorUrl);
+export const startEditor = windowFactory(editorUrl, {
+  fullscreen: true,
+});
 export const startConfig = windowFactory(configUrl, {
   resizeable: false,
 });

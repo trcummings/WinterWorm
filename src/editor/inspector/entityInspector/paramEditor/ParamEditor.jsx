@@ -1,7 +1,10 @@
 import React from 'react';
 
-import PositionParam from './paramTypes/PositionParam';
-import { default as AnimateableParams } from './paramTypes/AnimateableParams';
+import Positionable from './Positionable';
+import { default as Animateable } from './Animateable';
+
+const POSITIONABLE = 'positionable';
+const ANIMATEABLE = 'animateable';
 
 const ParamEditor = ({
   component,
@@ -11,12 +14,12 @@ const ParamEditor = ({
 }) => {
   let ParamComponent;
   switch (component.label) {
-    case 'positionable': {
-      ParamComponent = PositionParam;
+    case POSITIONABLE: {
+      ParamComponent = Positionable;
       break;
     }
-    case 'animateable': {
-      ParamComponent = AnimateableParams;
+    case ANIMATEABLE: {
+      ParamComponent = Animateable;
       break;
     }
     default: {
@@ -27,7 +30,7 @@ const ParamEditor = ({
 
   return (
     <ParamComponent
-      param={contract}
+      contract={contract}
       updateParam={updateParam}
       componentState={componentState}
     />

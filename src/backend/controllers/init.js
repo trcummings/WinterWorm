@@ -113,5 +113,9 @@ app.post('/init', async (req, res) => {
   const [scErr] = await Scenes.findOrCreate({ body: { label: 'Scene 1' } });
   if (scErr) return errorOut(scErr);
 
+  // Create a main camera entity for the game to use
+  const [eErr] = await Entities.findOrCreate({ body: { label: 'Main Camera' } });
+  if (eErr) return errorOut(eErr);
+
   return res.send({});
 });
