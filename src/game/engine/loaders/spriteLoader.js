@@ -44,7 +44,7 @@ const setSpriteLoaderState = setLoaderState(SPRITE_LOADER);
 export const getSpriteLoaderFn = getLoaderFn(SPRITE_LOADER);
 export const setSpriteLoaderFn = setLoaderFn(SPRITE_LOADER);
 
-const spriteLoader = (initialLoaderState: LoaderState, onLoaderComplete): LoaderFn => (
+const spriteLoader = (initialLoaderState: LoaderState, onLoaderComplete = () => {}): LoaderFn => (
   loader(initialLoaderState, {
     onStart,
     onProgress,
