@@ -11,7 +11,8 @@ import Icon from 'material-ui/Icon';
 import { getGameObjects } from 'Editor/modules/data';
 
 import type { ReqFn } from 'Editor/aspects/GameObjectInterface';
-import type { Id, ComponentState, Component, Entity } from 'Editor/types';
+import type { Id, Label, ComponentState, Component, Entity } from 'Editor/types';
+import { type HttpMethod, POST, PUT } from 'App/dbAgent';
 
 import ComponentCard from './ComponentCard';
 
@@ -62,8 +63,8 @@ export class EntityInspectorContainer extends PureComponent<Props, State> {
     addingComponent: false,
   }
 
-  getCandidateLabelSet = () => {
-    const { components = [], entity } = this.props;
+  getCandidateLabelSet = (): Array<Label> => {
+    const { components, entity } = this.props;
     const entityComponents = this.getComponentStates(entity.id);
     const componentIds = entityComponents.map(({ id }) => id);
     const componentSet = new Set(componentIds);
@@ -95,11 +96,12 @@ export class EntityInspectorContainer extends PureComponent<Props, State> {
     const contract = componentSpec.contract || {};
     const state = stateFromContract(contract);
 
-    return this.updateComponentState({ componentId, state, active: true }, 'post')
+    return this.updateComponentState({ componentId, state, active: true }, POST)
       .then(this.unsetAdding);
   }
 
-  updateComponentState = ({ componentId, state, active }, method = 'put') => {
+  updateComponentState = (options, method?: HttpMethod = PUT) => {
+    const { componentId, state, active } = options;
     const {
       request,
       id: entityId,

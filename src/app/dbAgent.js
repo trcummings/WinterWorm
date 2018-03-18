@@ -6,7 +6,7 @@ export const POST = 'post';
 export const PUT = 'put';
 export const DELETE = 'delete';
 
-type HttpMethod =
+export type HttpMethod =
   | typeof GET
   | typeof POST
   | typeof PUT

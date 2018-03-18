@@ -1,5 +1,6 @@
 const app = require('../server');
 const { clone } = require('../util');
+// const { models } = require('../models');
 
 const EventTypes = require('../services/eventTypes');
 const Components = require('../services/components');
@@ -110,12 +111,14 @@ app.post('/init', async (req, res) => {
   }
 
   // Create an initial scene for the game to use
-  const [scErr] = await Scenes.findOrCreate({ body: { label: 'Scene 1' } });
+  const [scErr, scene] = await Scenes.findOrCreate({ body: { label: 'Scene 1' } });
   if (scErr) return errorOut(scErr);
 
   // Create a main camera entity for the game to use
-  const [eErr] = await Entities.findOrCreate({ body: { label: 'Main Camera' } });
+  const [eErr, entity] = await Entities.findOrCreate({ body: { label: 'Main Camera' } });
   if (eErr) return errorOut(eErr);
+
+  await scene.setEntities([entity]);
 
   return res.send({});
 });

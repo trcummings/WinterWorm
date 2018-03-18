@@ -1,4 +1,6 @@
 // @flow
+import type uuid from 'uuid';
+
 export type State = {
   [string]: | State => $ElementType<State, string> | State
 };
@@ -9,13 +11,14 @@ export type Dispatch<A> = (
   action: A | ThunkAction<A> | PromiseAction<A>
 ) => *;
 
-export type Id = number;
+export type Id = uuid;
 export type Label = string;
 
 export type Component = {
   +id: Id,
   +label: Label,
-  +contract: null | mixed
+  +contract: null | mixed,
+  +isFactory: boolean,
 };
 
 export type System = {

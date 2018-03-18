@@ -39,6 +39,10 @@ const componentSchema = {
     unique: true,
     allowNull: true,
   },
+  isFactory: {
+    defaultValue: false,
+    type: Sequelize.BOOLEAN,
+  },
 };
 const Component = db.define('component', componentSchema);
 
@@ -61,6 +65,10 @@ const Entity = db.define('entity', entitySchema);
 
 const sceneSchema = { id, label, description };
 const Scene = db.define('scene', sceneSchema);
+
+// Every entity belongs to a scene
+Entity.belongsToMany(Scene, { through: 'sceneEntity' });
+Scene.belongsToMany(Entity, { through: 'sceneEntity' });
 
 // Every component that is created by default has a system which manages it
 // however, systems may operate on many different properties of the current game state,

@@ -7,6 +7,7 @@ import {
 
 import componentFns from 'Game/gameObjectSpecs/componentFns';
 import systemFns from 'Game/gameObjectSpecs/systemFns';
+// import componentStateFns from 'Game/gameObjectSpecs/componentStateFns';
 
 const getEventLabel = (specs, eventTypeId) => {
   const { eventTypes: { [eventTypeId]: { label } } } = specs;
