@@ -20,10 +20,21 @@ const getComponents = getGameObjects('components');
 const getEntities = getGameObjects('entities');
 const getComponentStates = getGameObjects('componentStates');
 const getId = (_, ownProps) => ownProps.id;
+const getEntityComponentStates = (state, ownProps) => {
+  const entityId = getId(state, ownProps);
+  const allComponentStates = getComponentStates(state);
+
+  return Object.keys(allComponentStates).reduce((total, csId) => (
+    allComponentStates[csId].entityId === entityId
+      ? Object.assign(total, { [csId]: allComponentStates[csId] })
+      : total
+  ), {});
+};
+
 const getEntity = createSelector([getEntities, getId], (entities, id) => entities[id]);
 
 const mapStateToProps = (state, ownProps) => ({
-  componentStates: getComponentStates(state, ownProps),
+  componentStates: getEntityComponentStates(state, ownProps),
   components: getComponents(state, ownProps),
   entity: getEntity(state, ownProps),
 });
@@ -94,6 +105,17 @@ export class EntityInspectorContainer extends PureComponent<Props, State> {
       });
   }
 
+  canBeActive = (componentId: Id) => {
+    const { components, componentStates } = this.props;
+    const componentSpec = components[componentId];
+    const { contexts = [] } = componentSpec;
+    const csByComponentIds = Object.keys(componentStates).reduce((total, csId) => (
+      Object.assign(total, { [componentStates[csId].componentId]: componentStates[csId] })
+    ), {});
+
+    return contexts.every(cId => csByComponentIds[cId]);
+  }
+
   setAdding = () => this.setState({ addingComponent: true })
 
   unsetAdding = () => this.setState({ addingComponent: false })
@@ -101,10 +123,11 @@ export class EntityInspectorContainer extends PureComponent<Props, State> {
   addComponent = (componentId: Id) => {
     const { components } = this.props;
     const componentSpec = components[componentId];
-    const contract = componentSpec.contract || {};
+    const { contract = {} } = componentSpec;
     const state = stateFromContract(contract);
+    const active = this.canBeActive(componentId);
 
-    return this.updateComponentState({ componentId, state, active: true }, POST)
+    return this.updateComponentState({ componentId, state, active }, POST)
       .then(this.unsetAdding);
   }
 
@@ -139,6 +162,7 @@ export class EntityInspectorContainer extends PureComponent<Props, State> {
         { componentList.map(({ id: cId, state, active }, index) => (
           <ComponentCard
             key={cId}
+            canBeActive={this.canBeActive(cId)}
             index={index}
             active={active}
             state={state}

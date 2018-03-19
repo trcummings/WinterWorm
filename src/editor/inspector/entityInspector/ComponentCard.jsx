@@ -20,6 +20,7 @@ export type UCSArgs = {
 };
 
 type Props = {
+  canBeActive: boolean,
   state: CSState,
   active: CSActive,
   component: Component,
@@ -50,6 +51,7 @@ export default class ComponentCard extends PureComponent<Props> {
 
   render() {
     const {
+      canBeActive,
       component,
       component: { label, contract },
       state,
@@ -60,6 +62,7 @@ export default class ComponentCard extends PureComponent<Props> {
       <Collapse style={collapseStyle} name={label}>
         <div style={{ display: 'flex' }}>
           <Checkbox
+            disabled={!canBeActive}
             checked={active}
             onChange={this.toggleComponentActive}
             style={{ width: 'auto' }}
