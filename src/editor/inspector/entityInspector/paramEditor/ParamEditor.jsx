@@ -1,16 +1,18 @@
 import React from 'react';
 
 import Positionable from './Positionable';
-import { default as Animateable } from './Animateable';
+// import { default as Animateable } from './Animateable';
+import { default as Spriteable } from './Spriteable';
 
 const POSITIONABLE = 'positionable';
-const ANIMATEABLE = 'animateable';
+const SPRITEABLE = 'spriteable';
+// const ANIMATEABLE = 'animateable';
 
 const ParamEditor = ({
   component,
   contract,
   componentState,
-  updateParam,
+  updateComponentState,
 }) => {
   let ParamComponent;
   switch (component.label) {
@@ -18,10 +20,12 @@ const ParamEditor = ({
       ParamComponent = Positionable;
       break;
     }
-    case ANIMATEABLE: {
-      ParamComponent = Animateable;
+
+    case SPRITEABLE: {
+      ParamComponent = Spriteable;
       break;
     }
+
     default: {
       ParamComponent = () => <div>type not currently supported</div>;
       break;
@@ -31,7 +35,7 @@ const ParamEditor = ({
   return (
     <ParamComponent
       contract={contract}
-      updateParam={updateParam}
+      updateComponentState={updateComponentState}
       componentState={componentState}
     />
   );

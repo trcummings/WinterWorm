@@ -1,0 +1,8 @@
+{
+  "label": "spriteable",
+  "contract": {
+    "resourceName": {
+      "type": "resourceName"
+    }
+  }
+}

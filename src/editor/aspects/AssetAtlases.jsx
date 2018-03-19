@@ -1,11 +1,81 @@
+// @flow
+
 import { PureComponent } from 'react';
 import fs from 'fs';
-import PropTypes from 'prop-types';
 
-const assetPath = process.env.ASSET_PATH;
+type AssetsPath = string;
 
-const getAnimNames = (frames, resourceName) => (
-  Object.keys(frames).reduce((total, imgPath) => {
+type FrameKey = string;
+
+export type ResourceName = string;
+type AtlasName = string;
+type ImgName = string;
+type AnimName = string;
+
+type ResourceFolderPath = string;
+type AtlasPath = string;
+
+type ResourceFolder = Array<ImgName | AtlasName>;
+type AssetFolder = Array<ResourceFolderPath>;
+
+type SourceSize = {
+  h: number,
+  w: number,
+};
+
+export type RawAtlas = { frames: { [FrameKey]: { sourceSize: SourceSize } } };
+
+type Animation = {
+  animName: AnimName,
+  numFrames: number,
+};
+type Animations = { [AnimName]: Animation };
+type Atlas = {
+  atlas: RawAtlas,
+  atlasPath: AtlasPath,
+  resourceName: ResourceName,
+  animations: Animations
+};
+
+export type Atlases = { [ResourceName]: Atlas };
+
+const makeResourcePath = (
+  assetsPath: AssetsPath,
+  resourceName: ResourceName
+): ResourceFolderPath => `${assetsPath}/${resourceName}`;
+
+const makeAtlasPath = (
+  resourceFolderPath: ResourceFolderPath,
+  atlasName: AtlasName
+): AtlasPath => `${resourceFolderPath}/${atlasName}`;
+
+const getAssetFolders = (assetsPath: AssetsPath): AssetFolder => (
+  fs.readdirSync(assetsPath)
+);
+
+const getResourceFolder = (resourceFolderPath: ResourceFolderPath): ResourceFolder => (
+  fs.readdirSync(resourceFolderPath)
+);
+
+const getRawAtlas = (atlasPath: AtlasPath): RawAtlas => (
+  JSON.parse(fs.readFileSync(atlasPath, 'utf8'))
+);
+
+const isResource = (resourceFolderPath: ResourceFolderPath): boolean => {
+  const stats = fs.lstatSync(resourceFolderPath);
+  return stats.isDirectory();
+};
+
+const getAtlasPath = (resourceFolderPath: ResourceFolderPath): ?AtlasName => {
+  const assetFiles = getResourceFolder(resourceFolderPath);
+  return assetFiles.find(fPath => fPath.includes('.json'));
+};
+
+const getAnimNames = (
+  rawAtlas: RawAtlas,
+  resourceName: ResourceName
+): Animations => (
+  Object.keys(rawAtlas.frames).reduce((total, imgPath) => {
     const [_, imgName] = imgPath.split(`${resourceName}/`); // eslint-disable-line
     const [name] = imgName.split('.png');
     const splitName = name.split(/_\d+/);
@@ -20,38 +90,46 @@ const getAnimNames = (frames, resourceName) => (
   }, {})
 );
 
-const getAllAtlases = () => {
-  const assetFolders = fs.readdirSync(assetPath);
-  return assetFolders.reduce((total, assetFolderPath) => {
-    const stats = fs.lstatSync(`${assetPath}/${assetFolderPath}`);
-    if (!stats.isDirectory()) return total;
-    const assetFiles = fs.readdirSync(`${assetPath}/${assetFolderPath}`);
-    const atlasPath = assetFiles.find(fPath => fPath.includes('.json'));
-    if (!atlasPath) {
-      console.warning(`no atlas found in ${assetPath}/${assetFolderPath}`);
-      return total;
-    }
-    const fullAtlasPath = `${assetPath}/${assetFolderPath}/${atlasPath}`;
-    const [resourceName] = atlasPath.split('.json');
-    const atlas = JSON.parse(fs.readFileSync(fullAtlasPath, 'utf8'));
+const reduceAtlas =
+  (assetsPath: AssetsPath) =>
+    (total: Atlases, resourceName: ResourceName): Atlases => {
+      const resourcePath = makeResourcePath(assetsPath, resourceName);
+      if (!isResource(resourcePath)) return total;
 
-    return {
-      ...total,
-      [resourceName]: {
-        atlas,
-        resourceName,
-        atlasPath: fullAtlasPath,
-        frameSpecs: getAnimNames(atlas.frames, resourceName),
-      },
+      const atlasName = getAtlasPath(resourcePath);
+      if (!atlasName) {
+        console.warning(`no atlas found in ${resourcePath}`);
+        return total;
+      }
+
+      const atlasPath = makeAtlasPath(resourcePath, atlasName);
+      const rawAtlas = getRawAtlas(atlasPath);
+
+      return Object.assign(total, {
+        [resourceName]: {
+          atlasPath,
+          resourceName,
+          atlas: rawAtlas,
+          frameSpecs: getAnimNames(rawAtlas, resourceName),
+        },
+      });
     };
-  }, {});
+
+const getAllAtlases = (assetsPath: AssetsPath): Atlases => {
+  const assetFolders = getAssetFolders(assetsPath);
+  return assetFolders.reduce(reduceAtlas(assetsPath), {});
 };
 
-export default class AssetAtlases extends PureComponent {
-  static propTypes = {
-    children: PropTypes.func.isRequired,
-  }
+const assetsPath = (process.env.ASSET_PATH: AssetsPath);
+
+type Props = {
+  children: Atlases => mixed
+};
+
+export default class AssetAtlases extends PureComponent<Props> {
+  props: Props;
+
   render() {
-    return this.props.children({ atlases: getAllAtlases() });
+    return this.props.children(getAllAtlases(assetsPath));
   }
 }

@@ -22,17 +22,17 @@ type PositionableState = {
 type Props = {
   contract: PositionableContract,
   componentState: PositionableState,
-  updateParam: PositionableState => void,
+  updateComponentState: PositionableState => void,
 };
 
 export default class Positionable extends PureComponent<Props> {
   props: Props;
 
-  updateParam = (key: $Keys<PositionableState>) => (event: Event) => {
-    const { updateParam, componentState } = this.props;
+  updateComponentState = (key: $Keys<PositionableState>) => (event: Event) => {
+    const { updateComponentState, componentState } = this.props;
     const value = event.target.value;
     const val = value !== undefined ? parseInt(value, 10) : undefined;
-    return updateParam(Object.assign({}, componentState, { [key]: val }));
+    return updateComponentState(Object.assign({}, componentState, { [key]: val }));
   }
 
   render() {
@@ -42,11 +42,11 @@ export default class Positionable extends PureComponent<Props> {
       <div style={{ display: 'flex' }}>
         <FormControl>
           <InputLabel htmlFor="x">X Position (in px)</InputLabel>
-          <Input id="x" value={x} type={contract.x.type} onChange={this.updateParam('x')} />
+          <Input id="x" value={x} type={contract.x.type} onChange={this.updateComponentState('x')} />
         </FormControl>
         <FormControl>
           <InputLabel htmlFor="y">Y Position (in px)</InputLabel>
-          <Input id="y" value={y} type={contract.y.type} onChange={this.updateParam('y')} />
+          <Input id="y" value={y} type={contract.y.type} onChange={this.updateComponentState('y')} />
         </FormControl>
       </div>
     );

@@ -1,53 +1,47 @@
-import React, { PureComponent, Fragment } from 'react';
-import PropTypes from 'prop-types';
+// @flow
+import React, { PureComponent } from 'react';
 import { assocPath } from 'ramda';
 
-import TextField from 'material-ui/TextField';
 
 import hofToHoc from 'Editor/aspects/HofToHoc';
-import AssetAtlases from 'Editor/aspects/AssetAtlases';
+import AssetAtlases, {
+  type Atlases,
+  type ResourceName,
+  type AnimName,
+} from 'Editor/aspects/AssetAtlases';
 import { stateFromContract } from 'Editor/inspector/entityInspector/EntityInspectorContainer';
 
-const FrameSpecs = ({ specs, updateFps }) => (
-  <Fragment>
-    { Object.keys(specs).map(animName => (
-      <div key={animName}>
-        <div>
-          <div>
-            { `Animation Name: ${animName}`}
-          </div>
-          <div>
-            { `Number of Frames: ${specs[animName].numFrames}`}
-          </div>
-        </div>
-        <TextField
-          value={specs[animName].fps}
-          onChange={(_, val) => updateFps(animName, val)}
-          floatingLabelText="FPS"
-          type="number"
-        />
-      </div>
-    )) }
-  </Fragment>
-);
+import FrameSpecs from './FrameSpecs';
 
-export class Animateable extends PureComponent {
-  static propTypes = {
-    contract: PropTypes.object.isRequired,
-    componentState: PropTypes.object,
-    updateParam: PropTypes.func.isRequired,
+type AnimateableState = {
+  resourceName: ResourceName,
+  animationSpecs: {
+    [AnimName]: {
+
+    }
   }
+};
 
-  updateFps = (animName, newFps) => {
-    const { updateParam, componentState } = this.props;
+type Props = {
+  contract: PositionableContract,
+  componentState: AnimateableState,
+  updateComponentState: AnimateableState => void,
+  atlases: Atlases
+};
+
+export class Animateable extends PureComponent<Props> {
+  props: Props;
+
+  updateFps = (animName: AnimName, newFps: number) => {
+    const { updateComponentState, componentState } = this.props;
     const path = ['animationSpecs', animName, 'fps'];
-    updateParam(assocPath(path, newFps, componentState));
+    updateComponentState(assocPath(path, newFps, componentState));
   }
 
   pickAtlas = key => () => {
     const {
       atlases: { [key]: atlas },
-      updateParam,
+      updateComponentState,
       contract,
     } = this.props;
     const frameSpecs = atlas.frameSpecs;
@@ -65,7 +59,7 @@ export class Animateable extends PureComponent {
       ), {}),
     };
 
-    updateParam(newComponentState);
+    updateComponentState(newComponentState);
   }
 
   render() {
@@ -95,4 +89,4 @@ export class Animateable extends PureComponent {
   }
 }
 
-export default hofToHoc(AssetAtlases)(Animateable);
+export default hofToHoc(AssetAtlases, 'atlases')(Animateable);

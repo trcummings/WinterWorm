@@ -70,7 +70,7 @@ export default class ComponentCard extends PureComponent<Props> {
           component={component}
           contract={contract}
           componentState={state}
-          updateParam={this.updateComponentState}
+          updateComponentState={this.updateComponentState}
         />
       </Collapse>
     );
