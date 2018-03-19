@@ -12,9 +12,9 @@ import { getGameObjects } from 'Editor/modules/data';
 
 import type { ReqFn } from 'Editor/aspects/GameObjectInterface';
 import type { Id, Label, ComponentState, Component, Entity } from 'Editor/types';
-import { type HttpMethod, POST, PUT } from 'App/dbAgent';
+import { POST, PUT } from 'App/dbAgent';
 
-import ComponentCard, { type UCSArgs } from './ComponentCard';
+import ComponentCard from './ComponentCard';
 
 const getComponents = getGameObjects('components');
 const getEntities = getGameObjects('entities');
@@ -83,9 +83,10 @@ export class EntityInspectorContainer extends PureComponent<Props, State> {
   }
 
   getCandidateLabelSet = (): Array<Label> => {
-    const { components, entity = {} } = this.props;
-    const entityComponents = this.getComponentStates(entity.id);
-    const componentIds = entityComponents.map(({ id }) => id);
+    const { components, componentStates } = this.props;
+    const componentIds = Object.keys(componentStates).map(csId => (
+      componentStates[csId].componentId)
+    );
     const componentSet = new Set(componentIds);
 
     return Object.keys(components).reduce((total, key) => (
@@ -93,16 +94,6 @@ export class EntityInspectorContainer extends PureComponent<Props, State> {
         ? total
         : total.concat(key)
     ), []);
-  }
-
-  getComponentStates = (id?: Id) => {
-    const { componentStates } = this.props;
-    return Object.keys(this.props.componentStates)
-      .filter(csId => componentStates[csId].entityId === id)
-      .map((csId) => {
-        const { [csId]: { state, componentId, active } } = componentStates;
-        return { id: componentId, state, active };
-      });
   }
 
   canBeActive = (componentId: Id) => {
@@ -121,53 +112,48 @@ export class EntityInspectorContainer extends PureComponent<Props, State> {
   unsetAdding = () => this.setState({ addingComponent: false })
 
   addComponent = (componentId: Id) => {
-    const { components } = this.props;
+    const { components, request, id: entityId } = this.props;
     const componentSpec = components[componentId];
     const { contract = {} } = componentSpec;
     const state = stateFromContract(contract);
     const active = this.canBeActive(componentId);
 
-    return this.updateComponentState({ componentId, state, active }, POST)
-      .then(this.unsetAdding);
+    return request({
+      method: POST,
+      service: 'componentStates',
+      form: { entityId, state, componentId, active },
+    }).then(this.unsetAdding);
   }
 
-  updateComponentState = (options: UCSArgs, method?: HttpMethod = PUT) => {
-    const { componentId, state, active } = options;
-    const {
-      request,
-      id: entityId,
-      components: { [componentId]: { contract = {} } },
+  updateComponentState = (options: ComponentState) => {
+    const { componentId, id, state, active } = options;
+    const { request, components: { [componentId]: { contract = {} } },
     } = this.props;
 
     return request({
-      method,
+      method: PUT,
       service: 'componentStates',
-      form: {
-        entityId,
-        state: makeValidState(state, contract),
-        componentId,
-        active,
-      },
+      form: { id, state: makeValidState(state, contract), active },
     });
   }
 
   render() {
-    const { entity: { id, label } = {}, components } = this.props;
-    const componentList = this.getComponentStates(id);
+    const { entity: { label } = {}, components, componentStates } = this.props;
+    const componentList = Object.keys(componentStates).map(csId => (
+      componentStates[csId]
+    ));
 
     return (
       <div>
         <h3 style={{ margin: 0 }}>{ label }</h3>
         <Divider />
-        { componentList.map(({ id: cId, state, active }, index) => (
+        { componentList.map(componentState => (
           <ComponentCard
-            key={cId}
-            canBeActive={this.canBeActive(cId)}
-            index={index}
-            active={active}
-            state={state}
-            component={components[cId]}
+            key={componentState.id}
+            componentState={componentState}
             updateComponentState={this.updateComponentState}
+            component={components[componentState.componentId]}
+            canBeActive={this.canBeActive(componentState.componentId)}
           />
         )) }
         { this.state.addingComponent ? (

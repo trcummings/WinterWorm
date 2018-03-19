@@ -2,6 +2,13 @@ const { models, schemas } = require('./models');
 
 const clone = obj => JSON.parse(JSON.stringify(obj));
 
+const minusId = (obj) => {
+  const newObj = clone(obj);
+  delete newObj.id;
+
+  return newObj;
+};
+
 const createDefaults = (schema, object) => (
   Object.keys(schema).reduce((total, key) => (
     Object.assign(total, { [key]: object[key] })
@@ -50,15 +57,15 @@ const makeContract = (schema) => {
       .then(rows => resolve([null, rows]))
       .catch(err => resolve([err]))
     )),
-    update: ({ body, query, params }) => (
+    update: ({ body }) => (
       models[service]
-        .update(body, { where: Object.assign({}, query, params) })
-        .then(() => models[service].findOne({ where: Object.assign({}, query, params) }))
+        .update(minusId(body), { where: { id: body.id } })
+        .then(() => models[service].findOne({ where: { id: body.id } }))
         .then(rows => [null, rows])
         .catch(err => [err])
     ),
-    destroy: ({ query, params }) => new Promise(resolve => (
-      models[service].destroy({ where: Object.assign({}, query, params) })
+    destroy: ({ body }) => new Promise(resolve => (
+      models[service].destroy({ where: { id: body.id } })
         .then(rows => resolve([null, rows]))
         .catch(err => resolve([err]))
     )),

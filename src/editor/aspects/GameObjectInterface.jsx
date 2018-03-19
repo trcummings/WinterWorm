@@ -66,12 +66,15 @@ export default class GameObjectInterface extends PureComponent<Props, State> {
     return new Promise((resolve) => {
       ipcRenderer.once(REQUEST_END, (_, response) => {
         const { error, data } = JSON.parse(response);
-        if (error) this.handleError(error);
+        if (error) return this.handleError(error);
 
         dispatch({ type: action, payload: data, meta: { service, multiple } });
 
-        resolve(data);
+        return resolve(data);
       });
+
+      // get some logging output in the console
+      dispatch({ type: 'REQUEST', meta: { method, uri: service, form, query, multiple } });
 
       ipcRenderer.send(REQUEST_START, { method, uri: service, form, query });
     });

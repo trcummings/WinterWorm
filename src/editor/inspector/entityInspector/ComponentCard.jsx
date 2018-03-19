@@ -3,7 +3,7 @@ import React, { PureComponent } from 'react';
 import Checkbox from 'material-ui/Checkbox';
 
 import { default as Collapse } from 'Editor/containers/Collapse';
-import type { Id, ComponentState, Component } from 'Editor/types';
+import type { ComponentState, Component } from 'Editor/types';
 
 import ParamEditor from './paramEditor/ParamEditor';
 
@@ -12,40 +12,32 @@ const collapseStyle = {
 };
 
 type CSState = $PropertyType<ComponentState, 'state'>;
-type CSActive = $PropertyType<ComponentState, 'active'>;
-export type UCSArgs = {
-  componentId: Id,
-  active: CSActive,
-  state: CSState,
-};
 
 type Props = {
+  componentState: ComponentState,
   canBeActive: boolean,
-  state: CSState,
-  active: CSActive,
   component: Component,
-  updateComponentState: UCSArgs => void,
+  updateComponentState: ComponentState => void,
 };
 
 export default class ComponentCard extends PureComponent<Props> {
   props: Props;
 
   toggleComponentActive = () => {
-    const { updateComponentState, state, active, component: { id } } = this.props;
+    const { updateComponentState, componentState } = this.props;
+
     return updateComponentState({
-      componentId: id,
-      active: !active,
-      state,
+      ...componentState,
+      active: !componentState.active,
     });
   }
 
   updateComponentState = (newState: CSState) => {
-    const { updateComponentState, active, component: { id } } = this.props;
+    const { updateComponentState, componentState } = this.props;
 
     return updateComponentState({
-      componentId: id,
+      ...componentState,
       state: newState,
-      active,
     });
   }
 
@@ -53,9 +45,8 @@ export default class ComponentCard extends PureComponent<Props> {
     const {
       canBeActive,
       component,
+      componentState: { state, active },
       component: { label, contract },
-      state,
-      active,
     } = this.props;
 
     return (
