@@ -24,10 +24,10 @@ export default class Entities extends PureComponent { // eslint-disable-line
 
   render() {
     return (
-      <ScenesController>
-        { ({ scenes, selectScene }) => (
-          <EntitiesController>
-            { ({ entities, selectEntity, addNewEntity }) => (
+      <EntitiesController>
+        { ({ entities, selectEntity, addNewEntity }) => (
+          <ScenesController>
+            { ({ scenes, selectScene }) => (
               <List>
                 { this.getSorted(scenes).map((sId) => {
                   const { entities: eIds, label } = scenes[sId];
@@ -38,6 +38,7 @@ export default class Entities extends PureComponent { // eslint-disable-line
                     <Fragment key={sId}>
                       <ListItem>
                         <ListItemText
+                          component="h6"
                           onClick={() => selectScene(sId)}
                           primary={label}
                         />
@@ -47,6 +48,7 @@ export default class Entities extends PureComponent { // eslint-disable-line
                           <ListItem button>
                             <ListItemText
                               inset
+                              component="h6"
                               primary="+ New Entity"
                               onClick={() => (
                                 addNewEntity({
@@ -60,6 +62,7 @@ export default class Entities extends PureComponent { // eslint-disable-line
                             <ListItem key={eId}>
                               <ListItemText
                                 inset
+                                component="h6"
                                 onClick={() => selectEntity(eId)}
                                 primary={entities[eId].label}
                               />
@@ -72,9 +75,9 @@ export default class Entities extends PureComponent { // eslint-disable-line
                 }) }
               </List>
             ) }
-          </EntitiesController>
+          </ScenesController>
         ) }
-      </ScenesController>
+      </EntitiesController>
     );
   }
 }

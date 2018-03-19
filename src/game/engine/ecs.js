@@ -258,10 +258,8 @@ const makeNewEntityId = (state: GameState): { id: number, } => {
 export const setEntity = (state: GameState, entity) => {
   const { components, id: entityId } = entity;
   let id = entityId;
-  // we don't want to use the entity id that comes from the spec because
-  // that was defined statically, and we can't be sure that the spec's id
-  // won't have conflicts.
   if (!id) id = makeNewEntityId(state);
+
   const componentStateFn = componentStateFromSpec(id);
 
   return components.reduce(componentStateFn, state);

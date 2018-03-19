@@ -1,6 +1,7 @@
 // @flow
 import React, { PureComponent } from 'react';
-import TextField from 'material-ui/TextField';
+import Input, { InputLabel } from 'material-ui/Input';
+import { FormControl } from 'material-ui/Form';
 
 type PositionableContract = {
   x: {
@@ -27,9 +28,10 @@ type Props = {
 export default class Positionable extends PureComponent<Props> {
   props: Props;
 
-  updateParam = (key: $Keys<PositionableState>) => (_: Event, newValue?: string) => {
+  updateParam = (key: $Keys<PositionableState>) => (event: Event) => {
     const { updateParam, componentState } = this.props;
-    const val = newValue !== undefined ? parseInt(newValue, 10) : undefined;
+    const value = event.target.value;
+    const val = value !== undefined ? parseInt(value, 10) : undefined;
     return updateParam(Object.assign({}, componentState, { [key]: val }));
   }
 
@@ -38,18 +40,14 @@ export default class Positionable extends PureComponent<Props> {
 
     return (
       <div style={{ display: 'flex' }}>
-        <TextField
-          value={x}
-          onChange={this.updateParam('x')}
-          floatingLabelText="X Position (in px)"
-          type={contract.x.type}
-        />
-        <TextField
-          value={y}
-          onChange={this.updateParam('y')}
-          floatingLabelText="Y Position (in px)"
-          type={contract.y.type}
-        />
+        <FormControl>
+          <InputLabel htmlFor="x">X Position (in px)</InputLabel>
+          <Input id="x" value={x} type={contract.x.type} onChange={this.updateParam('x')} />
+        </FormControl>
+        <FormControl>
+          <InputLabel htmlFor="y">Y Position (in px)</InputLabel>
+          <Input id="y" value={y} type={contract.y.type} onChange={this.updateParam('y')} />
+        </FormControl>
       </div>
     );
   }

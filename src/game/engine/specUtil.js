@@ -34,7 +34,16 @@ const processSystem = (specs, systemId) => {
 };
 
 const processEntity = (specs, entityId) => {
-  const { entities: { [entityId]: { label, components = [] } } } = specs;
+  const { entities: { [entityId]: { label } }, componentStates = {} } = specs;
+
+  const components = Object.keys(componentStates).reduce((total, csId) => (
+    componentStates[csId].entityId === entityId && componentStates[csId].active
+      ? total.concat([{
+        id: componentStates[csId].componentId,
+        state: componentStates[csId].state,
+      }])
+      : total
+  ), []);
   return { id: entityId, label, components };
 };
 

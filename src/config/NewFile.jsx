@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { view, lensPath } from 'ramda';
 
 import Button from 'material-ui/Button';
-import TextField from 'material-ui/TextField';
 import Input, { InputLabel } from 'material-ui/Input';
 import { FormControl, FormHelperText } from 'material-ui/Form';
 

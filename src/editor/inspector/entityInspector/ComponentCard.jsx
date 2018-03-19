@@ -13,7 +13,7 @@ const collapseStyle = {
 
 type CSState = $PropertyType<ComponentState, 'state'>;
 type CSActive = $PropertyType<ComponentState, 'active'>;
-type UCSArgs = {
+export type UCSArgs = {
   componentId: Id,
   active: CSActive,
   state: CSState,

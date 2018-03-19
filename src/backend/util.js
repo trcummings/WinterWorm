@@ -66,15 +66,25 @@ const makeContract = (schema) => {
     )),
   }, customActions);
 
-  actions.run = type => (req, res) => actions[type](req).then(([err, result]) => (
-    res.send({
-      data: result,
-      error: err,
-      statusCode: err ? 400 : 200,
-    })
-  ));
+  actions.run = type => (req, res) => {
+    console.log(req.body, req.params);
+
+    actions[type](req).then(([err, result]) => {
+      console.log(err, result);
+
+      res.send({
+        data: result,
+        error: err,
+        statusCode: err ? 400 : 200,
+      });
+    });
+  };
 
   return actions;
+};
+
+const runCustom = service => (req, res) => {
+  service.run(req.params.customAction)(req, res);
 };
 
 const makeController = (app, name, service) => {
@@ -83,9 +93,7 @@ const makeController = (app, name, service) => {
   app.post(`/${name}`, service.run('create'));
   app.put(`/${name}`, service.run('update'));
   app.delete(`/${name}`, service.run('destroy'));
-  app.post(`/${name}/:customAction`, (req, res) => (
-    service.run(req.params.customAction)(req, res)
-  ));
+  app.post(`/${name}/:customAction`, runCustom(service));
 };
 
 module.exports = {

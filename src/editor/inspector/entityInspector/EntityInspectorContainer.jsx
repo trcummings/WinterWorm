@@ -14,7 +14,7 @@ import type { ReqFn } from 'Editor/aspects/GameObjectInterface';
 import type { Id, Label, ComponentState, Component, Entity } from 'Editor/types';
 import { type HttpMethod, POST, PUT } from 'App/dbAgent';
 
-import ComponentCard from './ComponentCard';
+import ComponentCard, { type UCSArgs } from './ComponentCard';
 
 const getComponents = getGameObjects('components');
 const getEntities = getGameObjects('entities');
@@ -51,7 +51,7 @@ type Props = {
   components: {
     [Id]: Component
   },
-  entity: Entity,
+  entity?: Entity,
   request: ReqFn,
 };
 
@@ -63,12 +63,16 @@ export class EntityInspectorContainer extends PureComponent<Props, State> {
   props: Props;
   state: State;
 
+  static defaultProps = {
+    entity: {},
+  };
+
   state = {
     addingComponent: false,
   }
 
   getCandidateLabelSet = (): Array<Label> => {
-    const { components, entity } = this.props;
+    const { components, entity = {} } = this.props;
     const entityComponents = this.getComponentStates(entity.id);
     const componentIds = entityComponents.map(({ id }) => id);
     const componentSet = new Set(componentIds);
@@ -80,7 +84,7 @@ export class EntityInspectorContainer extends PureComponent<Props, State> {
     ), []);
   }
 
-  getComponentStates = (id: Id) => {
+  getComponentStates = (id?: Id) => {
     const { componentStates } = this.props;
     return Object.keys(this.props.componentStates)
       .filter(csId => componentStates[csId].entityId === id)
@@ -104,7 +108,7 @@ export class EntityInspectorContainer extends PureComponent<Props, State> {
       .then(this.unsetAdding);
   }
 
-  updateComponentState = (options, method?: HttpMethod = PUT) => {
+  updateComponentState = (options: UCSArgs, method?: HttpMethod = PUT) => {
     const { componentId, state, active } = options;
     const {
       request,
@@ -125,7 +129,7 @@ export class EntityInspectorContainer extends PureComponent<Props, State> {
   }
 
   render() {
-    const { entity: { id, label }, components } = this.props;
+    const { entity: { id, label } = {}, components } = this.props;
     const componentList = this.getComponentStates(id);
 
     return (
