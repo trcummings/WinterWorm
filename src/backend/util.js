@@ -17,9 +17,10 @@ const makeContract = (schema) => {
       include: includeFindAll = [],
       post: postFindAll = passThrough,
     } = {},
+    customActions,
   } = schema;
 
-  const actions = {
+  const actions = Object.assign({}, {
     find: ({ query, params }) => new Promise(resolve => (
       models[service].find({ where: Object.assign({}, query, params) })
         .then(rows => resolve([null, rows]))
@@ -63,7 +64,7 @@ const makeContract = (schema) => {
         .then(rows => resolve([null, rows]))
         .catch(err => resolve([err]))
     )),
-  };
+  }, customActions);
 
   actions.run = type => (req, res) => actions[type](req).then(([err, result]) => (
     res.send({
@@ -82,6 +83,9 @@ const makeController = (app, name, service) => {
   app.post(`/${name}`, service.run('create'));
   app.put(`/${name}`, service.run('update'));
   app.delete(`/${name}`, service.run('destroy'));
+  app.post(`/${name}/:customAction`, (req, res) => (
+    service.run(req.params.customAction)(req, res)
+  ));
 };
 
 module.exports = {

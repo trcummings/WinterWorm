@@ -27,7 +27,7 @@ export default class Entities extends PureComponent { // eslint-disable-line
       <ScenesController>
         { ({ scenes, selectScene }) => (
           <EntitiesController>
-            { ({ entities, selectEntity }) => (
+            { ({ entities, selectEntity, addNewEntity }) => (
               <List>
                 { this.getSorted(scenes).map((sId) => {
                   const { entities: eIds, label } = scenes[sId];
@@ -44,6 +44,18 @@ export default class Entities extends PureComponent { // eslint-disable-line
                       </ListItem>
                       { sEIds.length > 0 && (
                         <List disablePadding>
+                          <ListItem button>
+                            <ListItemText
+                              inset
+                              primary="+ New Entity"
+                              onClick={() => (
+                                addNewEntity({
+                                  label: `New Entity ${Object.keys(entities).length + 1}`,
+                                  sceneId: sId,
+                                })
+                              )}
+                            />
+                          </ListItem>
                           { sEIds.map(eId => (
                             <ListItem key={eId}>
                               <ListItemText

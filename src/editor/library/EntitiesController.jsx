@@ -44,11 +44,17 @@ export class EntitiesController extends PureComponent {
     }).isRequired,
   }
 
-  addNewEntity = () => {
+  addNewEntity = (args) => {
     const { entities, gameObjects: { request } } = this.props;
-    const newEntity = makeNewEntity(Object.keys(entities).length);
+    let newEntity = args;
+    if (!newEntity) newEntity = makeNewEntity(Object.keys(entities).length);
 
-    request({ method: 'post', service: 'entities', form: newEntity }).then((entity) => {
+    request({
+      method: 'post',
+      service: 'entities/createWithScene',
+      form: newEntity,
+      multiple: true,
+    }).then((entity) => {
       this.selectEntity(entity.id);
     });
   }

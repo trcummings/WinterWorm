@@ -46,6 +46,8 @@ export const startGame = (initialState, data) => {
     progress: 0,
   }));
 
+  console.log(initialState, initialSpecs);
+
   const makeGameState = () => setGameState(
     initialState,
     { type: SCRIPTS,

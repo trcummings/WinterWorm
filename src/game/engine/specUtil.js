@@ -30,7 +30,7 @@ const processSystem = (specs, systemId) => {
   const { systems: { [systemId]: { label, componentId } } } = specs;
 
   if (componentId) return { id: systemId, component: processComponent(specs, componentId) };
-  return { id: systemId, fn: systemFns[label] };
+  return { id: systemId, fn: systemFns[label], label };
 };
 
 const processEntity = (specs, entityId) => {
@@ -39,21 +39,28 @@ const processEntity = (specs, entityId) => {
 };
 
 const processScene = (specs, sceneId) => {
-  const { scenes: { [sceneId]: { label, entities } } } = specs;
-  return { id: sceneId, label, entities };
+  const { scenes: { [sceneId]: { label } } } = specs;
+  return { id: sceneId, label };
 };
 
 export function gameSpecsToSpecs(specs) {
   const currentSceneId = Object.keys(specs.scenes)[0];
   const currentScene = processScene(specs, currentSceneId);
-  const entityIds = currentScene.entities;
+  const entityIds = specs.scenes[currentSceneId].entities;
+
+  const { pre, main, post } = Object.keys(specs.systems).reduce((total, sId) => {
+    const { orderIndex, partition } = specs.systems[sId];
+    total[partition][orderIndex] = sId; // eslint-disable-line
+    return total;
+  }, { pre: [], main: [], post: [] });
+  const systemIds = [...pre, ...main, ...post].filter(sId => specs.systems[sId].active);
 
   return [
     { type: SCENES,
-      options: { ...currentScene, systems: Object.keys(specs.systems) } },
+      options: { ...currentScene, systems: systemIds } },
     { type: CURRENT_SCENE,
       options: currentSceneId },
-    ...Object.keys(specs.systems).map(id => ({
+    ...systemIds.map(id => ({
       type: SYSTEMS, options: processSystem(specs, id),
     })),
     ...entityIds.map(eId => ({
