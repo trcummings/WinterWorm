@@ -22,7 +22,10 @@ export const setEditorConfig =
       dispatch({ type: SET_EDITOR_CONFIG, payload });
 
 // Reducer
-const INITIAL_STATE = Map();
+const INITIAL_STATE = Map({
+  isNew: undefined,
+  filename: undefined,
+});
 
 const editorConfig = (
   state: Map<$Keys<EditorState>, $Values<EditorState>> = INITIAL_STATE,
@@ -31,9 +34,7 @@ const editorConfig = (
   const { type, payload } = action;
 
   switch (type) {
-    case SET_EDITOR_CONFIG: {
-      return Map({ ...payload });
-    }
+    case SET_EDITOR_CONFIG: return Map({ ...payload });
     default: return state;
   }
 };

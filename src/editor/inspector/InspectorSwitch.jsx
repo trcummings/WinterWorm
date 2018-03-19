@@ -3,7 +3,10 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
 import { default as GameObjectInterface } from 'Editor/aspects/GameObjectInterface';
-import { getInspectorControl } from 'Editor/modules/inspector';
+import {
+  getInspectorId,
+  getInspectorType,
+} from 'Editor/modules/inspector';
 
 import { default as EntityInspectorContainer } from './entityInspector/EntityInspectorContainer';
 
@@ -14,7 +17,8 @@ import {
 } from '../../game/engine/symbols';
 
 const mapStateToProps = (state, ownProps) => ({
-  ...getInspectorControl(state, ownProps),
+  id: getInspectorId(state, ownProps),
+  inspectorType: getInspectorType(state, ownProps),
 });
 
 const Dummy = ({ id }) => <div>{ id }</div>;

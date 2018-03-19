@@ -59,7 +59,9 @@ export class ScenesController extends PureComponent {
   });
 
   render() {
-    const { children, scenes, inspector: { inspectorType, id } } = this.props;
+    const { children, scenes, inspector } = this.props;
+    const inspectorType = inspector.get('inspectorType');
+    const id = inspector.get('id');
     const selectedSceneId = inspectorType === symbols.SCENES ? id : null;
 
     return children({

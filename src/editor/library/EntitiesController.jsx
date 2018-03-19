@@ -1,24 +1,33 @@
+// @flow
 import { PureComponent } from 'react';
-import PropTypes from 'prop-types';
 import { compose } from 'ramda';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-import { symbols } from '../constants';
+import { ENTITIES } from 'Game/engine/symbols';
 
-import { default as GameObjectInterface } from '../aspects/GameObjectInterface';
+import type { Id } from 'Editor/types';
+
+import {
+  default as GameObjectInterface,
+  type GameObjectAspect,
+} from '../aspects/GameObjectInterface';
 import hofToHoc from '../aspects/HofToHoc';
+
 
 import {
   selectInspector,
   getInspectorControl,
+  type InspectorState,
+  type Inspector,
+  type InspectorId,
 } from '../modules/inspector';
 import { getGameObjects } from '../modules/data';
 
 const getEntities = getGameObjects('entities');
 
 const mapStateToProps = (state, ownProps) => ({
-  inspector: getInspectorControl(state, ownProps),
+  inspector: getInspectorControl(state),
   entities: getEntities(state, ownProps),
 });
 
@@ -26,23 +35,23 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   setInInspector: selectInspector,
 }, dispatch);
 
-export const makeNewEntity = numEntities => ({
+export const makeNewEntity = (numEntities: number) => ({
   label: `New Entity ${numEntities + 1}`,
 });
 
-export class EntitiesController extends PureComponent {
-  static propTypes = {
-    children: PropTypes.func.isRequired,
-    inspector: PropTypes.shape({
-      inspectorType: PropTypes.string,
-      id: PropTypes.string,
-    }).isRequired,
-    setInInspector: PropTypes.func.isRequired,
-    entities: PropTypes.object.isRequired,
-    gameObjects: PropTypes.shape({
-      request: PropTypes.func.isRequired,
-    }).isRequired,
-  }
+type ChildrenProps = {
+  selectedEntityId: InspectorId
+};
+
+type Props = {
+  children: (ChildrenProps) => mixed,
+  inspector: InspectorState,
+  setInInspector: Inspector => mixed,
+  gameObjects: GameObjectAspect,
+};
+
+class EntitiesController extends PureComponent<Props> {
+  props: Props;
 
   addNewEntity = (args) => {
     const { entities, gameObjects: { request } } = this.props;
@@ -59,14 +68,13 @@ export class EntitiesController extends PureComponent {
     });
   }
 
-  selectEntity = id => this.props.setInInspector({
-    inspectorType: symbols.ENTITIES,
-    id,
-  });
+  selectEntity = (id: Id) => this.props.setInInspector({ inspectorType: ENTITIES, id });
 
   render() {
-    const { children, entities, inspector: { inspectorType, id } } = this.props;
-    const selectedEntityId = inspectorType === symbols.ENTITIES ? id : null;
+    const { children, entities, inspector } = this.props;
+    const inspectorType = inspector.get('inspectorType');
+    const id = inspector.get('id');
+    const selectedEntityId = inspectorType === ENTITIES ? id : null;
 
     return children({
       entities,

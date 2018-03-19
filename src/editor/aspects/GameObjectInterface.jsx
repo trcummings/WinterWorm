@@ -18,8 +18,8 @@ export type ReqFn = ReqOptions => Promise<mixed>;
 
 type MaybeError = Error | null;
 
-type GameObjectAspect = {
-  request: ReqOptions => mixed,
+export type GameObjectAspect = {
+  request: ReqOptions => Promise<mixed>,
   error: MaybeError,
 };
 

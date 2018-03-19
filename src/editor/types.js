@@ -14,9 +14,10 @@ export type Dispatch<A> = (
 export type Id = uuid;
 export type Label = string;
 
-type ComponentId = Id;
-type EntityId = Id;
-type EventTypeId = Id;
+export type ComponentId = Id;
+export type EntityId = Id;
+export type EventTypeId = Id;
+export type SceneId = Id;
 
 export type Component = {
   +id: ComponentId,
@@ -48,7 +49,7 @@ export type Entity = {
 };
 
 export type Scene = {
-  +id: Id,
+  +id: SceneId,
   +label: Label,
   +entities: Array<EntityId>
 };
