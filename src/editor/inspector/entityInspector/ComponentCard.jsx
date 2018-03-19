@@ -61,7 +61,7 @@ export default class ComponentCard extends PureComponent<Props> {
         <div style={{ display: 'flex' }}>
           <Checkbox
             checked={active}
-            onCheck={this.toggleComponentActive}
+            onChange={this.toggleComponentActive}
             style={{ width: 'auto' }}
           />
           <h4 style={{ margin: 0 }}>{label}</h4>

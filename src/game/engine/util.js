@@ -16,7 +16,7 @@ type MakeIdType =
   | typeof COMPONENTS
   | typeof SYSTEMS
   | typeof SCENES
-  | typeof PARAMETERS
+  | typeof PARAMETERS;
 
 const counterDict = {
   [ENTITIES]: 0,

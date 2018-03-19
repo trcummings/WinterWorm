@@ -50,15 +50,13 @@ const makeContract = (schema) => {
       .then(rows => resolve([null, rows]))
       .catch(err => resolve([err]))
     )),
-    update: ({ body, query, params }) => new Promise(resolve => (
-      models[service].update(body, { where: Object.assign({}, query, params) })
-        .then((resp) => {
-          console.log(resp);
-          return models[service].findById(resp[0]);
-        })
-        .then(rows => resolve([null, rows]))
-        .catch(err => resolve([err]))
-    )),
+    update: ({ body, query, params }) => (
+      models[service]
+        .update(body, { where: Object.assign({}, query, params) })
+        .then(() => models[service].findOne({ where: Object.assign({}, query, params) }))
+        .then(rows => [null, rows])
+        .catch(err => [err])
+    ),
     destroy: ({ query, params }) => new Promise(resolve => (
       models[service].destroy({ where: Object.assign({}, query, params) })
         .then(rows => resolve([null, rows]))
@@ -67,11 +65,7 @@ const makeContract = (schema) => {
   }, customActions);
 
   actions.run = type => (req, res) => {
-    console.log(req.body, req.params);
-
     actions[type](req).then(([err, result]) => {
-      console.log(err, result);
-
       res.send({
         data: result,
         error: err,
