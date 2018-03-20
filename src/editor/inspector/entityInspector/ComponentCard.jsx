@@ -34,11 +34,7 @@ export default class ComponentCard extends PureComponent<Props> {
 
   updateComponentState = (newState: CSState) => {
     const { updateComponentState, componentState } = this.props;
-
-    return updateComponentState({
-      ...componentState,
-      state: newState,
-    });
+    return updateComponentState({ ...componentState, state: newState });
   }
 
   render() {

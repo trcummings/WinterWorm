@@ -20,8 +20,8 @@ type Props = {
 class Spriteable extends PureComponent<Props> {
   props: Props;
 
-  pickAtlas = (resourceName: ResourceName) => () => (
-    this.props.updateComponentState({ resourceName })
+  pickAtlas = (event: SyntheticEvent<HTMLSelectElement>) => (
+    this.props.updateComponentState({ resourceName: event.currentTarget.value })
   )
 
   render() {
@@ -30,14 +30,10 @@ class Spriteable extends PureComponent<Props> {
 
     return (
       <div>
-        <select value={value}>
+        <select value={value} onChange={this.pickAtlas}>
           <option value="">Select Asset Atlas</option>
           { Object.keys(atlases).map(key => (
-            <option
-              key={key}
-              value={key}
-              onSelect={this.pickAtlas(key)}
-            >{key}</option>
+            <option key={key} value={key}>{key}</option>
           ))}
         </select>
       </div>
