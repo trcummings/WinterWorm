@@ -31,20 +31,39 @@ type RenderEngine = {
   renderer: WebGLRenderer,
 };
 
-// const ASPECT_RATIO = 16/9;
-const makeHeight = width => Math.floor((9 / 16) * width);
+const ASPECT_RATIO = 16 / 9;
+const makeHeight = width => Math.floor((1 / ASPECT_RATIO) * width);
+const makeWidth = height => Math.floor(ASPECT_RATIO * height);
 
+type RenderDims = { rendererHeight: number, rendererWidth: number };
+export type Dims =  { height: number, width: number };
+
+export const makeRendererDims = ({ height, width }: Dims): RenderDims => {
+  let rendererHeight = height;
+  let rendererWidth = width;
+  const aspectRatio = width / height;
+
+  // too short, adjust accordingly
+  if (aspectRatio > ASPECT_RATIO) rendererWidth = makeWidth(height);
+  else rendererHeight = makeHeight(width);
+
+  return { rendererHeight, rendererWidth };
+};
+
+const backgroundColor = 0x1099bb;
 export const createRenderingEngine = ({
-  width = 800,
-  backgroundColor = 0x1099bb,
-}: {
-  width: number,
-  backgroundColor?: number
-}): RenderEngine => {
-  const height = makeHeight(width);
-  const renderer = new autoDetectRenderer({ width, height, backgroundColor });
+  height = 1080,
+  width = 1920,
+}: Dims): RenderEngine => {
+  const options = { width, height, backgroundColor, antialias: true };
+  const renderer = new autoDetectRenderer(options);
   const canvas = renderer.view;
   const stage = new Container();
+
+  const scaleX = width / 1920;
+  const scaleY = height / 1080;
+  stage.scale.x = scaleX;
+  stage.scale.y = scaleY;
 
   return { canvas, stage, renderer, pixiLoader: new loaders.Loader() };
 };

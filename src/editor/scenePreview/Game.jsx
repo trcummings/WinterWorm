@@ -3,7 +3,7 @@ import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 
 import { makeInitialState, startGame } from 'Game/main';
-import { createRenderingEngine } from 'Game/engine/pixi';
+import { createRenderingEngine, makeRendererDims, type Dims } from 'Game/engine/pixi';
 import { isDev } from 'Game/engine/util';
 import { setUpFpsMeter } from 'Game/engine/utils/fpsMeterUtil';
 
@@ -41,15 +41,12 @@ export class Game extends PureComponent<Props, State> {
     // get inner height of div & inner width
     // set height listeners
     if (!this.wrapper) return;
-    const { height, width } = this.getWrapperDims();
 
     // initialize game state with current data
-    const { canvas, ...rest } = createRenderingEngine({
-      width: parseInt(width, 10),
-    });
+    const { canvas, ...rest } = createRenderingEngine(this.getWrapperDims());
 
     this.canvas = canvas;
-    this.setCanvasDims({ height, width });
+    this.setCanvasSize();
 
     const initialState = makeInitialState({
       renderEngine: { canvas, ...rest },
@@ -65,17 +62,22 @@ export class Game extends PureComponent<Props, State> {
     window.removeEventListener('resize', this.setCanvasSize);
   }
 
-  getWrapperDims = () => {
-    if (!this.wrapper) return {};
+  getWrapperDims = (): Dims => {
+    if (!this.wrapper) return { height: 0, width: 0 };
 
     const { height, width } = window.getComputedStyle(this.wrapper.parentElement);
-    return { height, width };
+    const { rendererHeight, rendererWidth } = makeRendererDims({
+      height: parseInt(height, 10) - 32,
+      width: parseInt(width, 10) - 32,
+    });
+
+    return { height: rendererHeight, width: rendererWidth };
   }
 
-  setCanvasDims = ({ height, width }: { height?: string, width?: string }) => {
+  setCanvasDims = ({ height, width }: Dims) => {
     if (!this.canvas || !height || !width) return;
-    this.canvas.height = parseInt(height, 10) - 32;
-    this.canvas.width = parseInt(width, 10) - 32;
+    this.canvas.height = height;
+    this.canvas.width = width;
     this.canvas.style.position = 'absolute';
     this.canvas.style.transform = 'translate(-50%, -50%)';
     this.canvas.style.top = '50%';
