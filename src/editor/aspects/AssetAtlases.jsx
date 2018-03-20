@@ -8,9 +8,11 @@ type AssetsPath = string;
 type FrameKey = string;
 
 export type ResourceName = string;
+
 type AtlasName = string;
 type ImgName = string;
-type AnimName = string;
+
+export type AnimName = string;
 
 type ResourceFolderPath = string;
 type AtlasPath = string;

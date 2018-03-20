@@ -9,7 +9,7 @@ export const loggerMiddleware = (state: GameState): GameState => {
   if (Number.isNaN(timer)) timer = 0;
   timer += loopState.frameTime;
 
-  if (timer > 5000) {
+  if (timer > 10000) {
     timer = 0;
     console.log('logging', state);
   }

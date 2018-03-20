@@ -140,17 +140,31 @@ export class EntityInspectorContainer extends PureComponent<Props, State> {
 
   render() {
     const { entity: { label } = {}, components, componentStates } = this.props;
-    const componentList = Object.keys(componentStates).map(csId => (
-      componentStates[csId]
-    ));
+    const componentList = Object.keys(componentStates).map((csId) => {
+      const componentState = componentStates[csId];
+      const { contexts: context = [] } = components[componentState.componentId];
+      const contexts = context.reduce((total, componentId) => {
+        const cCsId = Object.keys(componentStates).find(ncsId =>
+          componentStates[ncsId].componentId === componentId
+        );
+
+        if (!cCsId) return total;
+        const { componentId: csCompId, state: csState } = componentStates[cCsId];
+        const { label: csLabel } = components[csCompId];
+        return Object.assign(total, { [csLabel]: csState });
+      }, {});
+
+      return { contexts, componentState: componentStates[csId] };
+    });
 
     return (
       <div>
         <h3 style={{ margin: 0 }}>{ label }</h3>
         <Divider />
-        { componentList.map(componentState => (
+        { componentList.map(({ componentState, contexts }) => (
           <ComponentCard
             key={componentState.id}
+            contexts={contexts}
             componentState={componentState}
             updateComponentState={this.updateComponentState}
             component={components[componentState.componentId]}

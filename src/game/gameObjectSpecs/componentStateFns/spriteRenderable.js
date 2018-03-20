@@ -9,16 +9,19 @@ export default (componentState, context) => (gameState) => {
   } = context;
 
   const { [resourceName]: { frameSpecs } } = getAssetPathAtlases();
-
-  // you cannot dispatch actions in the initialization phase
-
+  const animationResourceSpec = { resourceName, animationSpecs: frameSpecs };
   const { pixiLoader: { resources }, stage } = getRenderEngine(gameState);
-  const { animation } = makeAnimations(resources, { resourceName, animationSpecs: frameSpecs });
+  const { animation, nameMap } = makeAnimations(resources, animationResourceSpec);
 
   animation.x = x;
   animation.y = y;
 
   stage.addChild(animation);
 
-  return { animation, currentFrame };
+  const animIndex = nameMap[currentFrame];
+  const sprites = animation.children[animIndex];
+  sprites.renderable = true;
+
+  return { animation, currentFrame, nameMap };
+  // you cannot dispatch actions in the initialization phase
 };

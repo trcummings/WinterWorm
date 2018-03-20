@@ -17,6 +17,7 @@ type Props = {
   componentState: ComponentState,
   canBeActive: boolean,
   component: Component,
+  contexts: Array<CSState>,
   updateComponentState: ComponentState => void,
 };
 
@@ -43,6 +44,7 @@ export default class ComponentCard extends PureComponent<Props> {
       component,
       componentState: { state, active },
       component: { label, contract },
+      contexts,
     } = this.props;
 
     return (
@@ -57,6 +59,7 @@ export default class ComponentCard extends PureComponent<Props> {
           <h4 style={{ margin: 0 }}>{label}</h4>
         </div>
         <ParamEditor
+          contexts={contexts}
           component={component}
           contract={contract}
           componentState={state}
