@@ -8,7 +8,7 @@ import physics from './physics';
 import render from './render';
 import ticker from './ticker';
 
-const systemFns = {
+export default {
   clearEventQueue,
   fpsTickEnd,
   fpsTickStart,
@@ -19,5 +19,3 @@ const systemFns = {
   render,
   ticker,
 };
-
-export default systemFns;

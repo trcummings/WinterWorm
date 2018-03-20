@@ -6,7 +6,7 @@ import positionable from './positionable';
 import spriteRenderable from './spriteRenderable';
 import spriteable from './spriteable';
 
-const componentFns = {
+export default {
   accelerateable,
   animateable,
   inputControlable,
@@ -15,5 +15,3 @@ const componentFns = {
   positionable,
   spriteRenderable,
 };
-
-export default componentFns;

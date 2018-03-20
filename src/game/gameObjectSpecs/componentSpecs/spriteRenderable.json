@@ -1,4 +1,16 @@
 {
   "label": "spriteRenderable",
-  "context": ["positionable", "animateable"]
+  "subscriptions": [
+    "animationChange"
+  ],
+  "context": [
+    "spriteable",
+    "positionable"
+  ],
+  "isFactory": true,
+  "contract": {
+    "currentFrame": {
+      "type": "frameName"
+    }
+  }
 }

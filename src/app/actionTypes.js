@@ -72,6 +72,7 @@ type EditorEventTypes =
 // GAME
 export const OPEN_GAME_START = 'game/OPEN_GAME_START';
 export const OPEN_GAME_FINISH = 'game/OPEN_GAME_FINISH';
+export const INITIAL_ASSET_LOAD = 'game/INITIAL_ASSET_LOAD';
 
 export const SYNC = 'sync';
 export const START_GAME = 'start_game';
@@ -98,6 +99,7 @@ type GameEventTypes =
   | typeof PLAY
   | typeof PAUSE
   | typeof REFRESH
+  | typeof INITIAL_ASSET_LOAD
   | typeof LOAD_SPEC;
 
 

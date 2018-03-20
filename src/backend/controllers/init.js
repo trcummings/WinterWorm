@@ -91,10 +91,10 @@ app.post('/init', async (req, res) => {
   const contextMap = {};
   const componentMap = {};
   for (const component of components) {
-    const { label, context = [], subscriptions = [], contract } = component;
+    const { label, context = [], subscriptions = [], contract, isFactory } = component;
 
     // create the component
-    const [cErr, cResult] = await Components.findOrCreate({ body: { label, contract } });
+    const [cErr, cResult] = await Components.findOrCreate({ body: { label, contract, isFactory } });
     if (cErr) return errorOut(cErr);
 
     // add the component to the component map

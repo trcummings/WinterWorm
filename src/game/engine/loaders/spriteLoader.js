@@ -16,13 +16,6 @@ const addLoaderItem = (pixiLoader, spec) => (
     : pixiLoader.add(spec.name, spec.path)
 );
 
-const onStart = (loaderState: LoaderState): LoaderState => {
-  const { meta: { pixiLoader, assetSpecs } } = loaderState;
-  assetSpecs.reduce(addLoaderItem, pixiLoader).load(() => {});
-
-  return { ...loaderState, started: true, loading: true };
-};
-
 const onProgress = (loaderState: LoaderState): LoaderState => {
   const { meta: { progress, pixiLoader } } = loaderState;
   if (pixiLoader.progress === progress) return loaderState;
@@ -32,6 +25,13 @@ const onProgress = (loaderState: LoaderState): LoaderState => {
     loading: pixiLoader.loading,
     meta: { ...loaderState.meta, progress: pixiLoader.progress },
   };
+};
+
+const onStart = (loaderState: LoaderState): LoaderState => {
+  const { meta: { pixiLoader, assetSpecs } } = loaderState;
+  assetSpecs.reduce(addLoaderItem, pixiLoader).load(() => {});
+
+  return { ...loaderState, started: true, loading: true };
 };
 
 const onComplete = (loaderState: LoaderState): LoaderState => ({

@@ -65,6 +65,7 @@ const loader = (initialLoaderState: LoaderState, {
 
   // ignore the loader if we've completed the load
   if (loaderState.completed) return state;
+
   // if we haven't started, start the loading process!
   else if (!loaderState.started) {
     return setLoader(state, onStart(loaderState));

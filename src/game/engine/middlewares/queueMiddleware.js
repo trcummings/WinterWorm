@@ -6,17 +6,19 @@ import {
   REFRESH,
   LOAD_SPEC,
 } from 'App/actionTypes';
-import { getLoopState, setLoopState } from 'Engine/loop';
+import { getLoopState, setLoopState } from 'Game/engine/loop';
 
 import type { GameState } from 'Types';
 
-type QueueEvent =
-  | PLAY
-  | PAUSE
-  | REFRESH
-  | LOAD_SPEC
+type QueueEventType =
+  | typeof PLAY
+  | typeof PAUSE
+  | typeof REFRESH
+  | typeof LOAD_SPEC;
 
-type Queue = Array<QueueEvent>
+type QueueEvent = [QueueEventType, *];
+
+type Queue = Array<QueueEvent>;
 
 const addToQueue = (queue: Queue) => (_, event: QueueEvent): Queue => {
   queue.push(event);
@@ -25,7 +27,7 @@ const addToQueue = (queue: Queue) => (_, event: QueueEvent): Queue => {
 
 const shiftQueueEvent = (queue: Queue): QueueEvent => queue.shift();
 
-const setQueueEvent = (queue: Queue, type: QueueEvent): Queue => {
+const setQueueEvent = (queue: Queue, type: QueueEventType): Queue => {
   ipcRenderer.on(type, addToQueue(queue));
   return queue;
 };
@@ -38,19 +40,20 @@ export const setUpQueue = (queue: Queue = []): Queue => ([
 ].reduce(setQueueEvent, queue));
 
 export const queueMiddleware = (
+  initialEntitySpecs,
   makeGameState: () => GameState,
   queue: Queue
 ) => (state: GameState): GameState => {
   let nextState = state;
 
   while (queue.length > 0) {
-    const event = shiftQueueEvent(queue);
+    const [eventType] = shiftQueueEvent(queue);
 
-    switch (event) {
+    switch (eventType) {
       case PLAY: break;
       case PAUSE: break;
       case REFRESH: {
-        nextState = setLoopState(makeGameState(), getLoopState());
+        nextState = setLoopState(makeGameState(initialEntitySpecs), getLoopState());
         break;
       }
       case LOAD_SPEC: break;

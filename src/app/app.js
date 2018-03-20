@@ -10,6 +10,7 @@ import {
   GET_EDITOR_CONFIG,
   OPEN_GAME_START,
   SYNC,
+  REFRESH,
 } from 'App/actionTypes';
 
 import './installDevTools';
@@ -27,12 +28,15 @@ import { onOpenGame, onGameSync } from './observations/game';
 
 import { getProcess, setEffect, getEffect, makeInitialState } from './utils/stateUtil';
 
-const setObservation = observer => (process, emitter, eventType, onEvent) => (state) => {
+const setObservation = observer => (process, emitter, eventType, onEvent, once = false) => (state) => {
   console.log(`Setting effect "${eventType}"...`);
-  emitter.on(eventType, (...args) => observer.dispatch({
+  const onReceiveEvent = (...args) => observer.dispatch({
     type: eventType,
     args: [...args],
-  }));
+  });
+
+  if (once) emitter.once(eventType, onReceiveEvent);
+  else emitter.on(eventType, onReceiveEvent);
 
   return setEffect(eventType, { process, onEvent }, state);
 };
@@ -87,9 +91,13 @@ const initialState = compose(
   // for the editor
   observe(EDITOR, ipcMain, GET_EDITOR_CONFIG, onGetEditorConfig),
   observe(EDITOR, ipcMain, OPEN_GAME_START, onOpenGame),
+  observe(EDITOR, ipcMain, REFRESH, (state, event) => {
+    event.sender.send(REFRESH, [REFRESH]);
+    return state;
+  }),
 
   // for the game
-  observe(GAME, ipcMain, SYNC, onGameSync)
+  observe(GAME, ipcMain, SYNC, onGameSync),
 )(makeInitialState(app));
 
 let state = initialState;

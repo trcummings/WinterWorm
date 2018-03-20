@@ -112,7 +112,8 @@ export class EntityInspectorContainer extends PureComponent<Props, State> {
   unsetAdding = () => this.setState({ addingComponent: false })
 
   addComponent = (componentId: Id) => {
-    const { components, request, id: entityId } = this.props;
+    const { components, request, entity: { id: entityId } = {} } = this.props;
+    if (!entityId) throw new Error('No fucking entity id in inspector!!!');
     const componentSpec = components[componentId];
     const { contract = {} } = componentSpec;
     const state = stateFromContract(contract);

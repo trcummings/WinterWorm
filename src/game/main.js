@@ -1,6 +1,8 @@
+import { ipcRenderer } from 'electron';
 import { __ } from 'ramda';
 import 'babel-polyfill';
 
+import { REFRESH } from 'App/actionTypes';
 import { getNextState, applyMiddlewares } from './engine/ecs';
 import { setGameState, applySpecs } from './engine/core';
 import { gameLoop } from './engine/loop';
@@ -35,27 +37,41 @@ export const makeInitialState = ({ renderEngine }) => {
   );
 };
 
+let runOnce = false;
+const signalLoadComplete = (loaderState) => {
+  if (!runOnce) {
+    ipcRenderer.send(REFRESH);
+    runOnce = true;
+  }
+  // you HAVE TO return the loader state here otherwise things just loop
+  return loaderState;
+};
+
 export const startGame = (initialState, data) => {
-  const initialSpecs = gameSpecsToSpecs(data);
+  const {
+    initialSpecs,
+    initialAssetSpecs,
+    initialEntitySpecs,
+  } = gameSpecsToSpecs(data);
   const startTime = performance.now();
   const { pixiLoader } = getRenderEngine(initialState);
 
   const assetLoader = spriteLoader(makeLoaderState({
-    assetSpecs: [],
+    assetSpecs: initialAssetSpecs,
     pixiLoader,
     progress: 0,
-  }));
+  }), signalLoadComplete);
 
-  console.log(initialState, initialSpecs);
-
-  const makeGameState = () => setGameState(
+  const makeGameState = (extraSpecs = []) => setGameState(
     initialState,
+    ...initialSpecs,
     { type: SCRIPTS,
       options: setSpriteLoaderFn(__, assetLoader) },
-    ...initialSpecs
+    ...extraSpecs
   );
 
   const ipcMiddleware = queueMiddleware(
+    initialEntitySpecs,
     makeGameState,
     setUpQueue()
   );

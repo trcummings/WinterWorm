@@ -34,7 +34,7 @@ type Atlas = {
   atlas: RawAtlas,
   atlasPath: AtlasPath,
   resourceName: ResourceName,
-  animations: Animations
+  frameSpecs: Animations
 };
 
 export type Atlases = { [ResourceName]: Atlas };
@@ -122,6 +122,8 @@ const getAllAtlases = (assetsPath: AssetsPath): Atlases => {
 
 const assetsPath = (process.env.ASSET_PATH: AssetsPath);
 
+export const getAssetPathAtlases = () => getAllAtlases(assetsPath);
+
 type Props = {
   children: Atlases => mixed
 };
@@ -130,6 +132,6 @@ export default class AssetAtlases extends PureComponent<Props> {
   props: Props;
 
   render() {
-    return this.props.children(getAllAtlases(assetsPath));
+    return this.props.children(getAssetPathAtlases());
   }
 }

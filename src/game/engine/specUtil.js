@@ -5,9 +5,10 @@ import {
   ENTITIES,
 } from 'Symbols';
 
+import { getAssetPathAtlases } from 'Editor/aspects/AssetAtlases';
 import componentFns from 'Game/gameObjectSpecs/componentFns';
 import systemFns from 'Game/gameObjectSpecs/systemFns';
-// import componentStateFns from 'Game/gameObjectSpecs/componentStateFns';
+import componentStateFns from 'Game/gameObjectSpecs/componentStateFns';
 
 const getEventLabel = (specs, eventTypeId) => {
   const { eventTypes: { [eventTypeId]: { label } } } = specs;
@@ -15,11 +16,11 @@ const getEventLabel = (specs, eventTypeId) => {
 };
 
 const processComponent = (specs, componentId) => {
-  const { components: { [componentId]: { subscriptions, context, label } } } = specs;
+  const { components: { [componentId]: { subscriptions, contexts, label } } } = specs;
 
   return {
     label,
-    context,
+    context: contexts,
     id: componentId,
     fn: componentFns[label],
     subscriptions: subscriptions.map(id => getEventLabel(specs, id)),
@@ -34,17 +35,27 @@ const processSystem = (specs, systemId) => {
 };
 
 const processEntity = (specs, entityId) => {
-  const { entities: { [entityId]: { label } }, componentStates = {} } = specs;
+  const { entities: { [entityId]: { label } }, componentStates = {}, components } = specs;
 
-  const components = Object.keys(componentStates).reduce((total, csId) => (
-    componentStates[csId].entityId === entityId && componentStates[csId].active
-      ? total.concat([{
-        id: componentStates[csId].componentId,
-        state: componentStates[csId].state,
-      }])
-      : total
-  ), []);
-  return { id: entityId, label, components };
+  const eComponents = Object.keys(componentStates).reduce((total, csId) => {
+    const { entityId: cseId, active, state, componentId } = componentStates[csId];
+    if (cseId !== entityId || !active) return total;
+
+    const { [componentId]: { isFactory, label: cLabel, contexts = [] } } = components;
+    if (!isFactory) return total.concat([{ id: componentId, state }]);
+
+    const fn = componentStateFns[cLabel];
+    const initContexts = contexts.reduce((total2, cId) => {
+      const cState = total.find(({ id }) => id === cId);
+      if (!cState) return total2;
+      const { [cId]: { label: cLabel2 } } = components;
+      return Object.assign(total2, { [cLabel2]: cState.state });
+    }, {});
+
+    return total.concat([{ id: componentId, fn: fn(state, initContexts) }]);
+  }, []);
+
+  return { id: entityId, label, components: eComponents };
 };
 
 const processScene = (specs, sceneId) => {
@@ -64,16 +75,25 @@ export function gameSpecsToSpecs(specs) {
   }, { pre: [], main: [], post: [] });
   const systemIds = [...pre, ...main, ...post].filter(sId => specs.systems[sId].active);
 
-  return [
-    { type: SCENES,
-      options: { ...currentScene, systems: systemIds } },
-    { type: CURRENT_SCENE,
-      options: currentSceneId },
-    ...systemIds.map(id => ({
-      type: SYSTEMS, options: processSystem(specs, id),
-    })),
-    ...entityIds.map(eId => ({
+  const atlases = getAssetPathAtlases();
+  const assetSpecs = Object.keys(atlases).map(resourceName => ({
+    name: resourceName,
+    path: atlases[resourceName].atlasPath,
+  }));
+
+  return {
+    initialSpecs: [
+      { type: SCENES,
+        options: { ...currentScene, systems: systemIds } },
+      { type: CURRENT_SCENE,
+        options: currentSceneId },
+      ...systemIds.map(id => ({
+        type: SYSTEMS, options: processSystem(specs, id),
+      })),
+    ],
+    initialAssetSpecs: assetSpecs,
+    initialEntitySpecs: entityIds.map(eId => ({
       type: ENTITIES, options: processEntity(specs, eId),
     })),
-  ];
+  };
 }
