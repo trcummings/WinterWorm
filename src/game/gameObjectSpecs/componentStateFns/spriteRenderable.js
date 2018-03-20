@@ -2,7 +2,7 @@ import { makeAnimations, getRenderEngine } from 'Game/engine/pixi';
 import { getAssetPathAtlases } from 'Editor/aspects/AssetAtlases';
 
 export default (componentState, context) => (gameState) => {
-  const { currentFrame } = componentState;
+  const { currentAnimation, currentFrame } = componentState;
   const {
     positionable: { x, y },
     spriteable: { resourceName },
@@ -13,15 +13,17 @@ export default (componentState, context) => (gameState) => {
   const { pixiLoader: { resources }, stage } = getRenderEngine(gameState);
   const { animation, nameMap } = makeAnimations(resources, animationResourceSpec);
 
+  const animIndex = nameMap[currentAnimation];
+  const sprites = animation.children[animIndex];
+
+  sprites.renderable = true;
+  sprites.children[currentFrame].renderable = true;
+
   animation.x = x;
   animation.y = y;
 
   stage.addChild(animation);
 
-  const animIndex = nameMap[currentFrame];
-  const sprites = animation.children[animIndex];
-  sprites.renderable = true;
-
-  return { animation, currentFrame, nameMap };
+  return { animation, currentAnimation, currentFrame, nameMap };
   // you cannot dispatch actions in the initialization phase
 };

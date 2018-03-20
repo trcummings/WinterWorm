@@ -28,12 +28,14 @@ type Props = {
 export default class Positionable extends PureComponent<Props> {
   props: Props;
 
-  updateComponentState = (key: $Keys<PositionableState>) => (event: Event) => {
-    const { updateComponentState, componentState } = this.props;
-    const value = event.target.value;
-    const val = value !== undefined ? parseInt(value, 10) : undefined;
-    return updateComponentState(Object.assign({}, componentState, { [key]: val }));
-  }
+  updateComponentState =
+    (key: $Keys<PositionableState>) =>
+      (event: SyntheticEvent<HTMLInputElement>) => {
+        const { updateComponentState, componentState } = this.props;
+        const value = event.currentTarget.value;
+        const val = value !== undefined ? parseInt(value, 10) : undefined;
+        return updateComponentState(Object.assign({}, componentState, { [key]: val }));
+      }
 
   render() {
     const { componentState: { x, y }, contract } = this.props;

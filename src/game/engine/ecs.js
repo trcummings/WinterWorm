@@ -148,19 +148,29 @@ const getComponentContext = (state, eventQueue, entityId, component) => {
   // for each item (componentId or object of { entityId, componentId })
   // this component listens to, get that component state and add it to the
   // component's next context object.
+
+  // NB: not sure why this object structure was being used,
+  // switch to a simplified version for now & revisit later if necessary
+
+  // for (const item of context) {
+  //   let ctxtEntityId = entityId;
+  //   let ctxtComponentId = item;
+  //   let assocTarget = item;
+  //
+  //   if (item && typeof item === 'object') {
+  //     ctxtEntityId = item.entityId;
+  //     ctxtComponentId = item.componentId;
+  //     assocTarget = concatKeywords(ctxtComponentId, ctxtEntityId);
+  //   }
+  //
+  //   const componentState = getComponentState(state, ctxtComponentId, ctxtEntityId);
+  //   newContext[assocTarget] = componentState;
+  // }
+
   for (const item of context) {
-    let ctxtEntityId = entityId;
-    let ctxtComponentId = item;
-    let assocTarget = item;
-
-    if (item && typeof item === 'object') {
-      ctxtEntityId = item.entityId;
-      ctxtComponentId = item.componentId;
-      assocTarget = concatKeywords(ctxtComponentId, ctxtEntityId);
-    }
-
-    const componentState = getComponentState(state, ctxtComponentId, ctxtEntityId);
-    newContext[assocTarget] = componentState;
+    const componentState = getComponentState(state, item, entityId);
+    const componentLabel = view(lensPath([COMPONENTS, item, 'label']), state);
+    newContext[componentLabel] = componentState;
   }
 
   return newContext;

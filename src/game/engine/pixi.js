@@ -3,22 +3,33 @@
 import {
   autoDetectRenderer,
   Container,
-  loader,
   Sprite,
   loaders,
+  WebGLRenderer,
 } from 'pixi.js';
-
 import { assoc, view, lensProp } from 'ramda';
+
+import type {
+  ResourceName,
+  Animations,
+  AnimName,
+} from 'Editor/aspects/AssetAtlases';
 
 import { RENDER_ENGINE } from './symbols';
 import { isDev } from './util';
 
+
 type ResourceSpec = {
-  resourceName: string,
-  animationNames: Array<string>
+  resourceName: ResourceName,
+  animationSpecs: Animations
 };
 
-const { Resource } = loaders;
+type RenderEngine = {
+  canvas: HTMLCanvasElement,
+  pixiLoader: loaders.Loader,
+  stage: Container,
+  renderer: WebGLRenderer,
+};
 
 // const ASPECT_RATIO = 16/9;
 const makeHeight = width => Math.floor((9 / 16) * width);
@@ -26,13 +37,16 @@ const makeHeight = width => Math.floor((9 / 16) * width);
 export const createRenderingEngine = ({
   width = 800,
   backgroundColor = 0x1099bb,
-}) => {
+}: {
+  width: number,
+  backgroundColor?: number
+}): RenderEngine => {
   const height = makeHeight(width);
   const renderer = new autoDetectRenderer({ width, height, backgroundColor });
   const canvas = renderer.view;
   const stage = new Container();
 
-  return { canvas, stage, renderer, pixiLoader: loader };
+  return { canvas, stage, renderer, pixiLoader: new loaders.Loader() };
 };
 
 const checkOptions = (options) => {
@@ -56,7 +70,11 @@ export const addChildMut = (stage, item) => {
   return stage;
 };
 
-export const addChildAtMut = (stage, item, zIndex) => {
+export const addChildAtMut = (
+  stage: Container,
+  item: Container,
+  zIndex: number
+): Container => {
   stage.addChildAt(item, zIndex);
   return stage;
 };
@@ -73,10 +91,10 @@ export const makeContainer = (children) => {
 };
 
 export const texturePathByFrame = (
-  animName: string,
-  loaderName: string,
-  ext = 'png'
-) => frame => (
+  animName: AnimName,
+  loaderName: ResourceName,
+  ext: string = 'png'
+) => (frame?: number) => (
   typeof frame === 'undefined' ?
     `${loaderName}/${animName}.${ext}` :
     `${loaderName}/${animName}_${frame}.${ext}`
@@ -87,9 +105,9 @@ const getTexture = (resources, animName, resourceName) => numFrame => (
 );
 
 const makeSpriteList = (
-  allTextures: Resource,
-  animName: string,
-  resourceName: string,
+  allTextures: loaders.Resource,
+  animName: AnimName,
+  resourceName: ResourceName,
   numFrames: number,
 ): Array<Sprite> => {
   const textures = [];
@@ -104,9 +122,16 @@ const makeSpriteList = (
   return textures;
 };
 
+type SpriteAnimation = {
+  animation: Container,
+  nameMap: {
+    [AnimName]: number
+  }
+};
+
 const makeAnimation =
-  (specs, textures, name) =>
-    ({ animation, nameMap }, animName, index) => {
+  (specs, textures, name: ResourceName) =>
+    ({ animation, nameMap }: SpriteAnimation, animName: AnimName, index: number) => {
       const { numFrames } = specs[animName];
       const sprites = makeSpriteList(textures, animName, name, numFrames);
       const spriteContainer = new Container();
@@ -120,9 +145,9 @@ const makeAnimation =
     };
 
 export const makeAnimations = (
-  resources: Resource,
+  resources: loaders.Resource,
   resourceSpec: ResourceSpec
-): Array<Sprite> => {
+): SpriteAnimation => {
   const { resourceName, animationSpecs } = resourceSpec;
   const textures = resources[resourceName].textures;
   const animNames = Object.keys(animationSpecs);

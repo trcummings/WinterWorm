@@ -40,6 +40,7 @@ export const POSITION_CHANGE = 'positionChange';
 export const ACCELERATION_CHANGE = 'accelerationChange';
 export const SCENE_CHANGE = 'sceneChange';
 export const ANIMATION_CHANGE = 'animationChange';
+export const FRAME_CHANGE = 'frameChange';
 export const RENDER_ACTION = 'renderAction';
 export const PHYSICS_EVENT = 'physicsEvent';
 export const TIME_TICK = 'timeTick';
@@ -50,6 +51,7 @@ export const events = {
   [ACCELERATION_CHANGE]: ACCELERATION_CHANGE,
   [SCENE_CHANGE]: SCENE_CHANGE,
   [ANIMATION_CHANGE]: ANIMATION_CHANGE,
+  [FRAME_CHANGE]: FRAME_CHANGE,
   [RENDER_ACTION]: RENDER_ACTION,
   [PHYSICS_EVENT]: PHYSICS_EVENT,
   [TIME_TICK]: TIME_TICK,

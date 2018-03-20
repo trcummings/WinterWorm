@@ -31,7 +31,9 @@ type Animation = {
   animName: AnimName,
   numFrames: number,
 };
-type Animations = { [AnimName]: Animation };
+
+export type Animations = { [AnimName]: Animation };
+
 type Atlas = {
   atlas: RawAtlas,
   atlasPath: AtlasPath,

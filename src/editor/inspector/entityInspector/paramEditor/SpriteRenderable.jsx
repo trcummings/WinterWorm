@@ -1,5 +1,7 @@
 // @flow
 import React, { PureComponent } from 'react';
+import Input, { InputLabel } from 'material-ui/Input';
+import { FormControl } from 'material-ui/Form';
 
 import hofToHoc from 'Editor/aspects/HofToHoc';
 import AssetAtlases, {
@@ -9,7 +11,8 @@ import AssetAtlases, {
 import type { Component, ComponentState } from 'Editor/types';
 
 type SpriteRenderableState = {
-  currentFrame: AnimName,
+  currentAnimation: AnimName,
+  currentFrame: number,
 };
 
 type Props = {
@@ -24,25 +27,45 @@ type Props = {
 class SpriteRenderable extends PureComponent<Props> {
   props: Props;
 
-  pickCurrentSprite = (event: SyntheticEvent<HTMLSelectElement>) => (
-    this.props.updateComponentState({ currentFrame: event.currentTarget.value })
-  )
+  handleChange =
+    (key: $Keys<SpriteRenderableState>) =>
+      (event: SyntheticEvent<HTMLSelectElement | HTMLInputElement>): void => (
+        this.props.updateComponentState({
+          ...this.props.componentState,
+          [key]: (
+            typeof event.currentTarget.value === 'number'
+              ? parseInt(event.currentTarget.value, 10)
+              : event.currentTarget.value
+          ),
+        }))
 
   render() {
     const {
       contexts: { spriteable: { resourceName } = {} } = {},
       atlases: { [resourceName]: { frameSpecs = {} } = {} },
-      componentState: { currentFrame },
+      componentState: { currentAnimation, currentFrame },
     } = this.props;
 
     return (
       <div>
-        <select value={currentFrame} onChange={this.pickCurrentSprite}>
+        <select
+          value={currentAnimation}
+          onChange={this.handleChange('currentAnimation')}
+        >
           <option value="">Select Current Sprite</option>
           { Object.keys(frameSpecs).map(key => (
             <option key={key} value={key}>{key}</option>
           ))}
         </select>
+        <FormControl>
+          <InputLabel htmlFor="currentFrame">Current Frame</InputLabel>
+          <Input
+            onChange={this.handleChange('currentFrame')}
+            value={currentFrame}
+            id="currentFrame"
+            type="number"
+          />
+        </FormControl>
       </div>
     );
   }

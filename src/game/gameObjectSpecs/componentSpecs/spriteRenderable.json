@@ -1,7 +1,8 @@
 {
   "label": "spriteRenderable",
   "subscriptions": [
-    "animationChange"
+    "animationChange",
+    "frameChange"
   ],
   "context": [
     "spriteable",
@@ -9,8 +10,12 @@
   ],
   "isFactory": true,
   "contract": {
+    "currentAnimation": {
+      "type": "animName"
+    },
     "currentFrame": {
-      "type": "frameName"
+      "type": "number",
+      "defaultsTo": 0
     }
   }
 }

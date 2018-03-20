@@ -44,13 +44,14 @@ export class Game extends PureComponent<Props, State> {
     const { height, width } = this.getWrapperDims();
 
     // initialize game state with current data
-    const { canvas, ...rest } = createRenderingEngine({ height, width });
+    const { canvas, ...rest } = createRenderingEngine({
+      width: parseInt(width, 10),
+    });
+
     this.canvas = canvas;
     this.setCanvasDims({ height, width });
 
     const initialState = makeInitialState({
-      height,
-      width,
       renderEngine: { canvas, ...rest },
     });
 
