@@ -44,6 +44,7 @@ export const FRAME_CHANGE = 'frameChange';
 export const RENDER_ACTION = 'renderAction';
 export const PHYSICS_EVENT = 'physicsEvent';
 export const TIME_TICK = 'timeTick';
+export const PIXI_INTERACTION = 'pixiInteraction';
 
 export const events = {
   [KEYBOARD_INPUT]: KEYBOARD_INPUT,
@@ -55,8 +56,5 @@ export const events = {
   [RENDER_ACTION]: RENDER_ACTION,
   [PHYSICS_EVENT]: PHYSICS_EVENT,
   [TIME_TICK]: TIME_TICK,
+  [PIXI_INTERACTION]: PIXI_INTERACTION,
 };
-
-// Parameter types
-export const POSITION_PARAM = 'positionParam';
-export const ANIMATEABLE_PARAM = 'animateableParam';

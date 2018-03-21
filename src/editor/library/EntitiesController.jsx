@@ -63,8 +63,9 @@ class EntitiesController extends PureComponent<Props> {
       service: 'entities/createWithScene',
       form: newEntity,
       multiple: true,
-    }).then((entity) => {
-      this.selectEntity(entity.id);
+    }).then(({ entities: respEntities }) => {
+      const [entityId] = Object.keys(respEntities);
+      this.selectEntity(entityId);
     });
   }
 

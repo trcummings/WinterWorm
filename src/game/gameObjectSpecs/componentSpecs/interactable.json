@@ -1,0 +1,10 @@
+{
+  "label": "interactable",
+  "subscriptions": [
+    "pixiInteraction"
+  ],
+  "context": [
+    "spriteRenderable"
+  ],
+  "isFactory": true
+}

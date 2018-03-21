@@ -41,18 +41,20 @@ const processEntity = (specs, entityId) => {
     const { entityId: cseId, active, state, componentId } = componentStates[csId];
     if (cseId !== entityId || !active) return total;
 
-    const { [componentId]: { isFactory, label: cLabel, contexts = [] } } = components;
+    // const { [componentId]: { isFactory, label: cLabel, contexts = [] } } = components;
+    const { [componentId]: { isFactory, label: cLabel } } = components;
     if (!isFactory) return total.concat([{ id: componentId, state }]);
 
     const fn = componentStateFns[cLabel];
-    const initContexts = contexts.reduce((total2, cId) => {
-      const cState = total.find(({ id }) => id === cId);
-      if (!cState) return total2;
-      const { [cId]: { label: cLabel2 } } = components;
-      return Object.assign(total2, { [cLabel2]: cState.state });
-    }, {});
+    // const initContexts = contexts.reduce((total2, cId) => {
+    //   const cState = total.find(({ id }) => id === cId);
+    //   if (!cState) return total2;
+    //   const { [cId]: { label: cLabel2 } } = components;
+    //   return Object.assign(total2, { [cLabel2]: cState.state });
+    // }, {});
 
-    return total.concat([{ id: componentId, fn: fn(state, initContexts) }]);
+    // return total.concat([{ id: componentId, fn: fn(cseId, state, initContexts) }]);
+    return total.concat([{ id: componentId, fn, state }]);
   }, []);
 
   return { id: entityId, label, components: eComponents };

@@ -1,7 +1,7 @@
 import { makeAnimations, getRenderEngine } from 'Game/engine/pixi';
 import { getAssetPathAtlases } from 'Editor/aspects/AssetAtlases';
 
-export default (componentState, context) => (gameState) => {
+export default (entityId, componentState, context, gameState) => {
   const { currentAnimation, currentFrame } = componentState;
   const {
     positionable: { x, y },
@@ -24,6 +24,8 @@ export default (componentState, context) => (gameState) => {
 
   stage.addChild(animation);
 
-  return { animation, currentAnimation, currentFrame, nameMap };
-  // you cannot dispatch actions in the initialization phase
+  return {
+    initialComponentState: { animation, currentAnimation, currentFrame, nameMap },
+    nextGameState: gameState,
+  };
 };

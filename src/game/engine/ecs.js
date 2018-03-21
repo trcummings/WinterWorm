@@ -23,7 +23,8 @@ import {
   UPDATE_FNS,
   CLEANUP_FN,
 } from './symbols';
-import { conjoin, concatKeywords } from './util';
+// import { conjoin, concatKeywords } from './util';
+import { conjoin } from './util';
 import { getSubscribedEvents, emitEventsToQueue, getEventQueue } from './events';
 
 import type { GameState, Scene, Id } from './types';
@@ -245,21 +246,30 @@ export const setSystem = (state: GameState, system) => {
 // it will default to an empty object.
 const componentStateFromSpec = (entityId: Id) => (
   state: GameState,
-  component
+  entityComponent
 ): GameState => {
-  const { id, state: componentState, fn } = component;
-  let initialState = componentState;
-  if (fn) initialState = fn(state);
+  const { id, state: componentState, fn } = entityComponent;
+  let initialComponentState = componentState;
+  let nextState = state;
+
+  if (fn) {
+    const eventsQueue = getEventQueue(state);
+    const component = getComponent(state, id);
+    const context = getComponentContext(state, eventsQueue, entityId, component);
+    const initialState = fn(entityId, componentState, context, state);
+    initialComponentState = initialState.initialComponentState;
+    nextState = initialState.nextGameState;
+  }
 
   return compose(
     over(lensPath([ENTITIES, entityId]), append(id), __),
     over(lensPath([COMPONENTS, id, ENTITIES]), append(entityId), __),
-    setComponentState(__, id, entityId, initialState)
-  )(state);
+    setComponentState(__, id, entityId, initialComponentState)
+  )(nextState);
 };
 
 const ID_RECORD = 'idRecord';
-const makeNewEntityId = (state: GameState): { id: number, } => {
+const makeNewEntityId = (state: GameState): { id: number } => {
   const ids = view(lensPath([ID_RECORD]), state);
   const id = ids.shift();
   return id;

@@ -9,24 +9,40 @@ const Scenes = require('../services/scenes');
 const Entities = require('../services/entities');
 const ComponentStates = require('../services/componentStates');
 
-const systemPartitions = {
-  fpsTickStart: { partition: 'pre', orderIndex: 0 },
-  ticker: { partition: 'pre', orderIndex: 1 },
-  meta: { partition: 'pre', orderIndex: 2 },
-  loader: { partition: 'pre', orderIndex: 3 },
-  input: { partition: 'pre', orderIndex: 4 },
-  inputControl: { partition: 'main', orderIndex: 0 },
-  sprite: { partition: 'main', orderIndex: 1 },
-  animate: { partition: 'main', orderIndex: 2 },
-  move: { partition: 'main', orderIndex: 3 },
-  accelerate: { partition: 'main', orderIndex: 4 },
-  physics: { partition: 'main', orderIndex: 5 },
-  position: { partition: 'main', orderIndex: 6 },
-  spriteRender: { partition: 'main', orderIndex: 7 },
-  render: { partition: 'main', orderIndex: 8 },
-  clearEventQueue: { partition: 'post', orderIndex: 0 },
-  fpsTickEnd: { partition: 'post', orderIndex: 1 },
+const systemPartitionList = {
+  pre: [
+    'fpsTickStart',
+    'ticker',
+    'meta',
+    'loader',
+    'input',
+    'interact',
+  ],
+  main: [
+    'inputControl',
+    'sprite',
+    'animate',
+    'move',
+    'accelerate',
+    'physics',
+    'position',
+    'spriteRender',
+    'render',
+  ],
+  post: [
+    'clearEventQueue',
+    'fpsTickEnd',
+  ],
 };
+
+const allPartitionKeys = Object.keys(systemPartitionList).reduce((total, key) => (
+  total.concat(systemPartitionList[key]
+    .map((label, orderIndex) => ({ label, orderIndex, partition: key })))
+), []);
+
+const systemPartitions = allPartitionKeys.reduce((total, { label, orderIndex, partition }) => (
+  Object.assign(total, { [label]: { partition, orderIndex } })
+), {});
 
 const serviceMap = {
   entities: Entities,

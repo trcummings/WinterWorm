@@ -116,7 +116,7 @@ export class EntityInspectorContainer extends PureComponent<Props, State> {
     if (!entityId) throw new Error('No fucking entity id in inspector!!!');
     const componentSpec = components[componentId];
     const { contract = {} } = componentSpec;
-    const state = stateFromContract(contract);
+    const state = stateFromContract(contract || {});
     const active = this.canBeActive(componentId);
 
     return request({
@@ -134,7 +134,7 @@ export class EntityInspectorContainer extends PureComponent<Props, State> {
     return request({
       method: PUT,
       service: 'componentStates',
-      form: { id, state: makeValidState(state, contract), active },
+      form: { id, state: makeValidState(state, contract || {}), active },
     });
   }
 
