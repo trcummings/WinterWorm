@@ -1,10 +1,11 @@
 // @flow
+import { ipcRenderer } from 'electron';
 import { PureComponent } from 'react';
 import { compose } from 'ramda';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-import { ENTITIES } from 'Game/engine/symbols';
+import { ENTITIES, GAME_TO_EDITOR } from 'Game/engine/symbols';
 
 import type { Id } from 'Editor/types';
 
@@ -53,6 +54,14 @@ type Props = {
 class EntitiesController extends PureComponent<Props> {
   props: Props;
 
+  componentDidMount() {
+    ipcRenderer.on(GAME_TO_EDITOR, (event, payload) => {
+      const [e, id] = payload;
+      console.log(e, id);
+      this.selectEntity(id);
+    });
+  }
+
   addNewEntity = (args) => {
     const { entities, gameObjects: { request } } = this.props;
     let newEntity = args;
@@ -69,7 +78,11 @@ class EntitiesController extends PureComponent<Props> {
     });
   }
 
-  selectEntity = (id: Id) => this.props.setInInspector({ inspectorType: ENTITIES, id });
+  selectEntity = (id: null | Id) => {
+    if (!id) return;
+
+    this.props.setInInspector({ inspectorType: ENTITIES, id });
+  }
 
   render() {
     const { children, entities, inspector } = this.props;

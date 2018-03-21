@@ -10,8 +10,9 @@ import {
   GET_EDITOR_CONFIG,
   OPEN_GAME_START,
   SYNC,
-  REFRESH,
+  GAME_EVENT,
 } from 'App/actionTypes';
+import { GAME_TO_EDITOR } from 'Game/engine/symbols';
 
 import './installDevTools';
 
@@ -91,8 +92,12 @@ const initialState = compose(
   // for the editor
   observe(EDITOR, ipcMain, GET_EDITOR_CONFIG, onGetEditorConfig),
   observe(EDITOR, ipcMain, OPEN_GAME_START, onOpenGame),
-  observe(EDITOR, ipcMain, REFRESH, (state, event) => {
-    event.sender.send(REFRESH, [REFRESH]);
+  observe(EDITOR, ipcMain, GAME_EVENT, (state, event, payload) => {
+    if (payload) event.sender.send(GAME_EVENT, payload);
+    return state;
+  }),
+  observe(EDITOR, ipcMain, GAME_TO_EDITOR, (state, event, payload) => {
+    if (payload) event.sender.send(GAME_TO_EDITOR, payload);
     return state;
   }),
 

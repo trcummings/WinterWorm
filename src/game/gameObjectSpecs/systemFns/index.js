@@ -7,6 +7,8 @@ import meta from './meta';
 import physics from './physics';
 import render from './render';
 import ticker from './ticker';
+import pixiInteraction from './pixiInteraction';
+import editorEventHandler from './editorEventHandler';
 
 export default {
   clearEventQueue,
@@ -18,4 +20,6 @@ export default {
   physics,
   render,
   ticker,
+  pixiInteraction,
+  editorEventHandler,
 };

@@ -16,6 +16,7 @@ const systemPartitionList = {
     'meta',
     'loader',
     'input',
+    'pixiInteraction',
     'interact',
   ],
   main: [
@@ -30,6 +31,7 @@ const systemPartitionList = {
     'render',
   ],
   post: [
+    'editorEventHandler',
     'clearEventQueue',
     'fpsTickEnd',
   ],

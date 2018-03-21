@@ -65,6 +65,10 @@ export const createRenderingEngine = ({
   stage.scale.x = scaleX;
   stage.scale.y = scaleY;
 
+  // make it so mouse move events only happen inside the current sprites
+  // rather than ALL THE FUCKIGN TIME
+  renderer.plugins.interaction.moveWhenInside = true;
+
   return { canvas, stage, renderer, pixiLoader: new loaders.Loader() };
 };
 

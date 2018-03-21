@@ -2,7 +2,7 @@ import { ipcRenderer } from 'electron';
 import { __ } from 'ramda';
 import 'babel-polyfill';
 
-import { REFRESH } from 'App/actionTypes';
+import { REFRESH, GAME_EVENT } from 'App/actionTypes';
 import { getNextState, applyMiddlewares } from './engine/ecs';
 import { setGameState, applySpecs } from './engine/core';
 import { gameLoop } from './engine/loop';
@@ -40,7 +40,7 @@ export const makeInitialState = ({ renderEngine }) => {
 let runOnce = false;
 const signalLoadComplete = (loaderState) => {
   if (!runOnce) {
-    ipcRenderer.send(REFRESH);
+    ipcRenderer.send(GAME_EVENT, [REFRESH]);
     runOnce = true;
   }
   // you HAVE TO return the loader state here otherwise things just loop
@@ -70,7 +70,7 @@ export const startGame = (initialState, data) => {
     ...extraSpecs
   );
 
-  const ipcMiddleware = queueMiddleware(
+  const gameIpcMiddleware = queueMiddleware(
     initialEntitySpecs,
     makeGameState,
     setUpQueue()
@@ -78,7 +78,7 @@ export const startGame = (initialState, data) => {
 
   // add middlewares for interacting with editor
   const middlewares = [];
-  middlewares.push(ipcMiddleware);
+  middlewares.push(gameIpcMiddleware);
   if (isDev()) middlewares.push(loggerMiddleware);
 
   const update = applyMiddlewares(getNextState, ...middlewares);

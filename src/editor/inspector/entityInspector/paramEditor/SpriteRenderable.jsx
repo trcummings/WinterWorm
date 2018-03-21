@@ -45,6 +45,7 @@ class SpriteRenderable extends PureComponent<Props> {
       atlases: { [resourceName]: { frameSpecs = {} } = {} },
       componentState: { currentAnimation, currentFrame },
     } = this.props;
+    const { [currentAnimation]: { numFrames = 1 } = {} } = frameSpecs;
 
     return (
       <div>
@@ -61,6 +62,7 @@ class SpriteRenderable extends PureComponent<Props> {
           <InputLabel htmlFor="currentFrame">Current Frame</InputLabel>
           <Input
             onChange={this.handleChange('currentFrame')}
+            inputProps={{ max: numFrames - 1, min: 0 }}
             value={currentFrame}
             id="currentFrame"
             type="number"
