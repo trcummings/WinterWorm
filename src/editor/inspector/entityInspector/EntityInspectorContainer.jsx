@@ -9,6 +9,8 @@ import Button from 'material-ui/Button';
 import Icon from 'material-ui/Icon';
 
 import { getGameObjects } from 'Editor/modules/data';
+import { sendToGame } from 'Editor/ipcUtil';
+import { UPDATE_COMPONENT_STATE } from 'App/actionTypes';
 
 import type { ReqFn } from 'Editor/aspects/GameObjectInterface';
 import type { Id, Label, ComponentState, Component, Entity } from 'Editor/types';
@@ -123,19 +125,27 @@ export class EntityInspectorContainer extends PureComponent<Props, State> {
       method: POST,
       service: 'componentStates',
       form: { entityId, state, componentId, active },
-    }).then(this.unsetAdding);
+    }).then(this.unsetAdding).then(() => (
+      sendToGame(UPDATE_COMPONENT_STATE, { componentId, entityId, state })
+    ));
   }
 
   updateComponentState = (options: ComponentState) => {
     const { componentId, id, state, active } = options;
-    const { request, components: { [componentId]: { contract = {} } },
+    const {
+      request,
+      components: { [componentId]: { contract = {} } },
+      entity: { id: entityId } = {},
     } = this.props;
+    const validState = makeValidState(state, contract || {});
 
     return request({
       method: PUT,
       service: 'componentStates',
-      form: { id, state: makeValidState(state, contract || {}), active },
-    });
+      form: { id, state: validState, active },
+    }).then(() => (
+      sendToGame(UPDATE_COMPONENT_STATE, { componentId, state: validState, entityId })
+    ));
   }
 
   render() {

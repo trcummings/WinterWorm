@@ -1,7 +1,9 @@
 // @flow
+import { ipcRenderer } from 'electron';
 import React, { PureComponent } from 'react';
 import Input, { InputLabel } from 'material-ui/Input';
 import { FormControl } from 'material-ui/Form';
+import { DRAG_ENTITY } from 'App/actionTypes';
 
 type PositionableContract = {
   x: {
@@ -27,6 +29,13 @@ type Props = {
 
 export default class Positionable extends PureComponent<Props> {
   props: Props;
+
+  componentDidMount() {
+    ipcRenderer.on(DRAG_ENTITY, (_, data) => {
+      const { updateComponentState } = this.props;
+      updateComponentState(data);
+    });
+  }
 
   updateComponentState =
     (key: $Keys<PositionableState>) =>

@@ -1,4 +1,5 @@
 import { filters } from 'pixi.js';
+import { SELECT_INSPECTOR_ENTITY, DRAG_ENTITY } from 'App/actionTypes';
 import { PIXI_INTERACTION, RENDER_ACTION, GAME_TO_EDITOR } from 'Engine/symbols';
 import { hasEventInInbox, makeEvent } from 'Engine/events';
 
@@ -10,9 +11,6 @@ import {
   POINTER_MOVE,
   POINTER_OUT,
 } from 'Game/gameObjectSpecs/componentStateFns/interactable';
-
-const SELECT_INSPECTOR_ENTITY = 'selectInspectorEntity!';
-const DRAG_ENTITY = 'dragEntity!';
 
 // const pushToRenderEvents = entityId => (renderEvents, fn) => {
 //   renderEvents.push(makeEvent(fn, [RENDER_ACTION, entityId]));
@@ -82,10 +80,10 @@ export default (entityId, componentState, context) => {
     // if dragging is true, set the event data here to be used by the
     // interaction system further down the line
     case POINTER_MOVE: {
-      // if (touching) {
-      //   const pos = data.getLocalPosition(animation);
-      //   pushToEditorEvents([DRAG_ENTITY, pos]);
-      // }
+      if (touching) {
+        const pos = data.getLocalPosition(animation);
+        pushToEditorEvents([DRAG_ENTITY, pos]);
+      }
       break;
     }
 

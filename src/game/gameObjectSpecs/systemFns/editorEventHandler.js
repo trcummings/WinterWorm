@@ -10,7 +10,6 @@ export default (state: GameState): GameState => {
   const events = getEventsOfEventId(state, GAME_TO_EDITOR);
 
   events.forEach(({ action }) => {
-    console.log(action);
     ipcRenderer.send(GAME_TO_EDITOR, action);
   });
 

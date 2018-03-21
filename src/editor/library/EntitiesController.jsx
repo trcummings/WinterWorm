@@ -5,7 +5,9 @@ import { compose } from 'ramda';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-import { ENTITIES, GAME_TO_EDITOR } from 'Game/engine/symbols';
+import { SELECT_INSPECTOR_ENTITY } from 'App/actionTypes';
+import { ENTITIES } from 'Game/engine/symbols';
+// import { sendToGame } from 'Editor/ipcUtil';
 
 import type { Id } from 'Editor/types';
 
@@ -55,10 +57,8 @@ class EntitiesController extends PureComponent<Props> {
   props: Props;
 
   componentDidMount() {
-    ipcRenderer.on(GAME_TO_EDITOR, (event, payload) => {
-      const [e, id] = payload;
-      console.log(e, id);
-      this.selectEntity(id);
+    ipcRenderer.on(SELECT_INSPECTOR_ENTITY, (event, id) => {
+      if (id !== this.props.inspector.get('id')) this.selectEntity(id, true);
     });
   }
 
@@ -78,10 +78,14 @@ class EntitiesController extends PureComponent<Props> {
     });
   }
 
-  selectEntity = (id: null | Id) => {
-    if (!id) return;
+  selectEntity = (id: Id, fromGame: boolean = false) => {
+    const { inspector, setInInspector } = this.props;
+    const currentId = inspector.get('id');
 
-    this.props.setInInspector({ inspectorType: ENTITIES, id });
+    if (id === currentId) return;
+
+    setInInspector({ inspectorType: ENTITIES, id });
+    // if (!fromGame) sendToGame(UPDATE_COMPONENT_STATE, id);
   }
 
   render() {

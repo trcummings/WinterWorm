@@ -10,9 +10,8 @@ import {
   GET_EDITOR_CONFIG,
   OPEN_GAME_START,
   SYNC,
-  GAME_EVENT,
 } from 'App/actionTypes';
-import { GAME_TO_EDITOR } from 'Game/engine/symbols';
+import { GAME_TO_EDITOR, EDITOR_TO_GAME } from 'Game/engine/symbols';
 
 import './installDevTools';
 
@@ -23,7 +22,11 @@ import {
   onCloseConfig,
 } from './observations/config';
 import { onRunMain, onRequestCloseMain } from './observations/main';
-import { onGetEditorConfig } from './observations/editor';
+import {
+  onGetEditorConfig,
+  gameToEditor,
+  editorToGame,
+} from './observations/editor';
 import { onRequest } from './observations/backend';
 import { onOpenGame, onGameSync } from './observations/game';
 
@@ -71,6 +74,12 @@ class Observer {
   dispatch = async data => await this.subscriber(data)
 }
 
+const editorGameChannel = (state, event, data) => {
+  const [action, payload] = data;
+  event.sender.send(action, payload);
+  return state;
+};
+
 const observer = new Observer();
 export const observe = setObservation(observer);
 
@@ -92,14 +101,8 @@ const initialState = compose(
   // for the editor
   observe(EDITOR, ipcMain, GET_EDITOR_CONFIG, onGetEditorConfig),
   observe(EDITOR, ipcMain, OPEN_GAME_START, onOpenGame),
-  observe(EDITOR, ipcMain, GAME_EVENT, (state, event, payload) => {
-    if (payload) event.sender.send(GAME_EVENT, payload);
-    return state;
-  }),
-  observe(EDITOR, ipcMain, GAME_TO_EDITOR, (state, event, payload) => {
-    if (payload) event.sender.send(GAME_TO_EDITOR, payload);
-    return state;
-  }),
+  observe(EDITOR, ipcMain, GAME_TO_EDITOR, gameToEditor),
+  observe(EDITOR, ipcMain, EDITOR_TO_GAME, editorToGame),
 
   // for the game
   observe(GAME, ipcMain, SYNC, onGameSync),

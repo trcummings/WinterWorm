@@ -5,9 +5,11 @@ import {
   PAUSE,
   REFRESH,
   LOAD_SPEC,
-  GAME_EVENT,
+  UPDATE_COMPONENT_STATE,
 } from 'App/actionTypes';
+import { setComponentState } from 'Game/engine/ecs';
 import { getLoopState, setLoopState } from 'Game/engine/loop';
+import { EDITOR_TO_GAME } from 'Game/engine/symbols';
 
 import type { GameState } from 'Types';
 
@@ -29,7 +31,7 @@ const addToQueue = (queue: Queue) => (_, event: QueueEvent): Queue => {
 const shiftQueueEvent = (queue: Queue): QueueEvent => queue.shift();
 
 export const setUpQueue = (queue: Queue = []): Queue => {
-  ipcRenderer.on(GAME_EVENT, addToQueue(queue));
+  ipcRenderer.on(EDITOR_TO_GAME, addToQueue(queue));
   return queue;
 };
 
@@ -42,11 +44,16 @@ export const queueMiddleware = (
 
   while (queue.length > 0) {
     const [eventType, payload] = shiftQueueEvent(queue);
-    console.log(eventType, payload);
 
     switch (eventType) {
       case REFRESH: {
         nextState = setLoopState(makeGameState(initialEntitySpecs), getLoopState());
+        break;
+      }
+
+      case UPDATE_COMPONENT_STATE: {
+        const { state: componentState, componentId, entityId } = payload;
+        nextState = setComponentState(state, componentId, entityId, componentState);
         break;
       }
 

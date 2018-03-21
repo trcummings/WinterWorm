@@ -2,7 +2,7 @@ import { ipcRenderer } from 'electron';
 import { __ } from 'ramda';
 import 'babel-polyfill';
 
-import { REFRESH, GAME_EVENT } from 'App/actionTypes';
+import { REFRESH } from 'App/actionTypes';
 import { getNextState, applyMiddlewares } from './engine/ecs';
 import { setGameState, applySpecs } from './engine/core';
 import { gameLoop } from './engine/loop';
@@ -10,6 +10,7 @@ import {
   SCRIPTS,
   RENDER_ENGINE,
   PHYSICS_ENGINE,
+  EDITOR_TO_GAME,
 } from './engine/symbols';
 import { initEvents } from './engine/scripts';
 import { getRenderEngine } from './engine/pixi';
@@ -40,7 +41,7 @@ export const makeInitialState = ({ renderEngine }) => {
 let runOnce = false;
 const signalLoadComplete = (loaderState) => {
   if (!runOnce) {
-    ipcRenderer.send(GAME_EVENT, [REFRESH]);
+    ipcRenderer.send(EDITOR_TO_GAME, [REFRESH]);
     runOnce = true;
   }
   // you HAVE TO return the loader state here otherwise things just loop

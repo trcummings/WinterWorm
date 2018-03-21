@@ -1,6 +1,6 @@
 // @flow
-import { PIXI_INTERACTION } from 'Engine/symbols';
-import { emitEventsToQueue, makeEvent } from 'Engine/events';
+import { PIXI_INTERACTION } from 'Game/engine/symbols';
+import { emitEventsToQueue, makeEvent } from 'Game/engine/events';
 
 import {
   POINTER_UP,

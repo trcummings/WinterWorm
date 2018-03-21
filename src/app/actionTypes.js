@@ -85,6 +85,9 @@ export const PLAY = 'play';
 export const PAUSE = 'pause';
 export const REFRESH = 'refresh';
 export const LOAD_SPEC = 'loadSpec';
+export const SELECT_INSPECTOR_ENTITY = 'interactable/SELECT_INSPECTOR_ENTITY';
+export const DRAG_ENTITY = 'interactable/DRAG_ENTITY';
+export const UPDATE_COMPONENT_STATE = 'interactable/UPDATE_COMPONENT_STATE';
 
 type GameEventTypes =
   | typeof OPEN_EDITOR
@@ -102,6 +105,9 @@ type GameEventTypes =
   | typeof REFRESH
   | typeof INITIAL_ASSET_LOAD
   | typeof GAME_EVENT
+  | typeof SELECT_INSPECTOR_ENTITY
+  | typeof DRAG_ENTITY
+  | typeof UPDATE_COMPONENT_STATE
   | typeof LOAD_SPEC;
 
 

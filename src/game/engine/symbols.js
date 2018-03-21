@@ -46,6 +46,7 @@ export const PHYSICS_EVENT = 'physicsEvent';
 export const TIME_TICK = 'timeTick';
 export const PIXI_INTERACTION = 'pixiInteraction';
 export const GAME_TO_EDITOR = 'gameToEditor';
+export const EDITOR_TO_GAME = 'editorToGame';
 
 export const events = {
   [KEYBOARD_INPUT]: KEYBOARD_INPUT,
@@ -59,4 +60,5 @@ export const events = {
   [TIME_TICK]: TIME_TICK,
   [PIXI_INTERACTION]: PIXI_INTERACTION,
   [GAME_TO_EDITOR]: GAME_TO_EDITOR,
+  [EDITOR_TO_GAME]: EDITOR_TO_GAME,
 };
