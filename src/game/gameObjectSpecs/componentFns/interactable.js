@@ -1,6 +1,6 @@
 import { filters } from 'pixi.js';
 import { SELECT_INSPECTOR_ENTITY, DRAG_ENTITY } from 'App/actionTypes';
-import { PIXI_INTERACTION, RENDER_ACTION, GAME_TO_EDITOR } from 'Engine/symbols';
+import { PIXI_INTERACTION, RENDER_ACTION, GAME_TO_EDITOR, POSITION_CHANGE } from 'Engine/symbols';
 import { hasEventInInbox, makeEvent } from 'Engine/events';
 
 import {
@@ -33,15 +33,12 @@ const getInteraction = hasEventInInbox(PIXI_INTERACTION);
 //         this.x = newPosition.x;
 //         this.y = newPosition.y;
 
-
 export default (entityId, componentState, context) => {
-  const { inbox, spriteRenderable: { animation } } = context;
-  const { over, touching } = componentState;
-  const renderEvents = [];
-  const editorEvents = [];
-  const pushToEditorEvents = (action) => {
-    editorEvents.push(makeEvent(action, [GAME_TO_EDITOR]));
-  };
+  const { inbox, spriteRenderable: { animation }, positionable: pos } = context;
+  const { data, over, touching } = componentState;
+  const events = [];
+
+  let newData = data;
   let newOver = over;
   let newTouching = touching;
 
@@ -49,7 +46,7 @@ export default (entityId, componentState, context) => {
   const interaction = getInteraction(inbox);
   if (!interaction) return componentState;
 
-  const [eventType, data] = interaction;
+  const [eventType, iData] = interaction;
 
   switch (eventType) {
     // add a nice filter over the entity to say "hey, you could select
@@ -64,8 +61,13 @@ export default (entityId, componentState, context) => {
     // on top of that, set dragging to be true
     case POINTER_DOWN: {
       if (over) {
-        pushToEditorEvents([SELECT_INSPECTOR_ENTITY, entityId]);
         newTouching = true;
+        const { x, y } = iData.getLocalPosition(animation);
+        newData = { x, y };
+
+
+        const action = [SELECT_INSPECTOR_ENTITY, entityId];
+        events.push(makeEvent(action, [GAME_TO_EDITOR]));
       }
       break;
     }
@@ -73,17 +75,41 @@ export default (entityId, componentState, context) => {
     // set dragging to false, but keep the entity selected
     case POINTER_UP:
     case POINTER_UP_OUTSIDE: {
-      newOver = false;
+      if (touching) {
+        const action = [DRAG_ENTITY, pos];
+        events.push(makeEvent(action, [GAME_TO_EDITOR]));
+      }
+
+      newData = null;
+      newTouching = false;
       break;
     }
 
     // if dragging is true, set the event data here to be used by the
     // interaction system further down the line
     case POINTER_MOVE: {
-      if (touching) {
-        const pos = data.getLocalPosition(animation);
-        pushToEditorEvents([DRAG_ENTITY, pos]);
+      const { x: currentX, y: currentY } = iData.getLocalPosition(animation);
+
+      if (over && touching && data) {
+        const { x: pastX, y: pastY } = data;
+
+        const x = currentX - pastX;
+        const y = currentY - pastY;
+
+        const action = {
+          offsetX: Math.floor(x),
+          offsetY: -Math.floor(y),
+        };
+
+        // animation.pivot.set(currentX, currentY);
+        newData = { x: pastX, y: pastY };
+
+
+        events.push(makeEvent(action, [POSITION_CHANGE, entityId]));
       }
+      else newData = { x: currentX, y: currentY };
+
+
       break;
     }
 
@@ -91,21 +117,18 @@ export default (entityId, componentState, context) => {
     // they're still selected)
     case POINTER_OUT: {
       newOver = false;
+      newTouching = false;
+      newData = null;
       break;
     }
 
     default: break;
   }
 
-  // pushToRenderEvents(renderEvents, () => {
-  //
-  // });
-
-  const allEvents = [...renderEvents, ...editorEvents];
-
   return [{
     ...componentState,
     touching: newTouching,
     over: newOver,
-  }, allEvents];
+    data: newData,
+  }, events];
 };

@@ -10,6 +10,7 @@ export const POINTER_OUT = 'pointerout';
 const INITIAL_STATE = {
   over: false,
   touching: false,
+  data: null,
 };
 
 export default (entityId, componentState, context, gameState) => {

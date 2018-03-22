@@ -13,8 +13,8 @@ export default (entityId, componentState, context = {}) => {
 
   if (events.length === 0) return componentState;
 
-  const { x, y, z } = componentState;
+  const { x, y } = componentState;
   const { offsetX, offsetY } = events.reduce(updateOffset, INITIAL_OFFSET);
 
-  return [{ x: x + offsetX, y: y - offsetY, z }];
+  return [{ x: x + offsetX, y: y - offsetY }];
 };

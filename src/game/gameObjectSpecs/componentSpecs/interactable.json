@@ -4,7 +4,8 @@
     "pixiInteraction"
   ],
   "context": [
-    "spriteRenderable"
+    "spriteRenderable",
+    "positionable"
   ],
   "isFactory": true
 }

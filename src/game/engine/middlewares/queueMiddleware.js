@@ -7,7 +7,7 @@ import {
   LOAD_SPEC,
   UPDATE_COMPONENT_STATE,
 } from 'App/actionTypes';
-import { setComponentState } from 'Game/engine/ecs';
+import { setComponentState, getComponentState } from 'Game/engine/ecs';
 import { getLoopState, setLoopState } from 'Game/engine/loop';
 import { EDITOR_TO_GAME } from 'Game/engine/symbols';
 
@@ -53,7 +53,10 @@ export const queueMiddleware = (
 
       case UPDATE_COMPONENT_STATE: {
         const { state: componentState, componentId, entityId } = payload;
-        nextState = setComponentState(state, componentId, entityId, componentState);
+        const initialComponentState = getComponentState(state, componentId, entityId);
+        const newComponentState = { ...initialComponentState, ...componentState };
+
+        nextState = setComponentState(state, componentId, entityId, newComponentState);
         break;
       }
 
