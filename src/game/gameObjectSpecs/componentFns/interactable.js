@@ -29,19 +29,21 @@ const redFilter = makeColorFilter(RED);
 const greenFilter = makeColorFilter(GREEN);
 const blueFilter = makeColorFilter(BLUE);
 
-const computeInteractableState = (entityId, context) => ([cState, events], interaction) => {
+const computeInteractableState = (entityId, context) => (total, interaction) => {
+  const [componentState, events] = total;
   const { spriteRenderable: { animation }, positionable: pos } = context;
+  const { over, touching, data, selected } = componentState;
 
   const [eventType, iData] = interaction;
 
   switch (eventType) {
     // add a nice filter over the entity to say "hey, you could select
     // this, if you wanted to. no presh."
-    case POINTER_OVER: return [{ ...cState, over: true }, events];
+    case POINTER_OVER: return [{ ...componentState, over: true }, events];
 
     // case where we click the entity while over it
     case POINTER_DOWN: {
-      if (!cState.over) return [cState, events];
+      if (!over) return [componentState, events];
       // if we are over the sprite and we click it,
       // start touching, & give initial position data to the state
       const { x, y } = iData.getLocalPosition(animation);
@@ -49,102 +51,98 @@ const computeInteractableState = (entityId, context) => ([cState, events], inter
 
       // if we are selected already when we click, we dont need to
       // signal to the editor to select this entity
-      const newEvents = cState.selected
+      const newEvents = selected
         ? events
         : [...events, makeEvent(action, [GAME_TO_EDITOR])];
 
-      return [{ ...cState, touching: true, data: { x, y } }, newEvents];
+      return [{ ...componentState, touching: true, data: { x, y } }, newEvents];
     }
 
     // case where we release the entity after dragging
     case POINTER_UP:
     case POINTER_UP_OUTSIDE: {
       // if we are not dragging it, ignore these events
-      if (!cState.touching) return [cState, events];
+      if (!touching || !selected) return [componentState, events];
 
       // signal to the editor that we have changed the entitys position
-      return [{
-        ...cState,
-        data: null,
-        touching: false,
-      }, [...events, makeEvent([DRAG_ENTITY, pos], [GAME_TO_EDITOR])]];
+      return [
+        { ...componentState, data: null, touching: false },
+        [...events, makeEvent([DRAG_ENTITY, pos], [GAME_TO_EDITOR])],
+      ];
     }
 
     // case where the entity is selected, we are dragging the entity,
     // & we are updating its position with each cycle
     case POINTER_MOVE: {
-      if (!cState.selected) return [cState, events];
+      if (!selected || !over || !touching) return [componentState, events];
 
       const { x: currentX, y: currentY } = iData.getLocalPosition(animation);
 
+      if (!data) return [{ ...componentState, data: { x: currentX, y: currentY } }, events];
       // if we are over, touching, and we have past data, do some draggin
-      if (cState.over && cState.touching && cState.data) {
-        const { x: pastX, y: pastY } = cState.data;
+      const { x: pastX, y: pastY } = data;
+      const x = currentX - pastX;
+      const y = currentY - pastY;
+      const action = { offsetX: Math.floor(x), offsetY: -Math.floor(y) };
 
-        const x = currentX - pastX;
-        const y = currentY - pastY;
-
-        const action = { offsetX: Math.floor(x), offsetY: -Math.floor(y) };
-
-        return [{
-          ...cState,
-          data: { x: pastX, y: pastY },
-        }, [...events, makeEvent(action, [POSITION_CHANGE, entityId])]];
-      }
-
-      return [{ ...cState, data: { x: currentX, y: currentY } }, events];
+      return [
+        { ...componentState, data: { x: pastX, y: pastY } },
+        [...events, makeEvent(action, [POSITION_CHANGE, entityId])],
+      ];
     }
 
     // case where we are not touching the entity, and we drag the POINTER_UP
     // out from it
-    case POINTER_OUT: return cState.touching
-      ? [cState, events]
-      : [{ ...cState, over: false, data: null }, events];
+    case POINTER_OUT: return touching
+      ? [componentState, events]
+      : [{ ...componentState, over: false, data: null }, events];
 
     // if we receive a select entity event that isnt null
     // set whether or not we are selected based on if the id dispatched
     // is our id or not
     case SELECT_ENTITY: {
-      return [{ ...cState, selected: iData === entityId }, events];
+      return [{ ...componentState, selected: iData === entityId }, events];
     }
 
-    default: return [cState, events];
+    default: return [componentState, events];
   }
 };
 
 const applyFilters = spriteRenderable => ([componentState, events]) => {
   const sprite = getCurrentSprite(spriteRenderable);
   const { touching, over, selected } = componentState;
-  let filterEvent;
+  let setFiltersTo = null;
 
-  if (over && !touching) {
-    filterEvent = () => {
-      sprite.filters = [blueFilter];
-    };
-  }
-  else if (touching) {
-    filterEvent = () => {
-      sprite.filters = [greenFilter];
-    };
-  }
-  else if (!over && !touching && selected) {
-    filterEvent = () => {
-      sprite.filters = [redFilter];
-    };
-  }
-  else {
-    filterEvent = () => {
-      sprite.filters = null;
-    };
-  }
+  if (over && !touching) setFiltersTo = [blueFilter];
+  else if (touching) setFiltersTo = [greenFilter];
+  else if (!over && !touching && selected) setFiltersTo = [redFilter];
+  const filterEvent = makeEvent(() => {
+    sprite.filters = setFiltersTo;
+  }, [RENDER_ACTION]);
 
-  return [componentState, [...events, makeEvent(filterEvent, [RENDER_ACTION])]];
+  return [componentState, [...events, filterEvent]];
+};
+
+const filterDownPointerMoves = (inbox) => {
+  const interactions = getInteractions(inbox);
+  let hasPointerMove = false;
+
+  return interactions
+    .reduceRight((total, event) => {
+      const { eventId, action } = event;
+      if (!action) return total;
+
+      if (eventId === POINTER_MOVE && !hasPointerMove) {
+        hasPointerMove = true;
+        [action].concat(total);
+      }
+      return [action].concat(total);
+    }, []);
 };
 
 export default (entityId, componentState, context) => {
   const { inbox, spriteRenderable } = context;
-
-  const interactions = getInteractions(inbox).map(({ action }) => action);
+  const interactions = filterDownPointerMoves(inbox);
 
   // compute state over each interaction
   const computeInteraction = computeInteractableState(entityId, context);

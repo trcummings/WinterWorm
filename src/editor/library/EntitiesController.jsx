@@ -57,10 +57,16 @@ class EntitiesController extends PureComponent<Props> {
   props: Props;
 
   componentDidMount() {
-    ipcRenderer.on(SELECT_INSPECTOR_ENTITY, (event, id) => {
-      if (id !== this.props.inspector.get('id')) this.selectEntity(id);
-    });
+    ipcRenderer.on(SELECT_INSPECTOR_ENTITY, this.handleGameSelectEntity);
   }
+
+  componentWillUnmount() {
+    ipcRenderer.removeListener(SELECT_INSPECTOR_ENTITY, this.handleGameSelectEntity);
+  }
+
+  handleGameSelectEntity = (event, id) => {
+    if (id !== this.props.inspector.get('id')) this.selectEntity(id);
+  };
 
   addNewEntity = (args) => {
     const { entities, gameObjects: { request } } = this.props;

@@ -31,13 +31,19 @@ export default class Positionable extends PureComponent<Props> {
   props: Props;
 
   componentDidMount() {
-    ipcRenderer.on(DRAG_ENTITY, (_, data) => {
-      const { updateComponentState, componentState } = this.props;
-      const isDifferent = Object.keys(componentState)
-        .some(key => componentState[key] !== data[key]);
+    ipcRenderer.on(DRAG_ENTITY, this.handleGameDragEntity);
+  }
 
-      if (isDifferent) updateComponentState(data);
-    });
+  componentWillUnmount() {
+    ipcRenderer.removeListener(DRAG_ENTITY, this.handleGameDragEntity);
+  }
+
+  handleGameDragEntity = (_, data) => {
+    const { updateComponentState, componentState } = this.props;
+    const isDifferent = Object.keys(componentState)
+      .some(key => componentState[key] !== data[key]);
+
+    if (isDifferent) updateComponentState(data);
   }
 
   updateComponentState =
