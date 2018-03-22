@@ -25,7 +25,7 @@ export const addInteraction = (state, entityId, sprite) => {
   const setEventOnEntity = eventType => (event) => {
     // if we dont have an empty event queue for this entity, initialize it
     if (!entities[entityId]) entities[entityId] = [];
-    entities[entityId].push([eventType, event.data]);
+    entities[entityId].push([eventType, event]);
   };
 
   sprite
