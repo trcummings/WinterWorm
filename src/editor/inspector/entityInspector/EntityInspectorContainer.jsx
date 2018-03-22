@@ -10,7 +10,10 @@ import Icon from 'material-ui/Icon';
 
 import { getGameObjects } from 'Editor/modules/data';
 import { sendToGame } from 'Editor/ipcUtil';
-import { UPDATE_COMPONENT_STATE } from 'App/actionTypes';
+import {
+  UPDATE_COMPONENT_STATE,
+  SELECT_INSPECTOR_ENTITY,
+} from 'App/actionTypes';
 
 import type { ReqFn } from 'Editor/aspects/GameObjectInterface';
 import type { Id, Label, ComponentState, Component, Entity } from 'Editor/types';
@@ -82,6 +85,10 @@ export class EntityInspectorContainer extends PureComponent<Props, State> {
 
   state = {
     addingComponent: false,
+  }
+
+  componentWillUnmount() {
+    sendToGame(SELECT_INSPECTOR_ENTITY, null);
   }
 
   getCandidateLabelSet = (): Array<Label> => {

@@ -32,8 +32,13 @@ const getEvents = (path: Array<string>) => (state: GameState): Events => (
 export const getEventQueue = getEvents(queuePath);
 export const getMetaEvents = getEvents(metaPath);
 
-export const getEventsOfEventId = (state: GameState, eventId: Selector) => (
+export const getEventsOfEventId = (state: GameState, eventId: Selector): Array<Selector> => (
   (getEventQueue(state) || []).filter(({ eventId: id }) => id === eventId)
+);
+
+export const getEventsOfOnlyEventId = (state: GameState, eventId: Selector): Array<Selector> => (
+  (getEventQueue(state) || [])
+    .filter(({ selectors, eventId: id }) => id === eventId && selectors.length === 1)
 );
 
 // Returns an array of events that matches the collection of selectors for an entity.

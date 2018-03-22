@@ -1,6 +1,7 @@
 // @flow
 import { PIXI_INTERACTION } from 'Game/engine/symbols';
-import { emitEventsToQueue, makeEvent } from 'Game/engine/events';
+import { emitEventsToQueue, makeEvent, emitEvent, getEventsOfOnlyEventId } from 'Game/engine/events';
+import { getSubscribedEntityIds } from 'Game/engine/ecs';
 
 import {
   POINTER_UP,
@@ -9,6 +10,7 @@ import {
   POINTER_OVER,
   POINTER_MOVE,
   POINTER_OUT,
+  SELECT_ENTITY,
 } from 'Game/gameObjectSpecs/componentStateFns/interactable';
 
 import type { GameState } from 'Types';
@@ -18,18 +20,12 @@ const entities = {};
 export const addInteraction = (state, entityId, sprite) => {
   sprite.buttonMode = true; // eslint-disable-line
   sprite.interactive = true; // eslint-disable-line
-  entities[entityId] = null;
+  entities[entityId] = [];
 
   const setEventOnEntity = eventType => (event) => {
-    // pointer over events & pointer move events happen near simultaneously
-    // in order to capture the pointer over event (which is more important),
-    // supercede adding pointer move
-    if (entities[entityId]) {
-      const [lastEvent] = entities[entityId];
-      if (lastEvent === POINTER_OVER && eventType === POINTER_MOVE) return;
-    }
-
-    entities[entityId] = [eventType, event.data];
+    // if we dont have an empty event queue for this entity, initialize it
+    if (!entities[entityId]) entities[entityId] = [];
+    entities[entityId].push([eventType, event.data]);
   };
 
   sprite
@@ -44,12 +40,22 @@ export const addInteraction = (state, entityId, sprite) => {
 };
 
 const addInteractionEvent = interactions => (total, eId) => (
-  interactions[eId]
-    ? total.concat(makeEvent(interactions[eId], [PIXI_INTERACTION, eId]))
-    : total
+  total.concat(interactions[eId].map(payload => makeEvent(payload, [PIXI_INTERACTION, eId])))
 );
 
-export default (state: GameState): GameState => {
+const computeEditorInteractions = (state: GameState) => {
+  const interactionEvents = getEventsOfOnlyEventId(state, PIXI_INTERACTION);
+  return interactionEvents.length > 0
+    ? getSubscribedEntityIds(state, PIXI_INTERACTION)
+      .reduce((total, eId) => (
+        interactionEvents.reduce((next, { action: entityId }) => (
+          emitEvent(next, [SELECT_ENTITY, entityId], [PIXI_INTERACTION, eId])
+        ), total)
+      ), state)
+    : state;
+};
+
+const computeComponentInteractions = (state: GameState) => {
   // capture mutable input object right NOW by making a shallow copy
   const interactions = Object.assign({}, entities);
 
@@ -63,3 +69,7 @@ export default (state: GameState): GameState => {
   if (events.length > 0) return emitEventsToQueue(state, events);
   return state;
 };
+
+export default (state: GameState): GameState => (
+  computeComponentInteractions(computeEditorInteractions(state))
+);

@@ -32,6 +32,14 @@ const setSpriteForRender = (sprites, frame, renderEvents) => {
   return nextFrame;
 };
 
+export const getCurrentSprite = (animateable) => {
+  const { nameMap, animation, currentAnimation, currentFrame } = animateable;
+  const sprites = animation.children[nameMap[currentAnimation]];
+  const currentSprite = sprites.children[currentFrame];
+
+  return currentSprite;
+};
+
 // When an action event is in the inbox, it changes the state and switches
 // animations. Otherwise, the animation frame is incremented to the next
 // frame as specified by the animation spec.

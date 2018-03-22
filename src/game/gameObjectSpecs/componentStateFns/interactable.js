@@ -6,10 +6,12 @@ export const POINTER_UP_OUTSIDE = 'pointerupoutside';
 export const POINTER_OVER = 'pointerover';
 export const POINTER_MOVE = 'pointermove';
 export const POINTER_OUT = 'pointerout';
+export const SELECT_ENTITY = 'selectEntity';
 
 const INITIAL_STATE = {
   over: false,
   touching: false,
+  selected: false,
   data: null,
 };
 

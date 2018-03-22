@@ -32,8 +32,11 @@ export default class Positionable extends PureComponent<Props> {
 
   componentDidMount() {
     ipcRenderer.on(DRAG_ENTITY, (_, data) => {
-      const { updateComponentState } = this.props;
-      updateComponentState(data);
+      const { updateComponentState, componentState } = this.props;
+      const isDifferent = Object.keys(componentState)
+        .some(key => componentState[key] !== data[key]);
+
+      if (isDifferent) updateComponentState(data);
     });
   }
 

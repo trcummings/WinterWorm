@@ -192,7 +192,7 @@ const getNextSystemStateAndEvents = (state, componentId) => {
   const newComponentState = {};
   const newEvents = [];
 
-  // loop through each entity concerned with this sytestem, get the entity's
+  // loop through each entity concerned with this system, get the entity's
   // component state, then get the next component's state, which might be
   // just its state, or an array, containing its state, and a second value
   // which may be an array of events, or a single event.
