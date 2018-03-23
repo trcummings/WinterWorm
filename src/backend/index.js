@@ -1,5 +1,7 @@
-const app = require('./server');
-const { db } = require('./models');
+import 'babel-polyfill';
+
+import app from './server';
+import { db } from './models';
 
 process.on('SIGINT', () => {
   console.log('Exiting backend/index.js via SIGINT event...');
@@ -13,6 +15,7 @@ process.on('SIGTERM', () => {
 
 process.on('uncaughtException', (err) => {
   console.log('Exiting backend/index.js via "uncaughtException" event...');
+  console.error(err);
   process.send({ type: 'ERROR', payload: err });
   process.exit(0);
 });

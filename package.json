@@ -10,7 +10,7 @@
     "base": "./node_modules/.bin/electron ./dist/app.js",
     "app:dev": "NODE_ENV=development ./node_modules/.bin/webpack --progress --config ./webpack.config.js; npm run base",
     "app:prod": "NODE_ENV=production ./node_modules/.bin/webpack --config ./webpack.config.js; npm run base",
-    "app:devserver": "concurrently \"NODE_ENV=development ./node_modules/.bin/webpack-dev-server --config ./webpack/process.config.js\" \"NODE_ENV=development ./node_modules/.bin/webpack --progress --config ./webpack/app.config.js; npm run base\""
+    "app:devserver": "concurrently \"NODE_ENV=development ./node_modules/.bin/webpack-dev-server --config ./webpack/process.config.js\" \"NODE_ENV=development ./node_modules/.bin/webpack --progress --config ./webpack/backend.config.js; NODE_ENV=development ./node_modules/.bin/webpack --progress --config ./webpack/app.config.js; npm run base\""
   },
   "keywords": [],
   "author": "moodprobiotic",

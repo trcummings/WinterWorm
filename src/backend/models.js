@@ -1,7 +1,7 @@
-const Sequelize = require('sequelize');
-const path = require('path');
+import Sequelize from 'sequelize';
+import path from 'path';
 
-const dbPath = path.resolve(__dirname, `../../editorFiles/${process.argv[2]}/db.sqlite`);
+const dbPath = path.resolve(process.env.EDITOR_FILES_PATH, `${process.argv[2]}/db.sqlite`);
 
 const db = new Sequelize('db', 'username', 'password', {
   host: 'localhost',
@@ -155,4 +155,4 @@ const schemas = {
   // partitions: partitionSchema,
 };
 
-module.exports = { db, models, schemas };
+export { db, models, schemas };

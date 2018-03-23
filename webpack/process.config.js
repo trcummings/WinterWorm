@@ -3,6 +3,7 @@ const common = require('./common.config');
 const { DIST_PATH } = require('./constants');
 
 module.exports = Object.assign({}, common, {
+  target: 'electron-main',
   entry: {
     game: './src/game/game.js',
     editor: './src/editor/Editor.jsx',

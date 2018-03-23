@@ -5,7 +5,6 @@ const { ROOT_PATH, DIST_PATH } = require('./constants');
 module.exports = {
   mode: 'development',
   context: ROOT_PATH,
-  target: 'electron-main',
   devtool: 'inline-source-maps',
   output: {
     filename: '[name].js',
@@ -59,7 +58,7 @@ module.exports = {
       'process.env.COMPONENT_SPEC_PATH': JSON.stringify(path.resolve(ROOT_PATH, './src/game/gameObjectSpecs/componentSpecs')),
       'process.env.SYSTEM_SPEC_PATH': JSON.stringify(path.resolve(ROOT_PATH, './src/game/gameObjectSpecs/systemSpecs')),
       'process.env.CONFIG_PATH': JSON.stringify(path.resolve(ROOT_PATH, './src/config')),
-      'process.env.BACKEND_INDEX_PATH': JSON.stringify(path.resolve(ROOT_PATH, './src/backend/index.js')),
+      'process.env.BACKEND_INDEX_PATH': JSON.stringify(path.resolve(ROOT_PATH, './dist/backend.js')),
       'process.env.EDITOR_FILES_PATH': JSON.stringify(path.resolve(ROOT_PATH, './editorFiles')),
     }),
   ],
