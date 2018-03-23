@@ -7,12 +7,10 @@ const contract = {
     include: [
       { association: 'entities' },
     ],
-    post: rows => clone(rows).map((row) => {
-      const { entities = [] } = row;
-      return Object.assign({}, row, {
-        entities: entities.map(({ id }) => id),
-      });
-    }),
+    post: rows => clone(rows).map(row => ({
+      ...row,
+      entities: (row.entities || []).map(({ id }) => id),
+    })),
   },
 };
 

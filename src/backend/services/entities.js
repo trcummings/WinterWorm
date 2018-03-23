@@ -4,13 +4,9 @@ import { models } from 'Backend/models';
 const contract = {
   service: 'entities',
   customActions: {
-    createWithScene: ({ body }) => new Promise((resolve) => {
-      const { sceneId } = body;
-      const bodyCopy = Object.assign({}, body);
-      delete bodyCopy.sceneId;
-
-      return models.scenes.findById(sceneId).then(unlinkedScene =>
-        models.entities.findOrCreate({ where: bodyCopy }).then(([entity]) =>
+    createWithScene: ({ body: { sceneId, ...rest } }) => (
+      models.scenes.findById(sceneId).then(unlinkedScene =>
+        models.entities.findOrCreate({ where: rest }).then(([entity]) =>
           unlinkedScene.addEntity(entity).then(() => (
             models.scenes.findById(clone(unlinkedScene).id, { include: [
               { association: 'entities' },
@@ -20,14 +16,17 @@ const contract = {
 
               return {
                 entities: { [newEntity.id]: newEntity },
-                scenes: { [newScene.id]: Object.assign({}, newScene, {
-                  entities: newScene.entities.map(({ id }) => id),
-                }) },
+                scenes: {
+                  [newScene.id]: {
+                    ...newScene,
+                    entities: newScene.entities.map(({ id }) => id),
+                  },
+                },
               };
             })
           ))))
-        .then(resp => resolve([null, resp]));
-    }),
+        .then(resp => [null, resp])
+    ),
   },
 };
 
