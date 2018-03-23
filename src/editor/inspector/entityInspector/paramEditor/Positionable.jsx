@@ -86,11 +86,23 @@ export default class Positionable extends PureComponent<Props> {
       <div style={{ display: 'flex' }}>
         <FormControl>
           <InputLabel htmlFor="x">X Position (in units)</InputLabel>
-          <Input id="x" value={x} type={contract.x.type} onChange={this.handleUpdate('x')} />
+          <Input
+            id="x"
+            value={x}
+            type={contract.x.type}
+            onChange={this.handleUpdate('x')}
+            inputProps={{ step: 0.01 }}
+          />
         </FormControl>
         <FormControl>
           <InputLabel htmlFor="y">Y Position (in units)</InputLabel>
-          <Input id="y" value={y} type={contract.y.type} onChange={this.handleUpdate('y')} />
+          <Input
+            id="y"
+            value={y}
+            type={contract.y.type}
+            onChange={this.handleUpdate('y')}
+            inputProps={{ step: 0.01 }}
+          />
         </FormControl>
       </div>
     );
