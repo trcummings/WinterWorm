@@ -1,5 +1,5 @@
-import app from '../server';
-import { makeController } from '../util';
-import Components from '../services/components';
+import app from 'Backend/server';
+import { makeController } from 'Backend/util';
+import Components from 'Backend/services/components';
 
 makeController(app, 'components', Components);

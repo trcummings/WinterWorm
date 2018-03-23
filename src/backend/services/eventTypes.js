@@ -1,4 +1,4 @@
-import { makeContract } from '../util';
+import { makeContract } from 'Backend/util';
 
 const contract = { service: 'eventTypes' };
 

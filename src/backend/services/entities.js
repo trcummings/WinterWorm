@@ -1,5 +1,5 @@
-import { clone, makeContract } from '../util';
-import { models } from '../models';
+import { clone, makeContract } from 'Backend/util';
+import { models } from 'Backend/models';
 
 const contract = {
   service: 'entities',

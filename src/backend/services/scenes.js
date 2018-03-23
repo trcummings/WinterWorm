@@ -1,4 +1,4 @@
-import { clone, makeContract } from '../util';
+import { clone, makeContract } from 'Backend/util';
 
 
 const contract = {

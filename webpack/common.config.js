@@ -41,6 +41,7 @@ module.exports = {
       Game: path.resolve(ROOT_PATH, './src/game'),
       App: path.resolve(ROOT_PATH, './src/app'),
       Config: path.resolve(ROOT_PATH, './src/config'),
+      Backend: path.resolve(ROOT_PATH, './src/backend'),
       Engine: path.resolve(ROOT_PATH, './src/game/engine'),
       Types: path.resolve(ROOT_PATH, './src/game/engine/types'),
       Symbols: path.resolve(ROOT_PATH, './src/game/engine/symbols'),

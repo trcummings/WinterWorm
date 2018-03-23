@@ -1,13 +1,13 @@
-import app from '../server';
-import { clone } from '../util';
-// import { models } from '../models';
+import app from 'Backend/server';
+import { clone } from 'Backend/util';
+// import { models } from 'Backend/models';
 
-import EventTypes from '../services/eventTypes';
-import Components from '../services/components';
-import Systems from '../services/systems';
-import Scenes from '../services/scenes';
-import Entities from '../services/entities';
-import ComponentStates from '../services/componentStates';
+import EventTypes from 'Backend/services/eventTypes';
+import Components from 'Backend/services/components';
+import Systems from 'Backend/services/systems';
+import Scenes from 'Backend/services/scenes';
+import Entities from 'Backend/services/entities';
+import ComponentStates from 'Backend/services/componentStates';
 
 const systemPartitionList = {
   pre: [

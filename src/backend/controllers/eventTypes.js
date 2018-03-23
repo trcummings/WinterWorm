@@ -1,5 +1,5 @@
-import app from '../server';
-import { makeController } from '../util';
-import EventTypes from '../services/eventTypes';
+import app from 'Backend/server';
+import { makeController } from 'Backend/util';
+import EventTypes from 'Backend/services/eventTypes';
 
 makeController(app, 'event_types', EventTypes);
