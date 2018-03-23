@@ -1,14 +1,18 @@
 // @flow
 import React, { PureComponent } from 'react';
+
 import Input, { InputLabel } from 'material-ui/Input';
 import { FormControl } from 'material-ui/Form';
+
+import { ANIMATION_CHANGE, FRAME_CHANGE } from 'Game/engine/symbols';
+import { emitQueueEvent } from 'Editor/ipcUtil';
 
 import hofToHoc from 'Editor/aspects/HofToHoc';
 import AssetAtlases, {
   type Atlases,
   type AnimName,
 } from 'Editor/aspects/AssetAtlases';
-import type { Component, ComponentState } from 'Editor/types';
+import type { Component, ComponentState, EntityId } from 'Editor/types';
 
 type SpriteRenderableState = {
   currentAnimation: AnimName,
@@ -16,6 +20,7 @@ type SpriteRenderableState = {
 };
 
 type Props = {
+  entityId: EntityId,
   componentState: SpriteRenderableState,
   updateComponentState: SpriteRenderableState => void,
   atlases: Atlases,
@@ -27,17 +32,22 @@ type Props = {
 class SpriteRenderable extends PureComponent<Props> {
   props: Props;
 
-  handleChange =
-    (key: $Keys<SpriteRenderableState>) =>
-      (event: SyntheticEvent<HTMLSelectElement | HTMLInputElement>): void => (
-        this.props.updateComponentState({
-          ...this.props.componentState,
-          [key]: (
-            typeof event.currentTarget.value === 'number'
-              ? parseInt(event.currentTarget.value, 10)
-              : event.currentTarget.value
-          ),
-        }))
+  handleAnimationChange = (event: SyntheticEvent<HTMLSelectElement>): void => {
+    const { componentState, updateComponentState, entityId } = this.props;
+    const currentAnimation = event.currentTarget.value;
+    const currentFrame = 0;
+
+    updateComponentState({ ...componentState, currentAnimation, currentFrame })
+      .then(() => emitQueueEvent(currentAnimation, [ANIMATION_CHANGE, entityId]));
+  }
+
+  handleFrameChange = (event: SyntheticEvent<HTMLInputElement>): void => {
+    const { componentState, updateComponentState, entityId } = this.props;
+    const currentFrame = parseInt(event.currentTarget.value, 10);
+
+    updateComponentState({ ...componentState, currentFrame })
+      .then(() => emitQueueEvent(currentFrame, [FRAME_CHANGE, entityId]));
+  }
 
   render() {
     const {
@@ -51,7 +61,7 @@ class SpriteRenderable extends PureComponent<Props> {
       <div>
         <select
           value={currentAnimation}
-          onChange={this.handleChange('currentAnimation')}
+          onChange={this.handleAnimationChange}
         >
           <option value="">Select Current Sprite</option>
           { Object.keys(frameSpecs).map(key => (
@@ -61,7 +71,7 @@ class SpriteRenderable extends PureComponent<Props> {
         <FormControl>
           <InputLabel htmlFor="currentFrame">Current Frame</InputLabel>
           <Input
-            onChange={this.handleChange('currentFrame')}
+            onChange={this.handleFrameChange}
             inputProps={{ max: numFrames - 1, min: 0 }}
             value={currentFrame}
             id="currentFrame"

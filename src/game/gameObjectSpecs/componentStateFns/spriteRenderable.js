@@ -1,4 +1,4 @@
-import { makeAnimations, getRenderEngine } from 'Game/engine/pixi';
+import { makeAnimations, getRenderEngine, setTransform, addChildMut } from 'Game/engine/pixi';
 import { getAssetPathAtlases } from 'Editor/aspects/AssetAtlases';
 
 export default (entityId, componentState, context, gameState) => {
@@ -19,10 +19,8 @@ export default (entityId, componentState, context, gameState) => {
   sprites.renderable = true;
   sprites.children[currentFrame].renderable = true;
 
-  animation.x = x;
-  animation.y = y;
-
-  stage.addChild(animation);
+  setTransform(animation, x, y);
+  addChildMut(stage, animation);
 
   return {
     initialComponentState: { animation, currentAnimation, currentFrame, nameMap },

@@ -3,7 +3,7 @@ import React, { PureComponent } from 'react';
 import Checkbox from 'material-ui/Checkbox';
 
 import { default as Collapse } from 'Editor/containers/Collapse';
-import type { ComponentState, Component } from 'Editor/types';
+import type { ComponentState, Component, EntityId } from 'Editor/types';
 
 import ParamEditor from './paramEditor/ParamEditor';
 
@@ -14,6 +14,7 @@ const collapseStyle = {
 type CSState = $PropertyType<ComponentState, 'state'>;
 
 type Props = {
+  entityId: EntityId,
   componentState: ComponentState,
   canBeActive: boolean,
   component: Component,
@@ -40,6 +41,7 @@ export default class ComponentCard extends PureComponent<Props> {
 
   render() {
     const {
+      entityId,
       canBeActive,
       component,
       componentState: { state, active },
@@ -59,6 +61,7 @@ export default class ComponentCard extends PureComponent<Props> {
           <h4 style={{ margin: 0 }}>{label}</h4>
         </div>
         <ParamEditor
+          entityId={entityId}
           contexts={contexts}
           component={component}
           contract={contract}

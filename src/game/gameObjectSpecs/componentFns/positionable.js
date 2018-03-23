@@ -1,14 +1,22 @@
-import { POSITION_CHANGE } from 'Engine/symbols';
-import { getInboxEvents } from 'Engine/events';
+// @flow
+import { POSITION_CHANGE } from 'Game/engine/symbols';
+import { getInboxEvents } from 'Game/engine/events';
+import { pixelsToUnits } from 'Game/engine/pixi';
 
-const INITIAL_OFFSET = { offsetX: 0, offsetY: 0 };
+import { type EntityId } from 'Editor/types';
+import { type PositionableState } from 'Editor/inspector/entityInspector/paramEditor/Positionable';
+
+const INITIAL_OFFSET = {
+  offsetX: pixelsToUnits(0),
+  offsetY: pixelsToUnits(0),
+};
 
 const updateOffset = (
   { offsetX: totalX, offsetY: totalY },
   { action: { offsetX: xO, offsetY: yO } }
 ) => ({ offsetX: totalX + xO, offsetY: totalY + yO });
 
-export default (entityId, componentState, context = {}) => {
+export default (entityId: EntityId, componentState: PositionableState, context = {}) => {
   const events = getInboxEvents(POSITION_CHANGE)(context.inbox);
 
   if (events.length === 0) return componentState;

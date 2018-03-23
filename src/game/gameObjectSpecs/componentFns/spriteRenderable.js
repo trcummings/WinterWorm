@@ -1,3 +1,4 @@
+import { setTransform } from 'Game/engine/pixi';
 import { ANIMATION_CHANGE, RENDER_ACTION, FRAME_CHANGE } from 'Engine/symbols';
 import { hasEventInInbox, makeEvent } from 'Engine/events';
 
@@ -25,7 +26,10 @@ const setSpriteForRender = (sprites, frame, renderEvents) => {
 
   pushToRenderEvents(renderEvents, () => {
     if (!sprites.renderable) sprites.renderable = true; //eslint-disable-line
+
     sprites.children[prevFrame].renderable = false; // eslint-disable-line
+    sprites.children[prevFrame].filters = null; // eslint-disable-line
+
     sprites.children[frame].renderable = true; // eslint-disable-line
   });
 
@@ -55,7 +59,7 @@ export default (entityId, componentState, context) => {
   const animIndex = nameMap[currentAnimation];
   const sprites = animation.children[animIndex];
   const animationChanged = animChange && animChange !== currentAnimation;
-  const frameChanged = frameChange && frameChange !== currentFrame;
+  const frameChanged = frameChange !== undefined && frameChange !== currentFrame;
   const renderEvents = [];
 
   let newFrame = currentFrame;
@@ -91,7 +95,7 @@ export default (entityId, componentState, context) => {
   }
 
   pushToRenderEvents(renderEvents, () => {
-    if (animation.x !== x || animation.y !== y) animation.setTransform(x, y);
+    if (animation.x !== x || animation.y !== y) setTransform(animation, x, y);
   });
 
   return [{

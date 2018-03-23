@@ -132,9 +132,14 @@ export class EntityInspectorContainer extends PureComponent<Props, State> {
       method: POST,
       service: 'componentStates',
       form: { entityId, state, componentId, active },
-    }).then(this.unsetAdding).then(() => (
-      sendToGame(UPDATE_COMPONENT_STATE, { componentId, entityId, state })
-    ));
+    });
+    // return request({
+    //   method: POST,
+    //   service: 'componentStates',
+    //   form: { entityId, state, componentId, active },
+    // }).then(this.unsetAdding).then(() => (
+    //   sendToGame(UPDATE_COMPONENT_STATE, { componentId, entityId, state })
+    // ));
   }
 
   updateComponentState = (options: ComponentState) => {
@@ -150,13 +155,18 @@ export class EntityInspectorContainer extends PureComponent<Props, State> {
       method: PUT,
       service: 'componentStates',
       form: { id, state: validState, active },
-    }).then(() => (
-      sendToGame(UPDATE_COMPONENT_STATE, { componentId, state: validState, entityId })
-    ));
+    });
+    // return request({
+    //   method: PUT,
+    //   service: 'componentStates',
+    //   form: { id, state: validState, active },
+    // }).then(() => (
+    //   sendToGame(UPDATE_COMPONENT_STATE, { componentId, state: validState, entityId })
+    // ));
   }
 
   render() {
-    const { entity: { label } = {}, components, componentStates } = this.props;
+    const { entity: { label, id: entityId } = {}, components, componentStates } = this.props;
     const componentList = Object.keys(componentStates).map((csId) => {
       const componentState = componentStates[csId];
       const { contexts: context = [] } = components[componentState.componentId];
@@ -182,6 +192,7 @@ export class EntityInspectorContainer extends PureComponent<Props, State> {
           <ComponentCard
             key={componentState.id}
             contexts={contexts}
+            entityId={entityId}
             componentState={componentState}
             updateComponentState={this.updateComponentState}
             component={components[componentState.componentId]}

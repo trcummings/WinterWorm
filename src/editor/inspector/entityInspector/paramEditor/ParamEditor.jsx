@@ -14,6 +14,7 @@ const ParamEditor = ({
   componentState,
   updateComponentState,
   contexts,
+  entityId,
 }) => {
   let ParamComponent;
   switch (component.label) {
@@ -40,6 +41,7 @@ const ParamEditor = ({
 
   return (
     <ParamComponent
+      entityId={entityId}
       contract={contract}
       contexts={contexts}
       updateComponentState={updateComponentState}

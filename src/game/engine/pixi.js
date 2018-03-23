@@ -18,7 +18,6 @@ import type {
 import { RENDER_ENGINE } from './symbols';
 import { isDev } from './util';
 
-
 type ResourceSpec = {
   resourceName: ResourceName,
   animationSpecs: Animations
@@ -31,7 +30,25 @@ type RenderEngine = {
   renderer: WebGLRenderer,
 };
 
-const ASPECT_RATIO = 16 / 9;
+export type Unit = number;
+// constants
+const DEFAULT_HEIGHT = 1080;
+const DEFAULT_WIDTH = 1920;
+const UNIT_WIDTH: Unit = 16;
+const UNIT_HEIGHT: Unit = 9;
+const ASPECT_RATIO = UNIT_WIDTH / UNIT_HEIGHT;
+const PIXELS_PER_UNIT = 120;
+
+export type Pos = { x: number, y: number };
+export type UnitPos = { x: Unit, y: Unit };
+
+export const unitsToPixels = (units: Unit): number => Math.round(units * PIXELS_PER_UNIT);
+export const pixelsToUnits = (pixels: number): Unit => pixels / PIXELS_PER_UNIT;
+export const posToUnitPos = ({ x, y }: Pos): UnitPos => ({
+  x: pixelsToUnits(x),
+  y: pixelsToUnits(y),
+});
+
 const makeHeight = width => Math.floor((1 / ASPECT_RATIO) * width);
 const makeWidth = height => Math.floor(ASPECT_RATIO * height);
 
@@ -52,16 +69,16 @@ export const makeRendererDims = ({ height, width }: Dims): RenderDims => {
 
 const backgroundColor = 0x1099bb;
 export const createRenderingEngine = ({
-  height = 1080,
-  width = 1920,
+  height = DEFAULT_HEIGHT,
+  width = DEFAULT_WIDTH,
 }: Dims): RenderEngine => {
   const options = { width, height, backgroundColor, antialias: true };
   const renderer = new autoDetectRenderer(options);
   const canvas = renderer.view;
   const stage = new Container();
 
-  const scaleX = width / 1920;
-  const scaleY = height / 1080;
+  const scaleX = width / DEFAULT_WIDTH;
+  const scaleY = height / DEFAULT_HEIGHT;
   stage.scale.x = scaleX;
   stage.scale.y = scaleY;
 
@@ -111,6 +128,11 @@ export const makeContainer = (children) => {
   const container = new Container();
   container.addChild(...children);
   return container;
+};
+
+export const setTransform = (displayObject: Container, x: Unit, y: Unit): Container => {
+  displayObject.setTransform(unitsToPixels(x), unitsToPixels(y));
+  return displayObject;
 };
 
 export const texturePathByFrame = (

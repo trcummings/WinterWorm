@@ -88,6 +88,7 @@ export const LOAD_SPEC = 'loadSpec';
 export const SELECT_INSPECTOR_ENTITY = 'interactable/SELECT_INSPECTOR_ENTITY';
 export const DRAG_ENTITY = 'interactable/DRAG_ENTITY';
 export const UPDATE_COMPONENT_STATE = 'interactable/UPDATE_COMPONENT_STATE';
+export const EMIT_QUEUE_EVENT = 'EMIT_QUEUE_EVENT';
 
 type GameEventTypes =
   | typeof OPEN_EDITOR
@@ -108,6 +109,7 @@ type GameEventTypes =
   | typeof SELECT_INSPECTOR_ENTITY
   | typeof DRAG_ENTITY
   | typeof UPDATE_COMPONENT_STATE
+  | typeof EMIT_QUEUE_EVENT
   | typeof LOAD_SPEC;
 
 

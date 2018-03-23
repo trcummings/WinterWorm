@@ -68,6 +68,14 @@ export const makeEvent = (
   selectors: Selectors
 ): Event => ({ eventId: selectors[0], selectors, action });
 
+export const emitSingleEvent = (
+  state: GameState,
+  event: Event,
+): GameState => {
+  const events = getEventQueue(state);
+  return assocPath(queuePath, events.concat([event]), state);
+};
+
 // Enqueues an event onto the queue
 export const emitEvent = (
   state: GameState,
@@ -75,8 +83,7 @@ export const emitEvent = (
   selectors: Selectors
 ): GameState => {
   const event = makeEvent(action, selectors);
-  const events = getEventQueue(state);
-  return assocPath(queuePath, events.concat([event]), state);
+  return emitSingleEvent(state, event);
 };
 
 // Emits a collection of events at the same time. Returns updated game state.

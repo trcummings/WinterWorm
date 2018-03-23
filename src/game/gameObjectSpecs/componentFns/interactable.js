@@ -3,6 +3,7 @@ import { OutlineFilter } from '@pixi/filter-outline';
 import { SELECT_INSPECTOR_ENTITY, DRAG_ENTITY } from 'App/actionTypes';
 import { PIXI_INTERACTION, RENDER_ACTION, GAME_TO_EDITOR, POSITION_CHANGE } from 'Engine/symbols';
 import { makeEvent, getInboxEvents } from 'Engine/events';
+import { posToUnitPos } from 'Game/engine/pixi';
 
 import {
   POINTER_UP,
@@ -29,6 +30,10 @@ const redFilter = makeColorFilter(RED);
 const greenFilter = makeColorFilter(GREEN);
 const blueFilter = makeColorFilter(BLUE);
 
+const getPos = (animation, event) => (
+  posToUnitPos(event.data.getLocalPosition(animation))
+);
+
 const computeInteractableState = (entityId, context) => (total, interaction) => {
   const [componentState, events] = total;
   const { spriteRenderable: { animation }, positionable: pos } = context;
@@ -46,7 +51,7 @@ const computeInteractableState = (entityId, context) => (total, interaction) => 
       if (!over) return [componentState, events];
       // if we are over the sprite and we click it,
       // start touching, & give initial position data to the state
-      const { x, y } = event.data.getLocalPosition(animation);
+      const { x, y } = getPos(animation, event);
       const action = [SELECT_INSPECTOR_ENTITY, entityId];
 
       // if we are selected already when we click, we dont need to
@@ -76,7 +81,7 @@ const computeInteractableState = (entityId, context) => (total, interaction) => 
     case POINTER_MOVE: {
       if (!selected || !over || !touching) return [componentState, events];
 
-      const { x: currentX, y: currentY } = event.data.getLocalPosition(animation);
+      const { x: currentX, y: currentY } = getPos(animation, event);
 
       if (!data) {
         return [
@@ -89,7 +94,7 @@ const computeInteractableState = (entityId, context) => (total, interaction) => 
       const { x: pastX, y: pastY } = data;
       const x = currentX - pastX;
       const y = currentY - pastY;
-      const action = { offsetX: Math.floor(x), offsetY: -Math.floor(y) };
+      const action = { offsetX: x, offsetY: -y };
 
       return [
         { ...componentState, data: { x: pastX, y: pastY } },

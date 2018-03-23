@@ -7,11 +7,12 @@ import {
   LOAD_SPEC,
   UPDATE_COMPONENT_STATE,
   SELECT_INSPECTOR_ENTITY,
+  EMIT_QUEUE_EVENT,
 } from 'App/actionTypes';
 import { setComponentState, getComponentState } from 'Game/engine/ecs';
 import { EDITOR_TO_GAME, PIXI_INTERACTION } from 'Game/engine/symbols';
 import { getLoopState, setLoopState } from 'Game/engine/loop';
-import { emitEvent } from 'Game/engine/events';
+import { emitEvent, emitSingleEvent } from 'Game/engine/events';
 
 import type { GameState } from 'Types';
 
@@ -50,6 +51,11 @@ export const queueMiddleware = (
     switch (eventType) {
       case REFRESH: {
         nextState = setLoopState(makeGameState(initialEntitySpecs), getLoopState());
+        break;
+      }
+
+      case EMIT_QUEUE_EVENT: {
+        nextState = emitSingleEvent(state, payload);
         break;
       }
 
