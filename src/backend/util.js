@@ -1,15 +1,8 @@
-const { models, schemas } = require('./models');
+import { models, schemas } from './models';
 
-const clone = obj => JSON.parse(JSON.stringify(obj));
+export const clone = obj => JSON.parse(JSON.stringify(obj));
 
-const minusId = (obj) => {
-  const newObj = clone(obj);
-  delete newObj.id;
-
-  return newObj;
-};
-
-const createDefaults = (schema, object) => (
+export const createDefaults = (schema, object) => (
   Object.keys(schema).reduce((total, key) => (
     Object.assign(total, { [key]: object[key] })
   ), {})
@@ -17,7 +10,7 @@ const createDefaults = (schema, object) => (
 
 const passThrough = (...args) => Promise.resolve(...args);
 
-const makeContract = (schema) => {
+export const makeContract = (schema) => {
   const {
     service,
     findAll: {
@@ -27,12 +20,12 @@ const makeContract = (schema) => {
     customActions,
   } = schema;
 
-  const actions = Object.assign({}, {
-    find: ({ query, params }) => new Promise(resolve => (
+  const actions = {
+    find: ({ query, params }) => (
       models[service].find({ where: Object.assign({}, query, params) })
-        .then(rows => resolve([null, rows]))
-        .catch(err => resolve([err]))
-    )),
+        .then(rows => [null, rows])
+        .catch(err => [err])
+    ),
     findOrCreate: ({ body }) => new Promise((resolve) => {
       const { label } = body;
       const defaults = createDefaults(schemas[service], body);
@@ -44,32 +37,34 @@ const makeContract = (schema) => {
         })
         .catch(err => resolve([err]));
     }),
-    findAll: () => new Promise(resolve => (
+    findAll: () => (
       models[service].findAll({ include: includeFindAll })
         .then(postFindAll)
-        .then(rows => resolve([null, rows]))
-        .catch(err => resolve([err]))
-    )),
-    create: ({ body, query }) => new Promise(resolve => ((query.batch
-      ? models[service].bulkCreate(body)
-      : models[service].create(body)
-    )
-      .then(rows => resolve([null, rows]))
-      .catch(err => resolve([err]))
-    )),
-    update: ({ body }) => (
-      models[service]
-        .update(minusId(body), { where: { id: body.id } })
-        .then(() => models[service].findOne({ where: { id: body.id } }))
         .then(rows => [null, rows])
         .catch(err => [err])
     ),
-    destroy: ({ body }) => new Promise(resolve => (
+    create: ({ body, query }) => ((
+      query.batch
+        ? models[service].bulkCreate(body)
+        : models[service].create(body)
+    )
+      .then(rows => [null, rows])
+      .catch(err => [err])
+    ),
+    update: ({ body: { id, ...rest } }) => (
+      models[service]
+        .update(rest, { where: { id } })
+        .then(() => models[service].findOne({ where: { id } }))
+        .then(rows => [null, rows])
+        .catch(err => [err])
+    ),
+    destroy: ({ body }) => (
       models[service].destroy({ where: { id: body.id } })
-        .then(rows => resolve([null, rows]))
-        .catch(err => resolve([err]))
-    )),
-  }, customActions);
+        .then(rows => [null, rows])
+        .catch(err => [err])
+    ),
+    ...customActions,
+  };
 
   actions.run = type => (req, res) => {
     actions[type](req).then(([err, result]) => {
@@ -88,18 +83,11 @@ const runCustom = service => (req, res) => {
   service.run(req.params.customAction)(req, res);
 };
 
-const makeController = (app, name, service) => {
+export const makeController = (app, name, service) => {
   app.get(`/${name}`, service.run('findAll'));
   app.get(`/${name}/:id`, service.run('find'));
   app.post(`/${name}`, service.run('create'));
   app.put(`/${name}`, service.run('update'));
   app.delete(`/${name}`, service.run('destroy'));
   app.post(`/${name}/:customAction`, runCustom(service));
-};
-
-module.exports = {
-  clone,
-  createDefaults,
-  makeContract,
-  makeController,
 };

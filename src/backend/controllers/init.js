@@ -1,13 +1,13 @@
-const app = require('../server');
-const { clone } = require('../util');
-// const { models } = require('../models');
+import app from '../server';
+import { clone } from '../util';
+// import { models } from '../models';
 
-const EventTypes = require('../services/eventTypes');
-const Components = require('../services/components');
-const Systems = require('../services/systems');
-const Scenes = require('../services/scenes');
-const Entities = require('../services/entities');
-const ComponentStates = require('../services/componentStates');
+import EventTypes from '../services/eventTypes';
+import Components from '../services/components';
+import Systems from '../services/systems';
+import Scenes from '../services/scenes';
+import Entities from '../services/entities';
+import ComponentStates from '../services/componentStates';
 
 const systemPartitionList = {
   pre: [

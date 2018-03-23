@@ -1,5 +1,5 @@
-const app = require('../server');
-const { makeController } = require('../util');
-const ComponentStates = require('../services/componentStates');
+import app from '../server';
+import { makeController } from '../util';
+import ComponentStates from '../services/componentStates';
 
 makeController(app, 'componentStates', ComponentStates);

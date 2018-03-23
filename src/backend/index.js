@@ -3,6 +3,13 @@ import 'babel-polyfill';
 import app from './server';
 import { db } from './models';
 
+import './controllers/init';
+import './controllers/components';
+import './controllers/systems';
+import './controllers/eventTypes';
+import './controllers/entities';
+import './controllers/componentStates';
+
 process.on('SIGINT', () => {
   console.log('Exiting backend/index.js via SIGINT event...');
   process.exit(0);
@@ -21,14 +28,6 @@ process.on('uncaughtException', (err) => {
 });
 
 const PORT = 3001;
-
-require('./controllers/init');
-require('./controllers/components');
-require('./controllers/systems');
-require('./controllers/eventTypes');
-require('./controllers/entities');
-require('./controllers/componentStates');
-
 
 app.listen(PORT, (err) => {
   if (err) process.send({ type: 'ERROR', payload: err });

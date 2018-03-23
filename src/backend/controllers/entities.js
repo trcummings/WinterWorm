@@ -1,5 +1,5 @@
-const app = require('../server');
-const { makeController } = require('../util');
-const Entities = require('../services/entities');
+import app from '../server';
+import { makeController } from '../util';
+import Entities from '../services/entities';
 
 makeController(app, 'entities', Entities);

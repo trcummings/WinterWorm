@@ -1,5 +1,5 @@
-const { clone, makeContract } = require('../util');
-const { models } = require('../models');
+import { clone, makeContract } from '../util';
+import { models } from '../models';
 
 const contract = {
   service: 'entities',
@@ -31,4 +31,4 @@ const contract = {
   },
 };
 
-module.exports = makeContract(contract);
+export default makeContract(contract);

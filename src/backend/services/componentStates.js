@@ -1,5 +1,5 @@
-const { makeContract } = require('../util');
+import { makeContract } from '../util';
 
 const contract = { service: 'componentStates' };
 
-module.exports = makeContract(contract);
+export default makeContract(contract);
