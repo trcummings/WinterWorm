@@ -24,8 +24,5 @@ export default (entityId, componentState, context, gameState) => {
   const sprites = animation.children[animIndex];
   const sprite = sprites.children[currentFrame];
 
-  return {
-    initialComponentState: INITIAL_STATE,
-    nextGameState: addInteraction(gameState, entityId, sprite),
-  };
+  return [INITIAL_STATE, addInteraction(gameState, entityId, sprite)];
 };

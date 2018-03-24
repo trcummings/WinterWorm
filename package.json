@@ -46,6 +46,7 @@
     "express": "^4.16.2",
     "flow-bin": "^0.62.0",
     "flow-typed": "^2.2.3",
+    "gl-matrix": "^2.4.0",
     "google-closure-compiler-js": "^20171203.0.0",
     "history": "^4.7.2",
     "hoist-non-react-statics": "^2.3.1",

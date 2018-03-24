@@ -27,7 +27,7 @@ import {
 import { conjoin } from './util';
 import { getSubscribedEvents, emitEventsToQueue, getEventQueue } from './events';
 
-import type { GameState, Scene, Id } from './types';
+import type { GameState, Scene, Id, Component } from './types';
 
 export const getScene = (state: GameState, sceneId: Id): GameState => (
   view(lensPath([SCENES, sceneId]), state)
@@ -241,25 +241,15 @@ export const setSystem = (state: GameState, system) => {
   return assocPath([SYSTEMS, id], system, state);
 };
 
-// Returns a function that returns an updated state with component state
-// generated for the given entityId. If no initial component state is given,
-// it will default to an empty object.
 const componentStateFromSpec = (entityId: Id) => (
   state: GameState,
   entityComponent
 ): GameState => {
   const { id, state: componentState, fn } = entityComponent;
-  let initialComponentState = componentState;
-  let nextState = state;
-
-  if (fn) {
-    const eventsQueue = getEventQueue(state);
-    const component = getComponent(state, id);
-    const context = getComponentContext(state, eventsQueue, entityId, component);
-    const initialState = fn(entityId, componentState, context, state);
-    initialComponentState = initialState.initialComponentState;
-    nextState = initialState.nextGameState;
-  }
+  const eventsQueue = getEventQueue(state);
+  const component = getComponent(state, id);
+  const context = getComponentContext(state, eventsQueue, entityId, component);
+  const [initialComponentState, nextState] = fn(entityId, componentState, context, state);
 
   return compose(
     over(lensPath([ENTITIES, entityId]), append(id), __),

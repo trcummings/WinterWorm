@@ -22,8 +22,5 @@ export default (entityId, componentState, context, gameState) => {
   setTransform(animation, x, y);
   addChildMut(stage, animation);
 
-  return {
-    initialComponentState: { animation, currentAnimation, currentFrame, nameMap },
-    nextGameState: gameState,
-  };
+  return [{ animation, currentAnimation, currentFrame, nameMap }, gameState];
 };

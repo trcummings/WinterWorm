@@ -4,7 +4,15 @@ import { view, lensPath, over, compose } from 'ramda';
 import { GAME_LOOP, STATE } from './symbols';
 import { conjoin } from './util';
 
-import type { Timestamp, LoopState } from './types';
+import { type GameState } from './types';
+
+export type Timestamp = DOMHighResTimeStamp | number;
+
+export type LoopState = {
+  startTime: Timestamp,
+  currentTime?: Timestamp,
+  frameTime?: Timestamp,
+};
 
 const loopStateLens = lensPath([STATE, GAME_LOOP]);
 export const getLoopState = (state: GameState) => view(loopStateLens, state);

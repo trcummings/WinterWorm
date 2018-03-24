@@ -10,6 +10,8 @@ import componentFns from 'Game/gameObjectSpecs/componentFns';
 import systemFns from 'Game/gameObjectSpecs/systemFns';
 import componentStateFns from 'Game/gameObjectSpecs/componentStateFns';
 
+const dummyComponentStateFn = (_, cs, __, s) => [cs, s];
+
 const getEventLabel = (specs, eventTypeId) => {
   const { eventTypes: { [eventTypeId]: { label } } } = specs;
   return label;
@@ -41,19 +43,9 @@ const processEntity = (specs, entityId) => {
     const { entityId: cseId, active, state, componentId } = componentStates[csId];
     if (cseId !== entityId || !active) return total;
 
-    // const { [componentId]: { isFactory, label: cLabel, contexts = [] } } = components;
-    const { [componentId]: { isFactory, label: cLabel } } = components;
-    if (!isFactory) return total.concat([{ id: componentId, state }]);
+    const { [componentId]: { label: cLabel } } = components;
+    const fn = componentStateFns[cLabel] || dummyComponentStateFn;
 
-    const fn = componentStateFns[cLabel];
-    // const initContexts = contexts.reduce((total2, cId) => {
-    //   const cState = total.find(({ id }) => id === cId);
-    //   if (!cState) return total2;
-    //   const { [cId]: { label: cLabel2 } } = components;
-    //   return Object.assign(total2, { [cLabel2]: cState.state });
-    // }, {});
-
-    // return total.concat([{ id: componentId, fn: fn(cseId, state, initContexts) }]);
     return total.concat([{ id: componentId, fn, state }]);
   }, []);
 

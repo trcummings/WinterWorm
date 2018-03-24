@@ -3,13 +3,6 @@
 import * as symbols from './symbols';
 
 /* eslint-disable no-use-before-define */
-export type Timestamp = DOMHighResTimeStamp | number;
-export type LoopState = {
-  startTime: Timestamp,
-  currentTime?: Timestamp,
-  frameTime?: Timestamp,
-};
-
 export opaque type Id: string = string;
 
 export type GameState = {
