@@ -1,4 +1,5 @@
 // @flow
+import uuidv4 from 'uuid/v4';
 import {
   __,
   view,
@@ -22,6 +23,7 @@ import {
   STATE,
   UPDATE_FNS,
   CLEANUP_FN,
+  ID_RECORD,
 } from './symbols';
 // import { conjoin, concatKeywords } from './util';
 import { conjoin } from './util';
@@ -258,21 +260,32 @@ const componentStateFromSpec = (entityId: Id) => (
   )(nextState);
 };
 
-const ID_RECORD = 'idRecord';
-const makeNewEntityId = (state: GameState): { id: number } => {
+export const makeUUIDs = (n: number): Array<uuidv4> => {
+  const result = [];
+  for (let i = 0; i < n; i++) result.push(uuidv4());
+  return result;
+};
+
+export const setIdRecord = (state: GameState) => {
+  const uuids = makeUUIDs(100);
+  return assoc(ID_RECORD, uuids, state);
+};
+
+const makeNewEntityId = (state: GameState): [Id, GameState] => {
   const ids = view(lensPath([ID_RECORD]), state);
   const id = ids.shift();
-  return id;
+  return [id, state];
 };
 
 export const setEntity = (state: GameState, entity) => {
   const { components, id: entityId } = entity;
+  let next = state;
   let id = entityId;
-  if (!id) id = makeNewEntityId(state);
+  if (!id) [id, next] = makeNewEntityId(state);
 
   const componentStateFn = componentStateFromSpec(id);
 
-  return components.reduce(componentStateFn, state);
+  return components.reduce(componentStateFn, next);
 };
 
 const removeEntityFromComponentIndex = (

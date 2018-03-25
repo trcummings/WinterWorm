@@ -118,7 +118,11 @@ Component.belongsToMany(Component, {
 const componentStateSchema = { id, state: Sequelize.JSON, active };
 const ComponentState = db.define('componentState', componentStateSchema);
 
-Entity.belongsToMany(Component, { through: ComponentState });
+Entity.belongsToMany(Component, {
+  through: ComponentState,
+  onDelete: 'cascade',
+  hooks: true,
+});
 Component.belongsToMany(Entity, { through: ComponentState });
 
 // // Partition

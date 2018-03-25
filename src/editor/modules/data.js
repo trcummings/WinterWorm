@@ -9,6 +9,37 @@ export const REMOVE_ENTITIES = 'data/REMOVE_ENTITIES';
 
 const INITIAL_STATE = {};
 
+const updateRelationsOnDelete = (service, id, state) => {
+  switch (service) {
+    case 'entities': {
+      const { scenes, componentStates } = state;
+      return {
+        ...state,
+        scenes: Object.keys(scenes).reduce((total, sceneId) => {
+          const entityIds = scenes[sceneId].entities;
+
+          if (!entityIds.includes(id)) return Object.assign(total, { [sceneId]: scenes[sceneId] });
+
+          const idx = entityIds.findIndex(eId => eId === id);
+          const newEntityIds = entityIds.slice();
+          newEntityIds.splice(idx, 1);
+
+          return Object.assign(total, {
+            [sceneId]: { ...scenes[sceneId], entities: newEntityIds },
+          });
+        }, {}),
+        componentStates: Object.keys(componentStates).reduce((total, csId) => (
+          componentStates[csId].entityId === id
+            ? total
+            : Object.assign(total, { [csId]: componentStates[csId] })
+        ), {}),
+      };
+    }
+
+    default: return state;
+  }
+};
+
 // Selectors
 export const getGameObjects = type => state => state.data[type] || INITIAL_STATE;
 
@@ -32,7 +63,7 @@ export default function data(state = INITIAL_STATE, action = {}) {
       for (const service of Object.keys(payload)) {
         for (const id of Object.keys(payload[service])) {
           const objet = payload[service][id];
-          newState = assocPath([service, `${id}`], objet, newState);
+          newState = assocPath([service, id], objet, newState);
         }
       }
 
@@ -43,14 +74,15 @@ export default function data(state = INITIAL_STATE, action = {}) {
       const { service } = meta;
       const { id } = payload;
 
-      return assocPath([service, `${id}`], payload, state);
+      return assocPath([service, id], payload, state);
     }
 
     case REMOVE_ENTITY: {
       const { service } = meta;
       const { id } = payload;
 
-      return dissocPath([service, `${id}`], state);
+      const next = dissocPath([service, id], state);
+      return updateRelationsOnDelete(service, id, next);
     }
 
     default: return state;

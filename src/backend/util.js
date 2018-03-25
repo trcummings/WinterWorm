@@ -60,7 +60,7 @@ export const makeContract = (schema) => {
     ),
     destroy: ({ body }) => (
       models[service].destroy({ where: { id: body.id } })
-        .then(rows => [null, rows])
+        .then(() => [null, { id: body.id }])
         .catch(err => [err])
     ),
     ...customActions,

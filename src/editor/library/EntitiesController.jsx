@@ -19,6 +19,7 @@ import hofToHoc from '../aspects/HofToHoc';
 
 
 import {
+  INITIAL_STATE,
   selectInspector,
   getInspectorControl,
   type InspectorState,
@@ -47,6 +48,7 @@ type ChildrenProps = {
 };
 
 type Props = {
+  entities: {},
   children: (ChildrenProps) => mixed,
   inspector: InspectorState,
   setInInspector: Inspector => mixed,
@@ -58,6 +60,16 @@ class EntitiesController extends PureComponent<Props> {
 
   componentDidMount() {
     ipcRenderer.on(SELECT_INSPECTOR_ENTITY, this.handleGameSelectEntity);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const { inspector, entities, setInInspector } = nextProps;
+    const currentId = inspector.get('id');
+    const nextId = Object.keys(entities)[0];
+
+    if (currentId && entities[currentId]) return;
+    else if (!nextId) setInInspector(INITIAL_STATE.toJS());
+    else this.selectEntity(nextId);
   }
 
   componentWillUnmount() {

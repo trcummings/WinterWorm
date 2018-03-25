@@ -39,7 +39,7 @@ export const getInspectorId = getInspectorProp('id');
 export const getInspectorType = getInspectorProp('inspectorType');
 
 // Reducer
-const INITIAL_STATE: InspectorState = Map({
+export const INITIAL_STATE: InspectorState = Map({
   inspectorType: null,
   id: null,
 });

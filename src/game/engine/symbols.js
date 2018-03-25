@@ -15,6 +15,7 @@ export const ENTITY_TRASHCAN = 'entityTrashcan';
 export const SUBSCRIPTIONS = 'subscriptions';
 export const CLEANUP_FN = 'cleanupFn';
 export const CONTEXT = 'context';
+export const ID_RECORD = 'idRecord';
 
 export const STATE = 'state';
 

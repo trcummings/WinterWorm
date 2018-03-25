@@ -12,6 +12,7 @@ import {
   PHYSICS_ENGINE,
   COMPONENTS,
   ENTITIES,
+  ID_RECORD,
 } from './symbols';
 import {
   getCurrentScene,
@@ -21,6 +22,7 @@ import {
   setScene,
   setSystem,
   setEntity,
+  setIdRecord,
 } from './ecs';
 import { setRenderEngine } from './pixi';
 import { setPhysicsEngine } from './planck';
@@ -40,6 +42,7 @@ const setStateFn = (type: SpecType) => {
     case CURRENT_SCENE: { return applySpec(setCurrentScene); }
     case RENDER_ENGINE: { return applySpec(setRenderEngine); }
     case PHYSICS_ENGINE: { return applySpec(setPhysicsEngine); }
+    case ID_RECORD: { return applySpec(setIdRecord); }
     case SCRIPTS: {
       return (state: GameState, { options }): GameState => {
         const fn = options;

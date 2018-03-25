@@ -1,3 +1,4 @@
+// @flow
 import {
   SYSTEMS,
   SCENES,
@@ -5,12 +6,45 @@ import {
   ENTITIES,
 } from 'Symbols';
 
+import { stateFromContract } from 'Editor/contractUtil';
 import { getAssetPathAtlases } from 'Editor/aspects/AssetAtlases';
 import componentFns from 'Game/gameObjectSpecs/componentFns';
 import systemFns from 'Game/gameObjectSpecs/systemFns';
 import componentStateFns from 'Game/gameObjectSpecs/componentStateFns';
 
+const mapToLabels = gameObjects => Object.keys(gameObjects).reduce((total, id) => (
+  Object.assign(total, { [gameObjects[id].label]: gameObjects[id] })
+), {});
+
 const dummyComponentStateFn = (_, cs, __, s) => [cs, s];
+
+const entityHasComponent = (specs, entityId, componentLabel): boolean => {
+  const {
+    components,
+    entities: { [entityId]: { components: entityComponents } },
+  } = specs;
+  const componentLabelMap = mapToLabels(components);
+  const componentId = componentLabelMap[componentLabel].id;
+
+  return entityComponents.some(({ id }) => id === componentId);
+};
+
+const addComponentState = componentLabelMap => (total, name) => {
+  if (!componentLabelMap[name]) throw new Error(`no component by label of ${name}!`);
+  const { id, contract = {} } = componentLabelMap[name];
+  const fn = componentStateFns[name] || dummyComponentStateFn;
+  const state = stateFromContract(contract);
+
+  return total.concat([{ id, fn, state }]);
+};
+
+const createEntity = (specs, label, componentNames) => {
+  const { components } = specs;
+  const componentLabelMap = mapToLabels(components);
+  const componentStateFn = addComponentState(componentLabelMap);
+
+  return { label, components: componentNames.reduce(componentStateFn, []) };
+};
 
 const getEventLabel = (specs, eventTypeId) => {
   const { eventTypes: { [eventTypeId]: { label } } } = specs;
@@ -62,6 +96,8 @@ export function gameSpecsToSpecs(specs) {
   const currentScene = processScene(specs, currentSceneId);
   const entityIds = specs.scenes[currentSceneId].entities;
 
+
+  // organize systems into partitions
   const { pre, main, post } = Object.keys(specs.systems).reduce((total, sId) => {
     const { orderIndex, partition } = specs.systems[sId];
     total[partition][orderIndex] = sId; // eslint-disable-line
@@ -69,6 +105,7 @@ export function gameSpecsToSpecs(specs) {
   }, { pre: [], main: [], post: [] });
   const systemIds = [...pre, ...main, ...post].filter(sId => specs.systems[sId].active);
 
+  // build asset information to pass to the loader
   const atlases = getAssetPathAtlases();
   const assetSpecs = Object.keys(atlases).map(resourceName => ({
     name: resourceName,

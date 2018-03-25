@@ -10,6 +10,7 @@ import {
   SCRIPTS,
   RENDER_ENGINE,
   PHYSICS_ENGINE,
+  ID_RECORD,
   EDITOR_TO_GAME,
 } from './engine/symbols';
 import { initEvents } from './engine/scripts';
@@ -33,6 +34,8 @@ export const makeInitialState = ({ renderEngine }) => {
       options: renderEngine },
     { type: PHYSICS_ENGINE,
       options: world },
+    // set up a list of 1000 uuids for entities generated at run time to use
+    { type: ID_RECORD },
     // Set up the events.
     { type: SCRIPTS, options: initEvents },
   );

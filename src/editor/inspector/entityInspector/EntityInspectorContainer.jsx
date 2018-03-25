@@ -1,23 +1,22 @@
 // @flow
 import React, { PureComponent, Fragment } from 'react';
 import { createSelector } from 'reselect';
-// import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
 import Divider from 'material-ui/Divider';
 import Button from 'material-ui/Button';
 import Icon from 'material-ui/Icon';
 
+import IconMenu from 'Editor/components/IconMenu';
+
 import { getGameObjects } from 'Editor/modules/data';
 import { sendToGame } from 'Editor/ipcUtil';
-import {
-  UPDATE_COMPONENT_STATE,
-  SELECT_INSPECTOR_ENTITY,
-} from 'App/actionTypes';
+import { SELECT_INSPECTOR_ENTITY } from 'App/actionTypes';
+import { stateFromContract, makeValidState } from 'Editor/contractUtil';
 
 import type { ReqFn } from 'Editor/aspects/GameObjectInterface';
 import type { Id, Label, ComponentState, Component, Entity } from 'Editor/types';
-import { POST, PUT } from 'App/dbAgent';
+import { POST, PUT, DELETE } from 'App/dbAgent';
 
 import ComponentCard from './ComponentCard';
 
@@ -43,21 +42,6 @@ const mapStateToProps = (state, ownProps) => ({
   components: getComponents(state, ownProps),
   entity: getEntity(state, ownProps),
 });
-
-export const stateFromContract = (param = {}) => (
-  Object.keys(param).reduce((total, key) => {
-    const { defaultsTo, type, factory } = param[key];
-    return Object.assign(total, {
-      [key]: type === 'factory' && factory
-        ? () => stateFromContract(factory)
-        : defaultsTo,
-    });
-  }, {})
-);
-
-const makeValidState = (state, contract) => Object.keys(contract).reduce((total, key) => (
-  Object.assign(total, { [key]: state[key] })
-), {});
 
 type Props = {
   id: Id,
@@ -105,6 +89,17 @@ export class EntityInspectorContainer extends PureComponent<Props, State> {
     ), []);
   }
 
+  handleDelete = () => {
+    const { request, entity: { id: entityId } = {} } = this.props;
+    if (!entityId) throw new Error('No fucking entity id in inspector!!!');
+
+    return request({
+      method: DELETE,
+      service: 'entities',
+      form: { id: entityId },
+    });
+  }
+
   canBeActive = (componentId: Id) => {
     const { components, componentStates } = this.props;
     const componentSpec = components[componentId];
@@ -133,13 +128,6 @@ export class EntityInspectorContainer extends PureComponent<Props, State> {
       service: 'componentStates',
       form: { entityId, state, componentId, active },
     });
-    // return request({
-    //   method: POST,
-    //   service: 'componentStates',
-    //   form: { entityId, state, componentId, active },
-    // }).then(this.unsetAdding).then(() => (
-    //   sendToGame(UPDATE_COMPONENT_STATE, { componentId, entityId, state })
-    // ));
   }
 
   updateComponentState = (options: ComponentState) => {
@@ -147,7 +135,6 @@ export class EntityInspectorContainer extends PureComponent<Props, State> {
     const {
       request,
       components: { [componentId]: { contract = {} } },
-      entity: { id: entityId } = {},
     } = this.props;
     const validState = makeValidState(state, contract || {});
 
@@ -156,13 +143,6 @@ export class EntityInspectorContainer extends PureComponent<Props, State> {
       service: 'componentStates',
       form: { id, state: validState, active },
     });
-    // return request({
-    //   method: PUT,
-    //   service: 'componentStates',
-    //   form: { id, state: validState, active },
-    // }).then(() => (
-    //   sendToGame(UPDATE_COMPONENT_STATE, { componentId, state: validState, entityId })
-    // ));
   }
 
   render() {
@@ -186,7 +166,16 @@ export class EntityInspectorContainer extends PureComponent<Props, State> {
 
     return (
       <div>
-        <h4 style={{ padding: '.5em', margin: 0 }}>{ label }</h4>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <h4 style={{ padding: '.5em', margin: 0 }}>{ label }</h4>
+          <IconMenu listItems={[{ label: 'Delete Entity', onClick: this.handleDelete }]} />
+        </div>
         <Divider />
         { componentList.map(({ componentState, contexts }) => (
           <ComponentCard
