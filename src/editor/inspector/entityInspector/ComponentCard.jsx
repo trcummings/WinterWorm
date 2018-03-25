@@ -1,15 +1,14 @@
 // @flow
-import React, { PureComponent } from 'react';
-import Checkbox from 'material-ui/Checkbox';
+import React, { Fragment, PureComponent } from 'react';
 
-import { default as Collapse } from 'Editor/containers/Collapse';
+import Typography from 'material-ui/Typography';
+import Checkbox from 'material-ui/Checkbox';
+import Divider from 'material-ui/Divider';
+
+import Collapse from 'Editor/components/Collapse';
 import type { ComponentState, Component, EntityId } from 'Editor/types';
 
 import ParamEditor from './paramEditor/ParamEditor';
-
-const collapseStyle = {
-  padding: 0,
-};
 
 type CSState = $PropertyType<ComponentState, 'state'>;
 
@@ -50,25 +49,30 @@ export default class ComponentCard extends PureComponent<Props> {
     } = this.props;
 
     return (
-      <Collapse style={collapseStyle} name={label}>
-        <div style={{ display: 'flex' }}>
-          <Checkbox
-            disabled={!canBeActive}
-            checked={active}
-            onChange={this.toggleComponentActive}
-            style={{ width: 'auto' }}
+      <Fragment>
+        <Collapse name={label}>
+          <div
+            style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
+            onClick={this.toggleComponentActive}
+          >
+            <Checkbox
+              disabled={!canBeActive}
+              checked={active}
+              style={{ width: 'auto' }}
+            />
+            <Typography component="h4">{label}</Typography>
+          </div>
+          <ParamEditor
+            entityId={entityId}
+            contexts={contexts}
+            component={component}
+            contract={contract}
+            componentState={state}
+            updateComponentState={this.updateComponentState}
           />
-          <h4 style={{ margin: 0 }}>{label}</h4>
-        </div>
-        <ParamEditor
-          entityId={entityId}
-          contexts={contexts}
-          component={component}
-          contract={contract}
-          componentState={state}
-          updateComponentState={this.updateComponentState}
-        />
-      </Collapse>
+        </Collapse>
+        <Divider />
+      </Fragment>
     );
   }
 }

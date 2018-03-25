@@ -56,17 +56,18 @@ export type System = {|
   +component?: Component
 |};
 
-export type EntityComponentSpec = {
+type Contexts = Array<ComponentId>;
+export type ComponentStateSpec = {
   +id: Id,
   +state?: mixed,
-  +fn?: GameState => mixed,
+  +fn: (ComponentId, mixed, Contexts, GameState) => [mixed, GameState],
 };
 
 export type EntityId = Id;
 export type Entity = {|
   +id: EntityId,
   +label: string,
-  +components: Array<EntityComponentSpec>
+  +components: Array<ComponentStateSpec>
 |};
 
 export type Script = GameState => GameState;

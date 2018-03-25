@@ -186,7 +186,7 @@ export class EntityInspectorContainer extends PureComponent<Props, State> {
 
     return (
       <div>
-        <h3 style={{ margin: 0 }}>{ label }</h3>
+        <h4 style={{ padding: '.5em', margin: 0 }}>{ label }</h4>
         <Divider />
         { componentList.map(({ componentState, contexts }) => (
           <ComponentCard

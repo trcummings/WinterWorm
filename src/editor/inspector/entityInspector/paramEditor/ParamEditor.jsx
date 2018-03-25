@@ -40,13 +40,15 @@ const ParamEditor = ({
   }
 
   return (
-    <ParamComponent
-      entityId={entityId}
-      contract={contract}
-      contexts={contexts}
-      updateComponentState={updateComponentState}
-      componentState={componentState}
-    />
+    <div style={{ paddingBottom: '1em' }}>
+      <ParamComponent
+        entityId={entityId}
+        contract={contract}
+        contexts={contexts}
+        updateComponentState={updateComponentState}
+        componentState={componentState}
+      />
+    </div>
   );
 };
 

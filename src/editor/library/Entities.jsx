@@ -1,10 +1,8 @@
 //
 import React, { PureComponent, Fragment } from 'react';
 
-import ListSubheader from 'material-ui/List/ListSubheader';
 import List, {
   ListItem,
-  // ListItemIcon,
   ListItemText,
   // ListItemSecondaryAction,
 } from 'material-ui/List';
@@ -28,7 +26,7 @@ export default class Entities extends PureComponent { // eslint-disable-line
         { ({ entities, selectEntity, addNewEntity }) => (
           <ScenesController>
             { ({ scenes, selectScene }) => (
-              <List>
+              <List disablePadding>
                 { this.getSorted(scenes).map((sId) => {
                   const { entities: eIds, label } = scenes[sId];
                   const sEntities = this.getSceneEntities(entities, eIds);
@@ -36,7 +34,7 @@ export default class Entities extends PureComponent { // eslint-disable-line
 
                   return (
                     <Fragment key={sId}>
-                      <ListItem>
+                      <ListItem disableGutters button dense>
                         <ListItemText
                           component="h6"
                           onClick={() => selectScene(sId)}
@@ -45,7 +43,7 @@ export default class Entities extends PureComponent { // eslint-disable-line
                       </ListItem>
                       { sEIds.length > 0 && (
                         <List disablePadding>
-                          <ListItem button>
+                          <ListItem disableGutters button dense>
                             <ListItemText
                               inset
                               component="h6"
@@ -59,7 +57,7 @@ export default class Entities extends PureComponent { // eslint-disable-line
                             />
                           </ListItem>
                           { sEIds.map(eId => (
-                            <ListItem key={eId}>
+                            <ListItem disableGutters button dense key={eId}>
                               <ListItemText
                                 inset
                                 component="h6"

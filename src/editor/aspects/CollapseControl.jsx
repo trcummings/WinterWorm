@@ -1,15 +1,8 @@
 // @flow
-import React, { Children, PureComponent, type Element } from 'react';
+import { PureComponent, type Element } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-
-import Divider from 'material-ui/Divider';
-import ExpansionPanel, {
-  ExpansionPanelSummary,
-  ExpansionPanelDetails,
-} from 'material-ui/ExpansionPanel';
-import ExpandMoreIcon from 'material-ui-icons/ExpandMore';
 
 import { type Map } from 'immutable';
 
@@ -29,9 +22,8 @@ type Props = {
   requestAddCollapse: Array<Name> => void,
   requestRemoveCollapse: Array<Name> => void,
   isWindowMinimized: boolean,
-  children: [Element<*>, Element<*>],
+  children: ({ isCollapsed: boolean, toggle: () => void }) => Element<*>,
   name: Name,
-  style?: {},
 };
 
 type Context = {
@@ -50,10 +42,6 @@ const mapDispatchToProps = dispatch => bindActionCreators({
 
 class Collapse extends PureComponent<Props> {
   props: Props
-
-  static defaultProps = {
-    style: { padding: 0, margin: 0, height: '24px' },
-  }
 
   static contextTypes = {
     getAllNames: PropTypes.func,
@@ -99,27 +87,8 @@ class Collapse extends PureComponent<Props> {
   }
 
   render() {
-    const { children, style } = this.props;
-    const [child1, child2] = Children.toArray(children);
-
-    return (
-      <ExpansionPanel
-        style={{ padding: 0, margin: 0 }}
-        expanded={!this.isCollapsed()}
-        onChange={this.toggleWindow}
-      >
-        <ExpansionPanelSummary
-          style={style}
-          expandIcon={<ExpandMoreIcon style={{ height: '20px', width: '20px' }} />}
-        >
-          { child1 }
-        </ExpansionPanelSummary>
-        <Divider />
-        <ExpansionPanelDetails style={{ padding: 0, margin: 0 }}>
-          { child2 }
-        </ExpansionPanelDetails>
-      </ExpansionPanel>
-    );
+    const { children } = this.props;
+    return children({ toggle: this.toggleWindow, isCollapsed: this.isCollapsed() });
   }
 }
 
