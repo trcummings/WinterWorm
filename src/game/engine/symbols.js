@@ -35,6 +35,7 @@ export const QUEUE = 'queue';
 export const META = 'meta';
 
 // Queue Event Types
+export const REMOVE_ENTITY = 'removeEntity';
 export const KEYBOARD_INPUT = 'keyboardInput';
 export const POSITION_CHANGE = 'positionChange';
 export const ACCELERATION_CHANGE = 'accelerationChange';
@@ -49,6 +50,7 @@ export const GAME_TO_EDITOR = 'gameToEditor';
 export const EDITOR_TO_GAME = 'editorToGame';
 
 export const events = {
+  [REMOVE_ENTITY]: REMOVE_ENTITY,
   [KEYBOARD_INPUT]: KEYBOARD_INPUT,
   [POSITION_CHANGE]: POSITION_CHANGE,
   [ACCELERATION_CHANGE]: ACCELERATION_CHANGE,

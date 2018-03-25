@@ -8,11 +8,12 @@ import {
   UPDATE_COMPONENT_STATE,
   SELECT_INSPECTOR_ENTITY,
   EMIT_QUEUE_EVENT,
+  EMIT_META_EVENT,
 } from 'App/actionTypes';
 import { setComponentState, getComponentState } from 'Game/engine/ecs';
 import { EDITOR_TO_GAME, PIXI_INTERACTION } from 'Game/engine/symbols';
 import { getLoopState, setLoopState } from 'Game/engine/loop';
-import { emitEvent, emitSingleEvent } from 'Game/engine/events';
+import { emitEvent, emitSingleEvent, emitMetaEvent } from 'Game/engine/events';
 
 import type { GameState } from 'Types';
 
@@ -56,6 +57,11 @@ export const queueMiddleware = (
 
       case EMIT_QUEUE_EVENT: {
         nextState = emitSingleEvent(state, payload);
+        break;
+      }
+
+      case EMIT_META_EVENT: {
+        nextState = emitMetaEvent(state, payload);
         break;
       }
 

@@ -9,6 +9,7 @@ import render from './render';
 import ticker from './ticker';
 import pixiInteraction from './pixiInteraction';
 import editorEventHandler from './editorEventHandler';
+import entityTrashcan from './entityTrashcan';
 
 export default {
   clearEventQueue,
@@ -22,4 +23,5 @@ export default {
   ticker,
   pixiInteraction,
   editorEventHandler,
+  entityTrashcan,
 };

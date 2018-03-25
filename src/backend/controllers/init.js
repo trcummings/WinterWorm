@@ -32,6 +32,7 @@ const systemPartitionList = {
   ],
   post: [
     'editorEventHandler',
+    'entityTrashcan',
     'clearEventQueue',
     'fpsTickEnd',
   ],

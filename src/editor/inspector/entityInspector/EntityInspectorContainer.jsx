@@ -10,8 +10,9 @@ import Icon from 'material-ui/Icon';
 import IconMenu from 'Editor/components/IconMenu';
 
 import { getGameObjects } from 'Editor/modules/data';
-import { sendToGame } from 'Editor/ipcUtil';
+import { sendToGame, emitQueueEvent } from 'Editor/ipcUtil';
 import { SELECT_INSPECTOR_ENTITY } from 'App/actionTypes';
+import { REMOVE_ENTITY } from 'Game/engine/symbols';
 import { stateFromContract, makeValidState } from 'Editor/contractUtil';
 
 import type { ReqFn } from 'Editor/aspects/GameObjectInterface';
@@ -97,7 +98,7 @@ export class EntityInspectorContainer extends PureComponent<Props, State> {
       method: DELETE,
       service: 'entities',
       form: { id: entityId },
-    });
+    }).then(() => emitQueueEvent(entityId, [REMOVE_ENTITY]));
   }
 
   canBeActive = (componentId: Id) => {

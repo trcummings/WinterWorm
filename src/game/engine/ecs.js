@@ -288,16 +288,29 @@ export const setEntity = (state: GameState, entity) => {
   return components.reduce(componentStateFn, next);
 };
 
-const removeEntityFromComponentIndex = (
+const removeEntityFromComponentIndex = (entityId: Id) => (
   state: GameState,
+  componentId: Id
+) => {
+  const path = [COMPONENTS, componentId, ENTITIES];
+  const entityIds = view(lensPath(path), state) || [];
+  const newEntityIds = entityIds.slice();
+  const idx = newEntityIds.findIndex(id => id === entityId);
+
+  newEntityIds.splice(idx, 1);
+
+  return assocPath(path, newEntityIds, state);
+};
+
+const removeEntityFromComponents = (
   entityId: Id,
   componentIds: Array<Id>
-) => componentIds.reduce((nextState: GameState, componentId: Id) => (
-  dissocPath([COMPONENTS, componentId, ENTITIES, componentId], nextState)
-), state);
+) => (state: GameState) => (
+  componentIds.reduce(removeEntityFromComponentIndex(entityId), state)
+);
 
-export const removeEntity = (state: GameState, entityId): GameState => {
-  const entity = view(lensPath([ENTITIES, entityId]), state);
+export const removeEntity = (state: GameState, entityId: Id): GameState => {
+  const entity = view(lensPath([ENTITIES, entityId]), state); // component ids
   const tasks = [];
 
   // get all of entities' components and gather up its cleanup tasks
@@ -315,7 +328,7 @@ export const removeEntity = (state: GameState, entityId): GameState => {
   tasks.push(dissocPath([ENTITIES, entityId], __));
 
   // remove it from the component index
-  tasks.push(removeEntityFromComponentIndex(__, entityId));
+  tasks.push(removeEntityFromComponents(entityId, entity));
 
   // compose over the accumulated deletion tasks and call with state
   return compose(...tasks)(state);
