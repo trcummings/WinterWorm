@@ -10,6 +10,7 @@ import ticker from './ticker';
 import pixiInteraction from './pixiInteraction';
 import editorEventHandler from './editorEventHandler';
 import entityTrashcan from './entityTrashcan';
+import world from './world';
 
 export default {
   clearEventQueue,
@@ -24,4 +25,5 @@ export default {
   pixiInteraction,
   editorEventHandler,
   entityTrashcan,
+  world,
 };

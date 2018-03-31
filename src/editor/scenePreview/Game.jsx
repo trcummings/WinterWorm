@@ -1,13 +1,17 @@
 // @flow
+import uuidv4 from 'uuid/v4';
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 
+import { CAMERA_ZOOM } from 'Game/engine/symbols';
+import { emitQueueEvent } from 'Editor/ipcUtil';
 import { makeInitialState, startGame } from 'Game/main';
 import { createRenderingEngine, makeRendererDims, type Dims } from 'Game/engine/pixi';
 import { isDev } from 'Game/engine/util';
+import { gameSpecsToSpecs } from 'Game/engine/specUtil';
 import { setUpFpsMeter } from 'Game/engine/utils/fpsMeterUtil';
 
-import { type State as Store } from 'Editor/types';
+import type { State as Store, EntityId } from 'Editor/types';
 
 const mapStateToProps = state => ({
   data: state.data,
@@ -24,6 +28,7 @@ type State = {
 export class Game extends PureComponent<Props, State> {
   wrapper: null | HTMLDivElement;
   canvas: HTMLCanvasElement;
+  devCameraId: EntityId;
   props: Props;
 
   state = {
@@ -34,8 +39,16 @@ export class Game extends PureComponent<Props, State> {
     this.setState({ error });
   }
 
+  handleCanvasScroll = (event: SyntheticWheelEvent<HTMLCanvasElement>) => {
+    if (event.target !== this.canvas) return;
+    const scrollScalar = event.deltaY / this.canvas.height;
+
+    emitQueueEvent(scrollScalar, [CAMERA_ZOOM, this.devCameraId]);
+  }
+
   componentDidMount() {
     window.addEventListener('resize', this.setCanvasSize);
+    window.addEventListener('wheel', this.handleCanvasScroll);
 
     const { data } = this.props;
     // get inner height of div & inner width
@@ -55,11 +68,18 @@ export class Game extends PureComponent<Props, State> {
     // get back canvas from PIXI, & attach it to the dom
     if (this.wrapper) this.wrapper.appendChild(canvas);
     if (isDev()) setUpFpsMeter(false);
-    startGame(initialState, data);
+
+    const devCameraId = uuidv4();
+    const dataOptions = gameSpecsToSpecs(data, devCameraId);
+
+    this.devCameraId = devCameraId;
+
+    startGame(initialState, dataOptions);
   }
 
   componentWillUnmount() {
     window.removeEventListener('resize', this.setCanvasSize);
+    window.removeEventListener('wheel', this.handleCanvasScroll);
   }
 
   getWrapperDims = (): Dims => {

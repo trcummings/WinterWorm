@@ -8,7 +8,6 @@
     "spriteable",
     "positionable"
   ],
-  "isFactory": true,
   "contract": {
     "currentAnimation": {
       "type": "animName"

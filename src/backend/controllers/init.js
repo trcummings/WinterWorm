@@ -27,6 +27,8 @@ const systemPartitionList = {
     'accelerate',
     'physics',
     'position',
+    'world',
+    'camera',
     'spriteRender',
     'render',
   ],

@@ -1,9 +1,9 @@
 // @flow
 
 // system for rendering the PIXI.js stage
-import { getRenderEngine } from 'Engine/pixi';
-import { RENDER_ACTION } from 'Engine/symbols';
-import { getEventsOfEventId } from 'Engine/events';
+import { getRenderEngine } from 'Game/engine/pixi';
+import { RENDER_ACTION } from 'Game/engine/symbols';
+import { getEventsOfEventId } from 'Game/engine/events';
 
 import type { GameState } from 'Types';
 

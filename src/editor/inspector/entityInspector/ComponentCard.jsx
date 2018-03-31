@@ -8,7 +8,7 @@ import Divider from 'material-ui/Divider';
 import Collapse from 'Editor/components/Collapse';
 import type { ComponentState, Component, EntityId } from 'Editor/types';
 
-import ParamEditor from './paramEditor/ParamEditor';
+import ComponentView from './ComponentView';
 
 type CSState = $PropertyType<ComponentState, 'state'>;
 
@@ -62,7 +62,7 @@ export default class ComponentCard extends PureComponent<Props> {
             />
             <Typography component="h4">{label}</Typography>
           </div>
-          <ParamEditor
+          <ComponentView
             entityId={entityId}
             contexts={contexts}
             component={component}

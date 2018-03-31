@@ -1,0 +1,9 @@
+{
+  "label": "cameraable",
+  "context": [
+    "positionable"
+  ],
+  "subscriptions": [
+    "cameraZoom"
+  ]
+}

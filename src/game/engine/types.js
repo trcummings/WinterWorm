@@ -72,6 +72,7 @@ export type Entity = {|
 
 export type Script = GameState => GameState;
 
+export type ComponentLabel = string;
 export type ComponentId = Id;
 export type Component = {|
   id: ComponentId,
@@ -82,7 +83,7 @@ export type Component = {|
   // or an array of the next component state, and either a list of events,
   // or a single event.
   fn: () => mixed,
-  +label: string,
+  +label: ComponentLabel,
   subscriptions?: Array<EventType>,
   cleanupFn?: () => mixed,
   context?: Array<ComponentId>,
@@ -106,5 +107,18 @@ export type Spec = {
   +type: SpecType,
   +options: SpecOption,
 };
+
+export type ComponentFn<ComponentState, Context> = (
+  EntityId,
+  ComponentState,
+  { [ComponentLabel]: $Values<Context>, inbox: Events }
+) => [ComponentState, Events];
+
+export type ComponentStateFn<ComponentState, Context> = (
+  EntityId,
+  ComponentState,
+  { [ComponentLabel]: $Values<Context> },
+  GameState,
+) => [ComponentState, GameState];
 
 /* eslint-disable no-use-before-define */

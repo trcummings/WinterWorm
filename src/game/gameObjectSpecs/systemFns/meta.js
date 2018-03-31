@@ -2,8 +2,8 @@
 
 // System for handling changes to the game state
 // e.g. adding/removing entities, changing scenes
-import { getMetaEvents, clearMetaEvents } from 'Engine/events';
-import { setState } from 'Engine/core';
+import { getMetaEvents, clearMetaEvents } from 'Game/engine/events';
+import { setState } from 'Game/engine/core';
 
 import type { GameState, Spec } from 'Types';
 

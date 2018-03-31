@@ -10,6 +10,7 @@ import {
   SCRIPTS,
   RENDER_ENGINE,
   PHYSICS_ENGINE,
+  CURRENT_CAMERA,
   COMPONENTS,
   ENTITIES,
   ID_RECORD,
@@ -24,7 +25,7 @@ import {
   setEntity,
   setIdRecord,
 } from './ecs';
-import { setRenderEngine } from './pixi';
+import { setRenderEngine, setCurrentCameraId } from './pixi';
 import { setPhysicsEngine } from './planck';
 
 import type { GameState, SpecType, Spec } from './types';
@@ -43,6 +44,7 @@ const setStateFn = (type: SpecType) => {
     case RENDER_ENGINE: { return applySpec(setRenderEngine); }
     case PHYSICS_ENGINE: { return applySpec(setPhysicsEngine); }
     case ID_RECORD: { return applySpec(setIdRecord); }
+    case CURRENT_CAMERA: { return applySpec(setCurrentCameraId); }
     case SCRIPTS: {
       return (state: GameState, { options }): GameState => {
         const fn = options;

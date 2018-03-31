@@ -9,6 +9,7 @@ import {
 } from 'Editor/modules/inspector';
 
 import { default as EntityInspectorContainer } from './entityInspector/EntityInspectorContainer';
+import { default as SceneInspectorContainer } from './sceneInspector/SceneInspectorContainer';
 
 import {
   CURRENT_SCENE,
@@ -43,7 +44,10 @@ export class InspectorSwitch extends PureComponent { // eslint-disable-line
         InspectorComponent = EntityInspectorContainer;
         break;
       }
-      case SCENES:
+      case SCENES: {
+        InspectorComponent = SceneInspectorContainer;
+        break;
+      }
       case CURRENT_SCENE:
       default: { break; }
     }

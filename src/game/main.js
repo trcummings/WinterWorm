@@ -17,7 +17,7 @@ import { initEvents } from './engine/scripts';
 import { getRenderEngine } from './engine/pixi';
 import { createPhysicsEngine } from './engine/planck';
 import { isDev } from './engine/util';
-import { gameSpecsToSpecs } from './engine/specUtil';
+// import { gameSpecsToSpecs } from './engine/specUtil';
 
 import spriteLoader, { setSpriteLoaderFn } from './engine/loaders/spriteLoader';
 import { makeLoaderState } from './engine/loaders/loader';
@@ -51,12 +51,12 @@ const signalLoadComplete = (loaderState) => {
   return loaderState;
 };
 
-export const startGame = (initialState, data) => {
+export const startGame = (initialState, dataOptions) => {
   const {
     initialSpecs,
     initialAssetSpecs,
     initialEntitySpecs,
-  } = gameSpecsToSpecs(data);
+  } = dataOptions;
   const startTime = performance.now();
   const { pixiLoader } = getRenderEngine(initialState);
 

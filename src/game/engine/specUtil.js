@@ -1,9 +1,11 @@
 // @flow
+import uuidv4 from 'uuid/v4';
 import {
   SYSTEMS,
   SCENES,
   CURRENT_SCENE,
   ENTITIES,
+  CURRENT_CAMERA,
 } from 'Symbols';
 
 import { stateFromContract } from 'Editor/contractUtil';
@@ -12,39 +14,57 @@ import componentFns from 'Game/gameObjectSpecs/componentFns';
 import systemFns from 'Game/gameObjectSpecs/systemFns';
 import componentStateFns from 'Game/gameObjectSpecs/componentStateFns';
 
+const INTERACTABLE = 'interactable';
+const CAMERAABLE = 'cameraable';
+const POSITIONABLE = 'positionable';
+
+const devRequirements = {
+  [INTERACTABLE]: [POSITIONABLE, 'spriteable', 'spriteRenderable'],
+  [CAMERAABLE]: [POSITIONABLE],
+};
+
 const mapToLabels = gameObjects => Object.keys(gameObjects).reduce((total, id) => (
   Object.assign(total, { [gameObjects[id].label]: gameObjects[id] })
 ), {});
 
 const dummyComponentStateFn = (_, cs, __, s) => [cs, s];
 
-const entityHasComponent = (specs, entityId, componentLabel): boolean => {
-  const {
-    components,
-    entities: { [entityId]: { components: entityComponents } },
-  } = specs;
-  const componentLabelMap = mapToLabels(components);
-  const componentId = componentLabelMap[componentLabel].id;
+const toSpec = (type, options) => ({ type, options });
 
-  return entityComponents.some(({ id }) => id === componentId);
+const getComponentStatesForEntity = (specs, entityId) => {
+  const { componentStates } = specs;
+
+  return Object.keys(componentStates).reduce((total, csId) => (
+    componentStates[csId].entityId === entityId
+      ? Object.assign(total, { [csId]: componentStates[csId] })
+      : total
+  ), {});
 };
+
+const entityHasComponent = componentLabelMap =>
+  (specs, entityId, componentLabel): boolean => {
+    const componentStates = getComponentStatesForEntity(specs, entityId);
+    const componentId = componentLabelMap[componentLabel].id;
+
+    return Object.keys(componentStates).some(csId => (
+      componentStates[csId].componentId === componentId
+    ));
+  };
 
 const addComponentState = componentLabelMap => (total, name) => {
   if (!componentLabelMap[name]) throw new Error(`no component by label of ${name}!`);
   const { id, contract = {} } = componentLabelMap[name];
   const fn = componentStateFns[name] || dummyComponentStateFn;
-  const state = stateFromContract(contract);
+  const state = stateFromContract(contract || {});
 
   return total.concat([{ id, fn, state }]);
 };
 
-const createEntity = (specs, label, componentNames) => {
-  const { components } = specs;
-  const componentLabelMap = mapToLabels(components);
-  const componentStateFn = addComponentState(componentLabelMap);
-
-  return { label, components: componentNames.reduce(componentStateFn, []) };
-};
+const createEntity = componentLabelMap => (id, label, componentNames) => ({
+  id,
+  label,
+  components: componentNames.reduce(addComponentState(componentLabelMap), []),
+});
 
 const getEventLabel = (specs, eventTypeId) => {
   const { eventTypes: { [eventTypeId]: { label } } } = specs;
@@ -91,26 +111,69 @@ const processScene = (specs, sceneId) => {
   return { id: sceneId, label };
 };
 
-export function gameSpecsToSpecs(specs) {
-  const currentSceneId = Object.keys(specs.scenes)[0];
-  const currentScene = processScene(specs, currentSceneId);
-  const entityIds = specs.scenes[currentSceneId].entities;
+const addComponentToEntity = (cLabel, requirements: Array<string>, componentLabelMap) =>
+  (specs, entityId) => {
+    const hasComponent = entityHasComponent(componentLabelMap);
+    const addCState = addComponentState(componentLabelMap);
+    const isAllowed = requirements.every(label => hasComponent(specs, entityId, label));
+    if (!isAllowed) return toSpec(ENTITIES, processEntity(specs, entityId));
 
+    const { components, ...rest } = processEntity(specs, entityId);
+    const options = { ...rest, components: addCState(components, cLabel) };
 
+    return toSpec(ENTITIES, options);
+  };
+
+const organizeSystemIds = (specs) => {
   // organize systems into partitions
+
   const { pre, main, post } = Object.keys(specs.systems).reduce((total, sId) => {
     const { orderIndex, partition } = specs.systems[sId];
     total[partition][orderIndex] = sId; // eslint-disable-line
     return total;
   }, { pre: [], main: [], post: [] });
-  const systemIds = [...pre, ...main, ...post].filter(sId => specs.systems[sId].active);
+  return [...pre, ...main, ...post].filter(sId => specs.systems[sId].active);
+};
+
+export function gameSpecsToSpecs(specs, devCameraId) {
+  const currentSceneId = Object.keys(specs.scenes)[0];
+  const currentScene = processScene(specs, currentSceneId);
+
+  // organize systems into partitions
+  const systemIds = organizeSystemIds(specs);
 
   // build asset information to pass to the loader
   const atlases = getAssetPathAtlases();
-  const assetSpecs = Object.keys(atlases).map(resourceName => ({
+  const initialAssetSpecs = Object.keys(atlases).map(resourceName => ({
     name: resourceName,
     path: atlases[resourceName].atlasPath,
   }));
+
+  // add on extra functionality to assets for dev mode including
+    // [x] making eligible entities interactable
+    // [x] adding a dev camera & using it as the main camera
+    // [x] rendering the current "main camera" as an entity that can
+    //     be interacted with
+  const componentLabelMap = mapToLabels(specs.components);
+  const makeEntity = createEntity(componentLabelMap);
+
+  // make dev camera
+  // const devCameraId = uuidv4();
+  const devCamera = toSpec(
+    ENTITIES,
+    makeEntity(devCameraId, 'Dev Camera', [
+      POSITIONABLE,
+      CAMERAABLE,
+    ])
+  );
+
+  const entityIds = specs.scenes[currentSceneId].entities;
+  const addInteractable = addComponentToEntity(
+    INTERACTABLE,
+    devRequirements[INTERACTABLE],
+    componentLabelMap
+  );
+  const initialEntitySpecs = entityIds.map(eId => addInteractable(specs, eId));
 
   return {
     initialSpecs: [
@@ -121,10 +184,10 @@ export function gameSpecsToSpecs(specs) {
       ...systemIds.map(id => ({
         type: SYSTEMS, options: processSystem(specs, id),
       })),
+      devCamera,
+      toSpec(CURRENT_CAMERA, devCameraId),
     ],
-    initialAssetSpecs: assetSpecs,
-    initialEntitySpecs: entityIds.map(eId => ({
-      type: ENTITIES, options: processEntity(specs, eId),
-    })),
+    initialAssetSpecs,
+    initialEntitySpecs,
   };
 }

@@ -44,10 +44,6 @@ const componentSchema = {
     unique: true,
     allowNull: true,
   },
-  isFactory: {
-    defaultValue: false,
-    type: Sequelize.BOOLEAN,
-  },
 };
 const Component = db.define('component', componentSchema);
 

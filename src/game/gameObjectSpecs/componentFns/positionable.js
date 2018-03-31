@@ -4,7 +4,7 @@ import { getInboxEvents } from 'Game/engine/events';
 import { pixelsToUnits } from 'Game/engine/pixi';
 
 import { type EntityId } from 'Editor/types';
-import { type PositionableState } from 'Editor/inspector/entityInspector/paramEditor/Positionable';
+import { type PositionableState } from 'Editor/inspector/entityInspector/views/Positionable';
 
 const INITIAL_OFFSET = {
   offsetX: pixelsToUnits(0),

@@ -1,14 +1,14 @@
 import React from 'react';
 
-import Positionable from './Positionable';
-import { default as Spriteable } from './Spriteable';
-import { default as SpriteRenderable } from './SpriteRenderable';
+import Positionable from './views/Positionable';
+import { default as Spriteable } from './views/Spriteable';
+import { default as SpriteRenderable } from './views/SpriteRenderable';
 
 const POSITIONABLE = 'positionable';
 const SPRITEABLE = 'spriteable';
 const SPRITE_RENDERABLE = 'spriteRenderable';
 
-const ParamEditor = ({
+const ComponentView = ({
   component,
   contract,
   componentState,
@@ -52,4 +52,4 @@ const ParamEditor = ({
   );
 };
 
-export default ParamEditor;
+export default ComponentView;

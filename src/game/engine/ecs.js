@@ -27,7 +27,7 @@ import {
 } from './symbols';
 // import { conjoin, concatKeywords } from './util';
 import { conjoin } from './util';
-import { getSubscribedEvents, emitEventsToQueue, getEventQueue } from './events';
+import { getSubscribedEvents, emitEventsToQueue, getEventQueue, type Event } from './events';
 
 import type { GameState, Scene, Id, Component } from './types';
 
@@ -184,9 +184,12 @@ const getAllComponentState = (state, componentId) => (
   view(lensPath([STATE, componentId]), state)
 );
 
-const getNextSystemStateAndEvents = (state, componentId) => {
+const getNextSystemStateAndEvents = (
+  state: GameState,
+  componentId: Id
+): [GameState, Array<Event>] => {
   const entityIds = getEntityIdsWithComponent(state, componentId);
-  if (!entityIds) return { nextState: state, events: [] };
+  if (!entityIds) return [state, []];
 
   const componentStates = getAllComponentState(state, componentId);
   const component = getComponent(state, componentId);
@@ -215,18 +218,14 @@ const getNextSystemStateAndEvents = (state, componentId) => {
     newComponentState[entityId] = nextComponentState;
   }
 
-  return {
-    events: newEvents,
-    nextState: assocPath([STATE, componentId], newComponentState, state),
-  };
+  return [assocPath([STATE, componentId], newComponentState, state), newEvents];
 };
 
 // Returns a function representing a system that takes a single argument for
 // game state.
-const setSystemFn = (componentId: Id) => (state: GameState): GameState => {
-  const { nextState, events } = getNextSystemStateAndEvents(state, componentId);
-  return emitEventsToQueue(nextState, events);
-};
+const setSystemFn = (componentId: Id) => (state: GameState): GameState => (
+  emitEventsToQueue(...getNextSystemStateAndEvents(state, componentId))
+);
 
 // adds the system function to state
 export const setSystem = (state: GameState, system) => {

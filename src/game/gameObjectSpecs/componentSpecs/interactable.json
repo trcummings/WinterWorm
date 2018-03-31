@@ -6,6 +6,5 @@
   "context": [
     "spriteRenderable",
     "positionable"
-  ],
-  "isFactory": true
+  ]
 }

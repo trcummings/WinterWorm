@@ -6,6 +6,7 @@ import positionable from './positionable';
 import spriteRenderable from './spriteRenderable';
 import spriteable from './spriteable';
 import interactable from './interactable';
+import cameraable from './cameraable';
 
 export default {
   accelerateable,
@@ -16,4 +17,5 @@ export default {
   positionable,
   spriteRenderable,
   interactable,
+  cameraable,
 };

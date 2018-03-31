@@ -7,13 +7,14 @@ import {
   loaders,
   WebGLRenderer,
 } from 'pixi.js';
-import { assoc, view, lensProp } from 'ramda';
+import { assoc, view, lensProp, lensPath, assocPath } from 'ramda';
 
 import type {
   ResourceName,
   Animations,
   AnimName,
 } from 'Editor/aspects/AssetAtlases';
+import { CURRENT_CAMERA, STATE } from 'Game/engine/symbols';
 
 import { RENDER_ENGINE } from './symbols';
 import { isDev } from './util';
@@ -40,11 +41,11 @@ const ASPECT_RATIO = UNIT_WIDTH / UNIT_HEIGHT;
 const PIXELS_PER_UNIT = 120;
 
 export type Pos = { x: number, y: number };
-export type UnitPos = { x: Unit, y: Unit };
+export type Point = { x: Unit, y: Unit };
 
 export const unitsToPixels = (units: Unit): number => Math.round(units * PIXELS_PER_UNIT);
 export const pixelsToUnits = (pixels: number): Unit => pixels / PIXELS_PER_UNIT;
-export const posToUnitPos = ({ x, y }: Pos): UnitPos => ({
+export const posToUnitPos = ({ x, y }: Pos): Point => ({
   x: pixelsToUnits(x),
   y: pixelsToUnits(y),
 });
@@ -81,6 +82,8 @@ export const createRenderingEngine = ({
   const scaleY = height / DEFAULT_HEIGHT;
   stage.scale.x = scaleX;
   stage.scale.y = scaleY;
+  stage.height = height;
+  stage.width = width;
 
   // make it so mouse move events only happen inside the current sprites
   // rather than ALL THE FUCKIGN TIME
@@ -99,11 +102,18 @@ const checkOptions = (options) => {
 };
 
 export const getRenderEngine = state => view(lensProp(RENDER_ENGINE), state);
-
 export const setRenderEngine = (state, options) => {
   if (isDev()) checkOptions(options);
   return assoc(RENDER_ENGINE, options, state);
 };
+
+export const getCurrentCameraId = state => view(lensPath([STATE, CURRENT_CAMERA]), state);
+export const setCurrentCameraId = (state, entityId) => (
+  assocPath([STATE, CURRENT_CAMERA], entityId, state)
+);
+export const getCurrentCamera = state => (
+  view(lensPath([STATE, getCurrentCameraId(state)]), state)
+);
 
 export const addChildMut = (stage, item) => {
   stage.addChild(item);

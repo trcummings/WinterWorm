@@ -7,7 +7,14 @@ export const REMOVE_ENTITY = 'data/REMOVE_ENTITY';
 export const ADD_ENTITIES = 'data/ADD_ENTITIES';
 export const REMOVE_ENTITIES = 'data/REMOVE_ENTITIES';
 
-const INITIAL_STATE = {};
+const INITIAL_STATE = {
+  entities: {},
+  componentStates: {},
+  components: {},
+  systems: {},
+  scenes: {},
+  eventTypes: {},
+};
 
 const updateRelationsOnDelete = (service, id, state) => {
   switch (service) {
