@@ -7,7 +7,7 @@ import Divider from 'material-ui/Divider';
 import Button from 'material-ui/Button';
 import Icon from 'material-ui/Icon';
 
-import IconMenu from 'Editor/components/IconMenu';
+import TitleMenu from 'Editor/components/TitleMenu';
 
 import { getGameObjects } from 'Editor/modules/data';
 import { sendToGame, emitQueueEvent } from 'Editor/ipcUtil';
@@ -167,16 +167,7 @@ export class EntityInspectorContainer extends PureComponent<Props, State> {
 
     return (
       <div>
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}
-        >
-          <h4 style={{ padding: '.5em', margin: 0 }}>{ label }</h4>
-          <IconMenu listItems={[{ label: 'Delete Entity', onClick: this.handleDelete }]} />
-        </div>
+        <TitleMenu label={label} listItems={[{ label: 'Delete Entity', onClick: this.handleDelete }]} />
         <Divider />
         { componentList.map(({ componentState, contexts }) => (
           <ComponentCard

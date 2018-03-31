@@ -29,6 +29,7 @@ const systemPartitionList = {
     'position',
     'world',
     'camera',
+    'squareGraphicRender',
     'spriteRender',
     'render',
   ],

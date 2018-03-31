@@ -3,6 +3,10 @@ import React, { PureComponent } from 'react';
 import { createSelector } from 'reselect';
 import { connect } from 'react-redux';
 
+// import Collapse from 'Editor/components/Collapse';
+import TitleMenu from 'Editor/components/TitleMenu';
+import Divider from 'material-ui/Divider';
+
 import { getGameObjects } from 'Editor/modules/data';
 
 import type { ReqFn } from 'Editor/aspects/GameObjectInterface';
@@ -19,7 +23,7 @@ const mapStateToProps = (state, ownProps) => ({
 
 type Props = {
   id: Id,
-  scene?: Scene,
+  scene: Scene,
   request: ReqFn,
 };
 
@@ -31,6 +35,8 @@ export class SceneInspectorContainer extends PureComponent<Props> { // eslint-di
 
     return (
       <div>
+        <TitleMenu label={scene.label} />
+        <Divider />
         { JSON.stringify(scene, null, 2) }
       </div>
     );

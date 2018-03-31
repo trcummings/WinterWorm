@@ -7,6 +7,7 @@ import spriteRenderable from './spriteRenderable';
 import spriteable from './spriteable';
 import interactable from './interactable';
 import cameraable from './cameraable';
+import squareGraphicRenderable from './squareGraphicRenderable';
 
 export default {
   accelerateable,
@@ -18,4 +19,5 @@ export default {
   spriteRenderable,
   interactable,
   cameraable,
+  squareGraphicRenderable,
 };

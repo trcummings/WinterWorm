@@ -10,7 +10,7 @@ import IconButton from 'material-ui/IconButton';
 import Portal from 'material-ui/Portal';
 import Paper from 'material-ui/Paper';
 
-type ListItem = {
+export type ListItem = {
   label: string,
   onClick: () => void
 };
