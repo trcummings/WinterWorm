@@ -17,8 +17,8 @@ const mapStateToProps = state => ({
   data: state.data,
 });
 
-type Props = {
-  data: $PropertyType<Store, 'data'>
+export type Props = {
+  data: $PropertyType<Store, 'data'>,
 };
 
 type State = {

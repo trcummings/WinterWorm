@@ -35,6 +35,11 @@ const getMatrix = ({ zoom, pivot, center, rotation, position }) => compose(
   applyMat('translate', [pivot.x, pivot.y]),
 )(mat2d.identity([]));
 
+const addOffset = zoom => (total, { action: scrollScalar }) => {
+  const next = zoom + total + scrollScalar;
+  return (next > 3 || next < 0.1) ? total : total + scrollScalar;
+};
+
 export default (
   entityId: EntityId,
   componentState: CameraableState,
@@ -46,11 +51,7 @@ export default (
 
   const matrix = mat2d.invert([], getMatrix({ ...componentState, position: positionable }));
   const newTransform = setPixiMatrix(transform, matrix);
-  const zoomOffset = events.reduce((total, { action: scrollScalar }) => (
-    (total + scrollScalar > 3 || total + scrollScalar < 0.1)
-      ? total
-      : total + scrollScalar
-  ), 0);
+  const zoomOffset = events.reduce(addOffset(zoom), 0);
 
   return {
     ...componentState,

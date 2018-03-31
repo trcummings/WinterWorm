@@ -42,6 +42,14 @@ export const setScene = (state: GameState, scene: Scene): GameState => (
   assocPath([SCENES, scene.id], scene, state)
 );
 
+export const setSceneState = (state: GameState, sceneId: Id, sceneState) => (
+  over(lensPath([SCENES, sceneId, STATE]), conjoin(sceneState), state)
+);
+
+export const getSceneState = (state, sceneId: Id) => (
+  view(lensPath([SCENES, sceneId, STATE]), state)
+);
+
 export const getCurrentScene = (state: GameState): GameState => (
   view(lensProp(CURRENT_SCENE), state)
 );
@@ -50,6 +58,8 @@ export const getCurrentScene = (state: GameState): GameState => (
 export const setCurrentScene = (state: GameState, id: Id): GameState => (
   assoc(CURRENT_SCENE, id, state)
 );
+
+export const getCurrentSceneState = state => getSceneState(state, getCurrentScene(state));
 
 export const getUpdateFn = (state: GameState) => {
   const currentSceneId = getCurrentScene(state);

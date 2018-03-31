@@ -1,15 +1,22 @@
 // @flow
-import uuidv4 from 'uuid/v4';
+// import uuidv4 from 'uuid/v4';
 import {
   SYSTEMS,
   SCENES,
   CURRENT_SCENE,
   ENTITIES,
+  SCRIPTS,
   CURRENT_CAMERA,
 } from 'Symbols';
 
 import { stateFromContract } from 'Editor/contractUtil';
 import { getAssetPathAtlases } from 'Editor/aspects/AssetAtlases';
+import { setSceneState } from 'Game/engine/ecs';
+import {
+  makeContainer,
+  getRenderEngine,
+  addChildMut,
+} from 'Game/engine/pixi';
 import componentFns from 'Game/gameObjectSpecs/componentFns';
 import systemFns from 'Game/gameObjectSpecs/systemFns';
 import componentStateFns from 'Game/gameObjectSpecs/componentStateFns';
@@ -108,7 +115,7 @@ const processEntity = (specs, entityId) => {
 
 const processScene = (specs, sceneId) => {
   const { scenes: { [sceneId]: { label } } } = specs;
-  return { id: sceneId, label };
+  return { id: sceneId, label, state: {} };
 };
 
 const addComponentToEntity = (cLabel, requirements: Array<string>, componentLabelMap) =>
@@ -159,6 +166,7 @@ export function gameSpecsToSpecs(specs, devCameraId) {
 
   // make dev camera
   // const devCameraId = uuidv4();
+  const cameraableId = componentLabelMap[CAMERAABLE].id;
   const devCamera = toSpec(
     ENTITIES,
     makeEntity(devCameraId, 'Dev Camera', [
@@ -166,6 +174,17 @@ export function gameSpecsToSpecs(specs, devCameraId) {
       CAMERAABLE,
     ])
   );
+
+  const setWorld = (state) => {
+    const container = makeContainer();
+    const { stage } = getRenderEngine(state);
+
+    container.height = 500;
+    container.width = 5000;
+    addChildMut(stage, container);
+
+    return setSceneState(state, currentSceneId, { world: container });
+  };
 
   const entityIds = specs.scenes[currentSceneId].entities;
   const addInteractable = addComponentToEntity(
@@ -181,11 +200,13 @@ export function gameSpecsToSpecs(specs, devCameraId) {
         options: { ...currentScene, systems: systemIds } },
       { type: CURRENT_SCENE,
         options: currentSceneId },
+      { type: SCRIPTS,
+        options: setWorld },
       ...systemIds.map(id => ({
         type: SYSTEMS, options: processSystem(specs, id),
       })),
       devCamera,
-      toSpec(CURRENT_CAMERA, devCameraId),
+      toSpec(CURRENT_CAMERA, [cameraableId, devCameraId]),
     ],
     initialAssetSpecs,
     initialEntitySpecs,

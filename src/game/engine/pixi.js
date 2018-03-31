@@ -14,7 +14,7 @@ import type {
   Animations,
   AnimName,
 } from 'Editor/aspects/AssetAtlases';
-import { CURRENT_CAMERA, STATE } from 'Game/engine/symbols';
+import { CURRENT_CAMERA, STATE, ENTITIES } from 'Game/engine/symbols';
 
 import { RENDER_ENGINE } from './symbols';
 import { isDev } from './util';
@@ -108,12 +108,15 @@ export const setRenderEngine = (state, options) => {
 };
 
 export const getCurrentCameraId = state => view(lensPath([STATE, CURRENT_CAMERA]), state);
-export const setCurrentCameraId = (state, entityId) => (
-  assocPath([STATE, CURRENT_CAMERA], entityId, state)
+export const setCurrentCameraId = (state, [cameraableId, entityId]) => (
+  assocPath([STATE, CURRENT_CAMERA], [cameraableId, entityId], state)
 );
-export const getCurrentCamera = state => (
-  view(lensPath([STATE, getCurrentCameraId(state)]), state)
-);
+export const getCurrentCamera = (state) => {
+  const [cameraableId, entityId] = getCurrentCameraId(state);
+  const camera = view(lensPath([STATE, cameraableId, entityId]), state);
+
+  return camera;
+};
 
 export const addChildMut = (stage, item) => {
   stage.addChild(item);
@@ -134,9 +137,9 @@ export const removeChildMut = (stage, item) => {
   return stage;
 };
 
-export const makeContainer = (children) => {
+export const makeContainer = (children = []) => {
   const container = new Container();
-  container.addChild(...children);
+  if (children.length > 0) container.addChild(...children);
   return container;
 };
 
