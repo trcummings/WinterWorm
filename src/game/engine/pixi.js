@@ -14,7 +14,7 @@ import type {
   Animations,
   AnimName,
 } from 'Editor/aspects/AssetAtlases';
-import { CURRENT_CAMERA, STATE, ENTITIES } from 'Game/engine/symbols';
+import { CURRENT_CAMERA, STATE } from 'Game/engine/symbols';
 
 import { RENDER_ENGINE } from './symbols';
 import { isDev } from './util';

@@ -5,6 +5,21 @@ import { type EntityId } from 'Editor/types';
 import { addChildMut, unitsToPixels } from 'Game/engine/pixi';
 import { getCurrentSceneState } from 'Game/engine/ecs';
 
+export const drawRectangle = ({ x, y, w, h, color, rectangle }) => {
+  rectangle.clear();
+  rectangle.lineStyle(1, color, 1);
+  rectangle.beginFill(color, 1);
+  rectangle.drawRect(
+    unitsToPixels(x),
+    unitsToPixels(y),
+    unitsToPixels(w),
+    unitsToPixels(h)
+  );
+  rectangle.endFill();
+
+  return rectangle;
+};
+
 export default (
   entityId: EntityId,
   componentState,
@@ -16,14 +31,10 @@ export default (
 
   const { world } = getCurrentSceneState(gameState);
 
-  const shape = new Graphics();
+  const rectangle = new Graphics();
 
-  shape.lineStyle(1, color, 1);
-  shape.beginFill(color, 1);
-  shape.drawRect(unitsToPixels(x), unitsToPixels(y), unitsToPixels(h), unitsToPixels(w));
-  shape.endFill();
+  drawRectangle({ x, y, h, w, color, rectangle });
+  addChildMut(world, rectangle);
 
-  addChildMut(world, shape);
-
-  return [{ h, w, color, shape }, gameState];
+  return [{ h, w, color, rectangle }, gameState];
 };
