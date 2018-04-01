@@ -1,11 +1,9 @@
 // @flow
-import { ipcRenderer } from 'electron';
 import React, { PureComponent } from 'react';
 
 import Input, { InputLabel } from 'material-ui/Input';
 import { FormControl } from 'material-ui/Form';
 
-import { DRAG_ENTITY } from 'App/actionTypes';
 import { type Unit } from 'Game/engine/pixi';
 import type { EntityId } from 'Editor/types';
 

@@ -5,10 +5,12 @@
     "frameChange"
   ],
   "context": [
-    "spriteable",
     "positionable"
   ],
   "contract": {
+    "resourceName": {
+      "type": "resourceName"
+    },
     "currentAnimation": {
       "type": "animName"
     },

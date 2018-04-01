@@ -21,7 +21,6 @@ const systemPartitionList = {
   ],
   main: [
     'inputControl',
-    'sprite',
     'animate',
     'move',
     'accelerate',

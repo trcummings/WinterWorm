@@ -11,12 +11,14 @@ import hofToHoc from 'Editor/aspects/HofToHoc';
 import AssetAtlases, {
   type Atlases,
   type AnimName,
+  type ResourceName,
 } from 'Editor/aspects/AssetAtlases';
 import type { Component, ComponentState, EntityId } from 'Editor/types';
 
 type SpriteRenderableState = {
   currentAnimation: AnimName,
   currentFrame: number,
+  resourceName: ResourceName,
 };
 
 type Props = {
@@ -49,19 +51,37 @@ class SpriteRenderable extends PureComponent<Props> {
       .then(() => emitQueueEvent(currentFrame, [FRAME_CHANGE, entityId]));
   }
 
+  handleResourceChange = (event: SyntheticEvent<HTMLSelectElement>): void => {
+    const { componentState, updateComponentState } = this.props;
+
+    updateComponentState({
+      ...componentState,
+      resourceName: event.currentTarget.value,
+      currentFrame: 0,
+      currentAnimation: '',
+    });
+  }
+
   render() {
     const {
-      contexts: { spriteable: { resourceName } = {} } = {},
+      atlases,
+      componentState: { currentAnimation, currentFrame, resourceName },
       atlases: { [resourceName]: { frameSpecs = {} } = {} },
-      componentState: { currentAnimation, currentFrame },
     } = this.props;
     const { [currentAnimation]: { numFrames = 1 } = {} } = frameSpecs;
 
     return (
       <div>
+        <select value={resourceName} onChange={this.handleResourceChange}>
+          <option value="">Select Asset Atlas</option>
+          { Object.keys(atlases).map(key => (
+            <option key={key} value={key}>{key}</option>
+          ))}
+        </select>
         <select
           value={currentAnimation}
           onChange={this.handleAnimationChange}
+          disabled={!resourceName}
         >
           <option value="">Select Current Sprite</option>
           { Object.keys(frameSpecs).map(key => (
@@ -71,6 +91,7 @@ class SpriteRenderable extends PureComponent<Props> {
         <FormControl>
           <InputLabel htmlFor="currentFrame">Current Frame</InputLabel>
           <Input
+            disabled={!resourceName}
             onChange={this.handleFrameChange}
             inputProps={{ max: numFrames - 1, min: 0 }}
             value={currentFrame}

@@ -26,7 +26,7 @@ const CAMERAABLE = 'cameraable';
 const POSITIONABLE = 'positionable';
 
 const devRequirements = {
-  [INTERACTABLE]: [POSITIONABLE, 'spriteable', 'spriteRenderable'],
+  [INTERACTABLE]: [POSITIONABLE, 'spriteRenderable'],
   [CAMERAABLE]: [POSITIONABLE],
 };
 
@@ -118,11 +118,19 @@ const processScene = (specs, sceneId) => {
   return { id: sceneId, label, state: {} };
 };
 
-const addComponentToEntity = (cLabel, requirements: Array<string>, componentLabelMap) =>
+const addComponentToEntity = (
+  cLabel,
+  requirements: Array<string | Array<string>>,
+  componentLabelMap
+) =>
   (specs, entityId) => {
     const hasComponent = entityHasComponent(componentLabelMap);
     const addCState = addComponentState(componentLabelMap);
-    const isAllowed = requirements.every(label => hasComponent(specs, entityId, label));
+    const isAllowed = requirements.every(label => (
+      Array.isArray(label)
+        ? label.some(lbl => hasComponent(specs, entityId, lbl))
+        : hasComponent(specs, entityId, label)
+    ));
     if (!isAllowed) return toSpec(ENTITIES, processEntity(specs, entityId));
 
     const { components, ...rest } = processEntity(specs, entityId);
@@ -181,6 +189,7 @@ export function gameSpecsToSpecs(specs, devCameraId) {
 
     container.height = 500;
     container.width = 5000;
+
     addChildMut(stage, container);
 
     return setSceneState(state, currentSceneId, { world: container });
