@@ -8,8 +8,11 @@ const pushToRenderEvents = (renderEvents, fn) => {
 };
 
 export default (entityId, componentState, context) => {
-  const { positionable: { x, y } } = context;
-  const { h, w, color, rectangle } = componentState;
+  const {
+    positionable: { x, y },
+    displayContainerable: { displayContainer: rectangle },
+  } = context;
+  const { h, w, color } = componentState;
   const events = [];
 
   pushToRenderEvents(events, () => {

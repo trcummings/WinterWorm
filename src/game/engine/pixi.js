@@ -203,6 +203,7 @@ const makeAnimation =
     };
 
 export const makeAnimations = (
+  animation: Container,
   resources: loaders.Resource,
   resourceSpec: ResourceSpec
 ): SpriteAnimation => {
@@ -211,5 +212,5 @@ export const makeAnimations = (
   const animNames = Object.keys(animationSpecs);
   const animFn = makeAnimation(animationSpecs, textures, resourceName);
 
-  return animNames.reduce(animFn, { animation: new Container(), nameMap: {} });
+  return animNames.reduce(animFn, { animation, nameMap: {} });
 };

@@ -1,7 +1,5 @@
-import { OutlineFilter } from '@pixi/filter-outline';
-
 import { SELECT_INSPECTOR_ENTITY, DRAG_ENTITY } from 'App/actionTypes';
-import { PIXI_INTERACTION, RENDER_ACTION, GAME_TO_EDITOR, POSITION_CHANGE } from 'Engine/symbols';
+import { PIXI_INTERACTION, GAME_TO_EDITOR, POSITION_CHANGE } from 'Engine/symbols';
 import { makeEvent, getInboxEvents } from 'Engine/events';
 import { posToUnitPos } from 'Game/engine/pixi';
 
@@ -15,20 +13,7 @@ import {
   SELECT_ENTITY,
 } from 'Game/gameObjectSpecs/componentStateFns/interactable';
 
-import { getCurrentSprite } from './spriteRenderable';
-
-
 const getInteractions = getInboxEvents(PIXI_INTERACTION);
-
-const BLUE = 0x87CEFA;
-const GREEN = 0x99ff99;
-const RED = 0xff9999;
-
-const makeColorFilter = color => new OutlineFilter(2, color);
-
-const redFilter = makeColorFilter(RED);
-const greenFilter = makeColorFilter(GREEN);
-const blueFilter = makeColorFilter(BLUE);
 
 const getPos = (animation, event) => (
   posToUnitPos(event.data.getLocalPosition(animation))
@@ -36,7 +21,10 @@ const getPos = (animation, event) => (
 
 const computeInteractableState = (entityId, context) => (total, interaction) => {
   const [componentState, events] = total;
-  const { spriteRenderable: { animation }, positionable: pos } = context;
+  const {
+    displayContainerable: { displayContainer: animation },
+    positionable: pos,
+  } = context;
   const { over, touching, data, selected } = componentState;
 
   const [eventType, event] = interaction;
@@ -119,21 +107,6 @@ const computeInteractableState = (entityId, context) => (total, interaction) => 
   }
 };
 
-const applyFilters = spriteRenderable => ([componentState, events]) => {
-  const sprite = getCurrentSprite(spriteRenderable);
-  const { touching, over, selected } = componentState;
-  let setFiltersTo = null;
-
-  if (over && !touching) setFiltersTo = [blueFilter];
-  else if (touching) setFiltersTo = [greenFilter];
-  else if (!over && !touching && selected) setFiltersTo = [redFilter];
-  const filterEvent = makeEvent(() => {
-    sprite.filters = setFiltersTo;
-  }, [RENDER_ACTION]);
-
-  return [componentState, [...events, filterEvent]];
-};
-
 // we want to only take the latest pointer move event
 const filterDownPointerMoves = (inbox) => {
   const interactions = getInteractions(inbox);
@@ -151,14 +124,11 @@ const filterDownPointerMoves = (inbox) => {
 };
 
 export default (entityId, componentState, context) => {
-  const { inbox, spriteRenderable } = context;
+  const { inbox } = context;
   const interactions = filterDownPointerMoves(inbox);
 
   // compute state over each interaction
   const computeInteraction = computeInteractableState(entityId, context);
-  const setFilters = applyFilters(spriteRenderable);
 
-  return setFilters(
-    interactions.reduce(computeInteraction, [componentState, []])
-  );
+  return interactions.reduce(computeInteraction, [componentState, []]);
 };

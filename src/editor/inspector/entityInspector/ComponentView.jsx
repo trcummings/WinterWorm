@@ -1,12 +1,12 @@
 import React from 'react';
 
 import Positionable from './views/Positionable';
-// import { default as Spriteable } from './views/Spriteable';
 import { default as SpriteRenderable } from './views/SpriteRenderable';
 import { default as SquareGraphicRenderable } from './views/SquareGraphicRenderable';
+import { default as DisplayContainerable } from './views/DisplayContainerable';
 
 const POSITIONABLE = 'positionable';
-// const SPRITEABLE = 'spriteable';
+const DISPLAY_CONTAINERABLE = 'displayContainerable';
 const SPRITE_RENDERABLE = 'spriteRenderable';
 const SQUARE_GRAPHIC_RENDERABLE = 'squareGraphicRenderable';
 
@@ -25,10 +25,10 @@ const ComponentView = ({
       break;
     }
 
-    // case SPRITEABLE: {
-    //   ParamComponent = Spriteable;
-    //   break;
-    // }
+    case DISPLAY_CONTAINERABLE: {
+      ParamComponent = DisplayContainerable;
+      break;
+    }
 
     case SPRITE_RENDERABLE: {
       ParamComponent = SpriteRenderable;

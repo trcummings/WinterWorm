@@ -24,9 +24,16 @@ import componentStateFns from 'Game/gameObjectSpecs/componentStateFns';
 const INTERACTABLE = 'interactable';
 const CAMERAABLE = 'cameraable';
 const POSITIONABLE = 'positionable';
+const DISPLAY_CONTAINERABLE = 'displayContainerable';
+const SPRITE_RENDERABLE = 'spriteRenderable';
+const SQUARE_GRAPHIC_RENDERABLE = 'squareGraphicRenderable';
 
 const devRequirements = {
-  [INTERACTABLE]: [POSITIONABLE, 'spriteRenderable'],
+  [INTERACTABLE]: [
+    POSITIONABLE,
+    DISPLAY_CONTAINERABLE,
+    [SPRITE_RENDERABLE, SQUARE_GRAPHIC_RENDERABLE],
+  ],
   [CAMERAABLE]: [POSITIONABLE],
 };
 

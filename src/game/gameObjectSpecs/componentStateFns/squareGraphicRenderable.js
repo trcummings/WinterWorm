@@ -1,9 +1,8 @@
 // @flow
-import { Graphics } from 'pixi.js';
+import { Rectangle } from 'pixi.js';
 import { type GameState } from 'Game/engine/types';
 import { type EntityId } from 'Editor/types';
-import { addChildMut, unitsToPixels } from 'Game/engine/pixi';
-import { getCurrentSceneState } from 'Game/engine/ecs';
+import { unitsToPixels } from 'Game/engine/pixi';
 
 export const drawRectangle = ({ x, y, w, h, color, rectangle }) => {
   rectangle.clear();
@@ -27,14 +26,12 @@ export default (
   gameState: GameState
 ): [*, GameState] => {
   const { h, w, color } = componentState;
-  const { positionable: { x, y } } = context;
-
-  const { world } = getCurrentSceneState(gameState);
-
-  const rectangle = new Graphics();
+  const {
+    positionable: { x, y },
+    displayContainerable: { displayContainer: rectangle },
+  } = context;
 
   drawRectangle({ x, y, h, w, color, rectangle });
-  addChildMut(world, rectangle);
 
-  return [{ h, w, color, rectangle }, gameState];
+  return [{ h, w, color }, gameState];
 };

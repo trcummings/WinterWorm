@@ -5,6 +5,7 @@
     "frameChange"
   ],
   "context": [
+    "displayContainerable",
     "positionable"
   ],
   "contract": {

@@ -1,6 +1,7 @@
 import app from 'Backend/server';
 import { clone } from 'Backend/util';
 // import { models } from 'Backend/models';
+import { systemPartitions } from 'Game/gameObjectSpecs/partitions';
 
 import EventTypes from 'Backend/services/eventTypes';
 import Components from 'Backend/services/components';
@@ -8,46 +9,6 @@ import Systems from 'Backend/services/systems';
 import Scenes from 'Backend/services/scenes';
 import Entities from 'Backend/services/entities';
 import ComponentStates from 'Backend/services/componentStates';
-
-const systemPartitionList = {
-  pre: [
-    'fpsTickStart',
-    'ticker',
-    'meta',
-    'loader',
-    'input',
-    'pixiInteraction',
-    'interact',
-  ],
-  main: [
-    'inputControl',
-    'animate',
-    'move',
-    'accelerate',
-    'physics',
-    'position',
-    'world',
-    'camera',
-    'squareGraphicRender',
-    'spriteRender',
-    'render',
-  ],
-  post: [
-    'editorEventHandler',
-    'entityTrashcan',
-    'clearEventQueue',
-    'fpsTickEnd',
-  ],
-};
-
-const allPartitionKeys = Object.keys(systemPartitionList).reduce((total, key) => (
-  total.concat(systemPartitionList[key]
-    .map((label, orderIndex) => ({ label, orderIndex, partition: key })))
-), []);
-
-const systemPartitions = allPartitionKeys.reduce((total, { label, orderIndex, partition }) => (
-  Object.assign(total, { [label]: { partition, orderIndex } })
-), {});
 
 const serviceMap = {
   entities: Entities,

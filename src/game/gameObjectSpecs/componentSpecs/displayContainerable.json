@@ -1,0 +1,11 @@
+{
+  "label": "displayContainerable",
+  "contract": {
+    "displayType": {
+      "in": [
+        "graphics",
+        "sprite"
+      ]
+    }
+  }
+}

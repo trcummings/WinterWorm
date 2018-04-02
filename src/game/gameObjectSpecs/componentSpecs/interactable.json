@@ -4,7 +4,7 @@
     "pixiInteraction"
   ],
   "context": [
-    "spriteRenderable",
+    "displayContainerable",
     "positionable"
   ]
 }

@@ -17,12 +17,13 @@ const INITIAL_STATE = {
 
 export default (entityId, componentState, context, gameState) => {
   const {
-    spriteRenderable: { animation, currentAnimation, currentFrame, nameMap },
+    displayContainerable: { displayContainer: animation },
+    // spriteRenderable: { currentAnimation, currentFrame, nameMap },
   } = context;
 
-  const animIndex = nameMap[currentAnimation];
-  const sprites = animation.children[animIndex];
-  const sprite = sprites.children[currentFrame];
+  // const animIndex = nameMap[currentAnimation];
+  // const sprites = animation.children[animIndex];
+  // const sprite = sprites.children[currentFrame];
 
-  return [INITIAL_STATE, addInteraction(gameState, entityId, sprite)];
+  return [INITIAL_STATE, addInteraction(gameState, entityId, animation)];
 };

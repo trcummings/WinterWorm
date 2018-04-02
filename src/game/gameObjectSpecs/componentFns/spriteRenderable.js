@@ -50,8 +50,12 @@ export const getCurrentSprite = (animateable) => {
 // a frame is a texture
 
 export default (entityId, componentState, context) => {
-  const { inbox, positionable: { x, y } = {} } = context;
-  const { nameMap, animation, currentAnimation, currentFrame } = componentState;
+  const {
+    inbox,
+    displayContainerable: { displayContainer: animation },
+    positionable: { x, y } = {},
+  } = context;
+  const { nameMap, currentAnimation, currentFrame } = componentState;
 
   const animChange = getAnimChange(inbox);
   const frameChange = getFrameChange(inbox);
