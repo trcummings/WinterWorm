@@ -1,0 +1,21 @@
+{
+  "label": "squareGraphicRenderable",
+  "contract": {
+    "h": {
+      "type": "number",
+      "defaultsTo": 1
+    },
+    "w": {
+      "type": "number",
+      "defaultsTo": 1
+    },
+    "color": {
+      "type": "hex",
+      "defaultsTo": "#000000"
+    }
+  },
+  "context": [
+    "displayContainerable",
+    "positionable"
+  ]
+}

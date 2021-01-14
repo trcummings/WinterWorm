@@ -1,0 +1,10 @@
+{
+  "label": "inputControlable",
+  "contract": {
+    "inputEventMap": {
+      "type": "object",
+      "defaultsTo": {}
+    }
+  },
+  "subscriptions": ["keyboardInput"]
+}

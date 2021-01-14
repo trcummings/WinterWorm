@@ -1,0 +1,15 @@
+{
+  "label": "moveable",
+  "contract": {
+    "vx": {
+      "type": "number",
+      "defaultsTo": 0
+    },
+    "vy": {
+      "type": "number",
+      "defaultsTo": 0
+    }
+  },
+  "context": ["accelerateable"],
+  "subscriptions": ["timeTick"]
+}

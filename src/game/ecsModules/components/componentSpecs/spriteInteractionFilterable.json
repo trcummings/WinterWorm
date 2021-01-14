@@ -1,0 +1,8 @@
+{
+  "label": "spriteInteractionFilterable",
+  "context": [
+    "interactable",
+    "spriteRenderable",
+    "displayContainerable"
+  ]
+}
